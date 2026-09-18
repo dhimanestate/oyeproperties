@@ -156,6 +156,32 @@ export default function UserDashboard({
             </div>
           </div>
           <button
+            id="btn-dashboard-logout"
+            onClick={() => { onLogout?.(); onClose(); }}
+            style={{
+              background: '#FFF0F1',
+              color: 'var(--oye-red)',
+              border: '1px solid rgba(231,29,43,0.25)',
+              borderRadius: 'var(--radius-full)',
+              padding: '6px 14px',
+              fontSize: '12px',
+              fontWeight: 600,
+              cursor: 'pointer',
+              display: 'flex',
+              alignItems: 'center',
+              gap: '6px',
+              flexShrink: 0,
+              fontFamily: 'var(--font-poppins)',
+              transition: 'all 0.18s ease',
+            }}
+            title="Logout of your account"
+            onMouseEnter={e => { e.currentTarget.style.background = 'var(--oye-red)'; e.currentTarget.style.color = '#fff'; }}
+            onMouseLeave={e => { e.currentTarget.style.background = '#FFF0F1'; e.currentTarget.style.color = 'var(--oye-red)'; }}
+          >
+            <LogOut size={13} />
+            <span>Logout</span>
+          </button>
+          <button
             onClick={onClose}
             style={{ background: '#F5F5F5', border: 'none', borderRadius: '50%', width: '32px', height: '32px', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer', flexShrink: 0 }}
           >

@@ -131,6 +131,20 @@ export default function App() {
           window.history.replaceState({}, '', url.toString());
         });
     }
+
+    const authError = params.get('auth_error');
+    if (authError) {
+      console.warn('Authentication error:', authError);
+      setAuthRedirectReason(
+        authError === 'auth_failed'
+          ? 'Google sign-in failed: The GOOGLE_CLIENT_SECRET in server/.env is invalid (it must be the GOCSPX-... secret from Google Cloud Console, not the Client ID).'
+          : 'Google sign-in could not be completed. Please try again or use email sign-in.'
+      );
+      setIsAuthModalOpen(true);
+      const url = new URL(window.location.href);
+      url.searchParams.delete('auth_error');
+      window.history.replaceState({}, '', url.toString());
+    }
   }, []);
 
   // Initial Auto-Location Detection on App Load with GPS Precision
@@ -335,15 +349,66 @@ export default function App() {
     }
   };
 
-  const handleLogout = () => {
+  const handleLogout = async () => {
+    const savedToken = localStorage.getItem(TOKEN_KEY);
+
+    // 1. Reset all authenticated & session user React states
     setCurrentUser(null);
+    setWishlist([]);
+    setComparedProperties([]);
+    setIsDashboardOpen(false);
+    setIsAuthModalOpen(false);
+
+    // 2. Clear all auth, wishlist, and profile data from localStorage
     try {
       localStorage.removeItem('lumiere_user');
       localStorage.removeItem(TOKEN_KEY);
+      localStorage.removeItem('lumiere_guest_wishlist');
+      Object.keys(localStorage).forEach(key => {
+        if (key.startsWith('oye_') || key.startsWith('lumiere_')) {
+          localStorage.removeItem(key);
+        }
+      });
     } catch (e) {
-      console.error(e);
+      console.error('LocalStorage clear error:', e);
     }
-    setIsDashboardOpen(false);
+
+    // 3. Clear sessionStorage completely
+    try {
+      sessionStorage.clear();
+    } catch (e) {
+      console.error('SessionStorage clear error:', e);
+    }
+
+    // 4. Clear browser CacheStorage if supported
+    try {
+      if ('caches' in window) {
+        const cacheKeys = await caches.keys();
+        await Promise.all(cacheKeys.map(k => caches.delete(k)));
+      }
+    } catch (e) {
+      console.warn('CacheStorage clear error:', e);
+    }
+
+    // 5. Notify backend to destroy session & clear auth cookies
+    try {
+      await fetch(`${API_BASE}/api/auth/logout`, {
+        method: 'POST',
+        credentials: 'include',
+        headers: {
+          'Content-Type': 'application/json',
+          ...(savedToken ? { 'Authorization': `Bearer ${savedToken}` } : {})
+        }
+      });
+    } catch (e) {
+      // Ignore network errors on logout
+    }
+
+    // 6. Clean URL from any token or error query parameters
+    try {
+      const cleanUrl = window.location.origin + window.location.pathname;
+      window.history.replaceState({}, '', cleanUrl);
+    } catch (e) {}
   };
 
   const handlePropertyCreated = (newProperty) => {

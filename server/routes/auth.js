@@ -379,9 +379,23 @@ router.get('/me', requireAuth, (req, res) => {
   res.json({ success: true, user: req.user });
 });
 
-// Logout
+// Complete server-side logout & session clear
 router.post('/logout', (req, res) => {
-  res.json({ success: true, message: 'Logged out successfully.' });
+  try {
+    if (typeof req.logout === 'function') {
+      req.logout(() => {});
+    }
+    if (req.session) {
+      req.session.destroy(() => {});
+    }
+    res.clearCookie('connect.sid', { path: '/' });
+    res.clearCookie('oye_auth_token', { path: '/' });
+    res.clearCookie('session', { path: '/' });
+    return res.json({ success: true, message: 'Completely logged out, session destroyed, and cookies cleared.' });
+  } catch (err) {
+    console.error('Logout error:', err);
+    return res.json({ success: true, message: 'Logged out.' });
+  }
 });
 
 export default router;

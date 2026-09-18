@@ -347,95 +347,135 @@ export default function Navbar({
         </button>
 
         {/* Profile / Auth (Desktop) */}
-        <div style={{ position: 'relative' }} className="hidden-mobile">
+        <div className="hidden-mobile" style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
           {currentUser ? (
-            <div>
+            <>
+              <div style={{ position: 'relative' }}>
+                <button
+                  id="btn-navbar-profile"
+                  onClick={() => setProfileMenuOpen(!profileMenuOpen)}
+                  style={{
+                    background: '#F5F5F5',
+                    border: '1px solid #EDEDED',
+                    borderRadius: '9999px',
+                    padding: '3px 12px 3px 3px',
+                    display: 'flex',
+                    alignItems: 'center',
+                    gap: '8px',
+                    cursor: 'pointer',
+                    transition: 'all 0.18s ease',
+                  }}
+                  onMouseEnter={e => { e.currentTarget.style.borderColor = '#E71D2B'; }}
+                  onMouseLeave={e => { e.currentTarget.style.borderColor = '#EDEDED'; }}
+                >
+                  <img
+                    src={currentUser.avatar}
+                    alt={currentUser.name}
+                    style={{ width: '28px', height: '28px', borderRadius: '50%', objectFit: 'cover' }}
+                  />
+                  <div style={{ textAlign: 'left' }}>
+                    <div style={{ fontSize: '12px', fontWeight: 600, color: '#1F1F1F', lineHeight: 1.1, fontFamily: "'Poppins', sans-serif" }}>
+                      {currentUser.name}
+                    </div>
+                    <div style={{ fontSize: '10px', color: '#16a34a', fontWeight: 500, fontFamily: "'Poppins', sans-serif" }}>
+                      {currentUser.role}
+                    </div>
+                  </div>
+                  <ChevronDown size={12} color="#999" />
+                </button>
+
+                {profileMenuOpen && (
+                  <div style={{
+                    position: 'absolute',
+                    top: '100%',
+                    right: 0,
+                    width: '210px',
+                    background: '#ffffff',
+                    border: '1px solid #EDEDED',
+                    borderRadius: '14px',
+                    boxShadow: '0 12px 40px rgba(0,0,0,0.12)',
+                    padding: '8px',
+                    marginTop: '6px',
+                    zIndex: 60,
+                  }}>
+                    <div
+                      id="btn-navbar-dashboard"
+                      onClick={() => { onOpenDashboard?.(); setProfileMenuOpen(false); }}
+                      style={{ ...DROPDOWN_ITEM_STYLE, color: '#1F1F1F', fontWeight: 600 }}
+                      onMouseEnter={e => { e.currentTarget.style.background = '#F5F5F5'; }}
+                      onMouseLeave={e => { e.currentTarget.style.background = 'transparent'; }}
+                    >
+                      <span style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                        <User size={15} color="#E71D2B" />
+                        My Dashboard
+                      </span>
+                    </div>
+                    <div
+                      id="btn-navbar-add-prop"
+                      onClick={() => { onOpenListProperty(); setProfileMenuOpen(false); }}
+                      style={{ ...DROPDOWN_ITEM_STYLE, color: '#1F1F1F' }}
+                      onMouseEnter={e => { e.currentTarget.style.background = '#F5F5F5'; }}
+                      onMouseLeave={e => { e.currentTarget.style.background = 'transparent'; }}
+                    >
+                      <span style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                        <PlusCircle size={15} color="#555" />
+                        Add New Property
+                      </span>
+                    </div>
+                    <div style={{ height: '1px', background: '#EDEDED', margin: '4px 0' }} />
+                    <div
+                      id="btn-navbar-signout"
+                      onClick={() => { onLogout(); setProfileMenuOpen(false); }}
+                      style={{ ...DROPDOWN_ITEM_STYLE, color: '#E71D2B' }}
+                      onMouseEnter={e => { e.currentTarget.style.background = '#FFF0F1'; }}
+                      onMouseLeave={e => { e.currentTarget.style.background = 'transparent'; }}
+                    >
+                      <span style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                        <LogOut size={15} />
+                        Sign Out
+                      </span>
+                    </div>
+                  </div>
+                )}
+              </div>
+
+              {/* Standalone Direct Logout Button */}
               <button
-                onClick={() => setProfileMenuOpen(!profileMenuOpen)}
+                id="btn-navbar-direct-logout"
+                onClick={onLogout}
+                title="Logout of your account"
                 style={{
-                  background: '#F5F5F5',
-                  border: '1px solid #EDEDED',
+                  background: '#FFF0F1',
+                  color: '#E71D2B',
+                  border: '1.5px solid #FFD0D4',
                   borderRadius: '9999px',
-                  padding: '3px 12px 3px 3px',
+                  height: '34px',
+                  padding: '0 12px',
+                  fontSize: '12px',
+                  fontWeight: 600,
+                  fontFamily: "'Poppins', sans-serif",
+                  cursor: 'pointer',
                   display: 'flex',
                   alignItems: 'center',
-                  gap: '8px',
-                  cursor: 'pointer',
+                  gap: '6px',
                   transition: 'all 0.18s ease',
+                  flexShrink: 0,
                 }}
-                onMouseEnter={e => { e.currentTarget.style.borderColor = '#E71D2B'; }}
-                onMouseLeave={e => { e.currentTarget.style.borderColor = '#EDEDED'; }}
+                onMouseEnter={e => {
+                  e.currentTarget.style.background = '#E71D2B';
+                  e.currentTarget.style.color = '#ffffff';
+                  e.currentTarget.style.borderColor = '#E71D2B';
+                }}
+                onMouseLeave={e => {
+                  e.currentTarget.style.background = '#FFF0F1';
+                  e.currentTarget.style.color = '#E71D2B';
+                  e.currentTarget.style.borderColor = '#FFD0D4';
+                }}
               >
-                <img
-                  src={currentUser.avatar}
-                  alt={currentUser.name}
-                  style={{ width: '28px', height: '28px', borderRadius: '50%', objectFit: 'cover' }}
-                />
-                <div style={{ textAlign: 'left' }}>
-                  <div style={{ fontSize: '12px', fontWeight: 600, color: '#1F1F1F', lineHeight: 1.1, fontFamily: "'Poppins', sans-serif" }}>
-                    {currentUser.name}
-                  </div>
-                  <div style={{ fontSize: '10px', color: '#16a34a', fontWeight: 500, fontFamily: "'Poppins', sans-serif" }}>
-                    {currentUser.role}
-                  </div>
-                </div>
-                <ChevronDown size={12} color="#999" />
+                <LogOut size={13} />
+                <span>Logout</span>
               </button>
-
-              {profileMenuOpen && (
-                <div style={{
-                  position: 'absolute',
-                  top: '100%',
-                  right: 0,
-                  width: '210px',
-                  background: '#ffffff',
-                  border: '1px solid #EDEDED',
-                  borderRadius: '14px',
-                  boxShadow: '0 12px 40px rgba(0,0,0,0.12)',
-                  padding: '8px',
-                  marginTop: '6px',
-                  zIndex: 60,
-                }}>
-                  <div
-                    id="btn-navbar-dashboard"
-                    onClick={() => { onOpenDashboard?.(); setProfileMenuOpen(false); }}
-                    style={{ ...DROPDOWN_ITEM_STYLE, color: '#1F1F1F', fontWeight: 600 }}
-                    onMouseEnter={e => { e.currentTarget.style.background = '#F5F5F5'; }}
-                    onMouseLeave={e => { e.currentTarget.style.background = 'transparent'; }}
-                  >
-                    <span style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-                      <User size={15} color="#E71D2B" />
-                      My Dashboard
-                    </span>
-                  </div>
-                  <div
-                    id="btn-navbar-add-prop"
-                    onClick={() => { onOpenListProperty(); setProfileMenuOpen(false); }}
-                    style={{ ...DROPDOWN_ITEM_STYLE, color: '#1F1F1F' }}
-                    onMouseEnter={e => { e.currentTarget.style.background = '#F5F5F5'; }}
-                    onMouseLeave={e => { e.currentTarget.style.background = 'transparent'; }}
-                  >
-                    <span style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-                      <PlusCircle size={15} color="#555" />
-                      Add New Property
-                    </span>
-                  </div>
-                  <div style={{ height: '1px', background: '#EDEDED', margin: '4px 0' }} />
-                  <div
-                    id="btn-navbar-signout"
-                    onClick={() => { onLogout(); setProfileMenuOpen(false); }}
-                    style={{ ...DROPDOWN_ITEM_STYLE, color: '#E71D2B' }}
-                    onMouseEnter={e => { e.currentTarget.style.background = '#FFF0F1'; }}
-                    onMouseLeave={e => { e.currentTarget.style.background = 'transparent'; }}
-                  >
-                    <span style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-                      <LogOut size={15} />
-                      Sign Out
-                    </span>
-                  </div>
-                </div>
-              )}
-            </div>
+            </>
           ) : (
             <button
               id="btn-navbar-auth"
