@@ -1053,13 +1053,60 @@ html, body {
     padding: 7px 12px;
   }
 
-  .top-filter-text {
-    display: none;
+  .top-search-filter-inner {
+    display: flex !important;
+    align-items: center !important;
+    justify-content: space-between !important;
+    gap: 8px !important;
+    width: 100% !important;
+  }
+
+  .top-search-input-wrap {
+    flex: 1 !important;
+    min-width: 0 !important;
+    width: auto !important;
+    max-width: none !important;
+  }
+
+  .top-search-input {
+    height: 38px;
+    font-size: 13px;
+    padding: 0 30px 0 34px;
+  }
+
+  .top-search-icon {
+    left: 11px;
   }
 
   .top-filter-btn {
-    padding: 0 10px;
+    height: 38px;
+    width: 38px;
+    min-width: 38px;
+    padding: 0 !important;
+    display: inline-flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    flex-shrink: 0 !important;
+    position: relative;
+    border-radius: var(--radius-full);
   }
+
+  .top-filter-text {
+    display: none !important;
+  }
+
+  .top-filter-badge {
+    position: absolute;
+    top: -4px;
+    right: -4px;
+    min-width: 17px;
+    height: 17px;
+    font-size: 10px;
+    border-radius: 9px;
+    padding: 0 4px;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.25);
+  }
+
 
   .reels-wrapper {
     height: calc(100vh - 112px - 64px);
