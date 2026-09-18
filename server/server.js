@@ -13,7 +13,21 @@ const PORT = process.env.PORT || 5001;
 
 app.use(cors());
 app.use(express.json());
-app.use(morgan('dev'));
+
+// Skip logging for keep-alive pings to keep logs clean and minimize I/O overhead
+app.use(morgan('dev', {
+  skip: (req) => req.path === '/api/ping'
+}));
+
+// Ultra-minimal keep-alive endpoints (Zero DB/file I/O, near-instant response)
+app.get('/api/ping', (req, res) => {
+  res.status(200).send('pong');
+});
+
+app.get('/api/health', (req, res) => {
+  res.status(200).json({ status: 'ok', uptime: Math.floor(process.uptime()), timestamp: Date.now() });
+});
+
 
 // Load database
 const propertiesPath = path.join(__dirname, 'data', 'properties.json');
@@ -563,5 +577,26 @@ if (fs.existsSync(clientDistPath)) {
 
 app.listen(PORT, () => {
   console.log(`Oye Properties Real Estate API server running on http://localhost:${PORT}`);
+
+  // Automated Keep-Alive pinger to prevent Render Free Tier spin-down (every 4 minutes)
+  // Render automatically injects RENDER_EXTERNAL_URL into environment variables for web services.
+  const externalUrl = process.env.RENDER_EXTERNAL_URL || process.env.SERVER_URL || process.env.KEEP_ALIVE_URL;
+  if (externalUrl) {
+    const pingTarget = `${externalUrl.replace(/\/+$/, '')}/api/ping`;
+    console.log(`[Render Keep-Alive] Initialized self-ping for ${pingTarget} (interval: 4 mins)`);
+
+    setInterval(async () => {
+      try {
+        const response = await fetch(pingTarget);
+        if (!response.ok) {
+          console.warn(`[Render Keep-Alive] Ping returned status ${response.status}`);
+        }
+      } catch (err) {
+        // Silently log without crashing or overloading
+        console.warn(`[Render Keep-Alive] Ping error: ${err.message}`);
+      }
+    }, 4 * 60 * 1000); // 4 minutes (well within Render's 15-minute idle threshold)
+  }
 });
+
 
