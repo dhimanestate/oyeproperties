@@ -214,7 +214,7 @@ export default function Navbar({
         </button>
 
         {/* Desktop City Pill */}
-        <button
+        <div
           onClick={onOpenLocationModal}
           className="hidden-mobile"
           style={{
@@ -233,14 +233,19 @@ export default function Navbar({
             cursor: 'pointer',
             flexShrink: 0,
             transition: 'all 0.18s ease',
+            userSelect: 'none',
           }}
           onMouseEnter={e => { e.currentTarget.style.background = '#FFF0F1'; e.currentTarget.style.borderColor = '#E71D2B'; }}
           onMouseLeave={e => { e.currentTarget.style.background = '#F5F5F5'; e.currentTarget.style.borderColor = '#EDEDED'; }}
           title="Change City"
+          role="button"
+          tabIndex={0}
+          onKeyDown={e => { if (e.key === 'Enter' || e.key === ' ') onOpenLocationModal(); }}
         >
           <MapPin size={12} color="#E71D2B" />
-          {currentCity === 'all' ? 'All Cities' : currentCity || 'Mumbai'}
+          <span>{currentCity === 'all' ? 'All Cities' : currentCity || 'Mumbai'}</span>
           <button
+            type="button"
             onClick={e => { e.stopPropagation(); onDetectGPS(); }}
             disabled={isDetectingGPS}
             style={{
@@ -256,7 +261,7 @@ export default function Navbar({
           >
             <RotateCw size={11} className={isDetectingGPS ? 'animate-spin' : ''} />
           </button>
-        </button>
+        </div>
 
         {/* AI Vibe Search (Desktop) */}
         <button
