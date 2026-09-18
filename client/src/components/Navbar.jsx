@@ -1,23 +1,52 @@
 import React, { useState } from 'react';
-import { 
-  Zap, 
-  LayoutGrid, 
-  MapPin, 
-  Heart, 
+import {
+  Zap,
+  LayoutGrid,
+  MapPin,
+  Heart,
   Sparkles,
-  Search,
   ChevronDown,
   PlusCircle,
   User,
-  Share2,
   RotateCw,
   LogOut,
-  Compass,
-  Building,
   CheckCircle2,
   CalendarCheck
 } from 'lucide-react';
 import OyeLogo from './OyeLogo';
+
+const NAV_LINK_STYLE = {
+  background: 'transparent',
+  border: 'none',
+  color: '#555555',
+  fontSize: '13.5px',
+  fontWeight: 500,
+  fontFamily: "'Poppins', sans-serif",
+  padding: '8px 12px',
+  cursor: 'pointer',
+  display: 'flex',
+  alignItems: 'center',
+  gap: '4px',
+  position: 'relative',
+  transition: 'color 0.18s ease',
+  letterSpacing: '0.01em',
+  whiteSpace: 'nowrap',
+};
+
+const DROPDOWN_ITEM_STYLE = {
+  padding: '9px 12px',
+  borderRadius: '8px',
+  fontSize: '13px',
+  fontWeight: 500,
+  fontFamily: "'Poppins', sans-serif",
+  color: '#555555',
+  background: 'transparent',
+  cursor: 'pointer',
+  display: 'flex',
+  alignItems: 'center',
+  justifyContent: 'space-between',
+  transition: 'all 0.15s ease',
+};
 
 export default function Navbar({
   currentCity,
@@ -36,394 +65,300 @@ export default function Navbar({
   isDetectingGPS
 }) {
   const [exploreOpen, setExploreOpen] = useState(false);
-  const [servicesOpen, setServicesOpen] = useState(false);
   const [profileMenuOpen, setProfileMenuOpen] = useState(false);
 
-  const handleShareWhatsApp = () => {
-    const text = encodeURIComponent(
-      `🌟 Explore Oye Properties — India & Dubai's premier luxury real estate catalogue and vertical video reel portal:\n${window.location.origin}`
-    );
-    window.open(`https://wa.me/?text=${text}`, '_blank');
-  };
+  const cities = ['All Cities', 'Mumbai', 'Delhi NCR', 'Dubai', 'Goa', 'Bangalore', 'Hyderabad'];
 
   return (
     <header className="navbar-header">
-      {/* Left: Brand Logo & Desktop Dropdowns */}
-      <div style={{ display: 'flex', alignItems: 'center', gap: '16px', minWidth: 0 }}>
-        {/* Brand Logo */}
-        <div 
-          onClick={() => setViewMode('reels')}
-          style={{ cursor: 'pointer' }}
-        >
+      {/* ─── LEFT: Logo + Nav Links ─── */}
+      <div style={{ display: 'flex', alignItems: 'center', gap: '24px', minWidth: 0 }}>
+
+        {/* Logo */}
+        <div onClick={() => setViewMode('reels')} style={{ cursor: 'pointer', flexShrink: 0 }}>
           <OyeLogo />
         </div>
 
-        {/* Dropdown 1: Explore Menu (Desktop Only) */}
-        <div 
-          style={{ position: 'relative' }} 
-          className="hidden-mobile"
-          onMouseEnter={() => setExploreOpen(true)}
-          onMouseLeave={() => setExploreOpen(false)}
-        >
-          <button
-            style={{
-              background: 'transparent',
-              border: 'none',
-              color: 'var(--text-secondary)',
-              fontSize: '13px',
-              fontWeight: 600,
-              padding: '8px 12px',
-              cursor: 'pointer',
-              display: 'flex',
-              alignItems: 'center',
-              gap: '4px'
-            }}
-          >
-            Explore Markets <ChevronDown size={14} />
-          </button>
+        {/* Desktop Nav Links */}
+        <nav className="hidden-mobile" style={{ display: 'flex', alignItems: 'center', gap: '2px' }}>
 
-          {exploreOpen && (
-            <div style={{
-              position: 'absolute',
-              top: '100%',
-              left: 0,
-              width: '240px',
-              background: '#ffffff',
-              border: '1px solid var(--border-subtle)',
-              borderRadius: 'var(--radius-md)',
-              boxShadow: 'var(--shadow-lg)',
-              padding: '12px',
-              zIndex: 60
-            }}>
-              <div style={{ fontSize: '11px', fontWeight: 700, color: 'var(--text-muted)', textTransform: 'uppercase', marginBottom: '8px', paddingLeft: '8px' }}>
-                Prime Markets
-              </div>
-              {['All Cities', 'Mumbai', 'Delhi NCR', 'Dubai', 'Goa', 'Bangalore', 'Hyderabad'].map(c => (
-                <div
-                  key={c}
-                  onClick={() => {
-                    onSelectCity(c === 'All Cities' ? 'all' : c);
-                    setExploreOpen(false);
-                  }}
-                  style={{
-                    padding: '8px 10px',
-                    borderRadius: '6px',
-                    fontSize: '13px',
-                    fontWeight: currentCity === c ? 700 : 500,
-                    color: currentCity === c ? 'var(--accent-primary)' : 'var(--text-secondary)',
-                    background: currentCity === c ? 'var(--bg-secondary)' : 'transparent',
-                    cursor: 'pointer',
-                    display: 'flex',
-                    alignItems: 'center',
-                    justifyContent: 'space-between'
-                  }}
-                  onMouseEnter={e => e.currentTarget.style.background = 'var(--bg-secondary)'}
-                  onMouseLeave={e => {
-                    if (currentCity !== c) e.currentTarget.style.background = 'transparent';
-                  }}
-                >
-                  <span>{c}</span>
-                  {currentCity === c && <CheckCircle2 size={13} color="var(--accent-primary)" />}
+          {/* Markets dropdown */}
+          <div
+            style={{ position: 'relative' }}
+            onMouseEnter={() => setExploreOpen(true)}
+            onMouseLeave={() => setExploreOpen(false)}
+          >
+            <button
+              style={NAV_LINK_STYLE}
+              onMouseEnter={e => e.currentTarget.style.color = '#E71D2B'}
+              onMouseLeave={e => e.currentTarget.style.color = '#555555'}
+            >
+              Markets <ChevronDown size={13} />
+            </button>
+            {exploreOpen && (
+              <div style={{
+                position: 'absolute',
+                top: 'calc(100% + 4px)',
+                left: 0,
+                width: '220px',
+                background: '#ffffff',
+                border: '1px solid #EDEDED',
+                borderRadius: '14px',
+                boxShadow: '0 12px 40px rgba(0,0,0,0.10)',
+                padding: '10px',
+                zIndex: 60,
+              }}>
+                <div style={{ fontSize: '10px', fontWeight: 600, color: '#999', textTransform: 'uppercase', letterSpacing: '0.12em', marginBottom: '6px', padding: '0 6px' }}>
+                  Select City
                 </div>
-              ))}
-            </div>
-          )}
-        </div>
+                {cities.map(c => (
+                  <div
+                    key={c}
+                    onClick={() => { onSelectCity(c === 'All Cities' ? 'all' : c); setExploreOpen(false); }}
+                    style={{
+                      ...DROPDOWN_ITEM_STYLE,
+                      color: (currentCity === c || (c === 'All Cities' && currentCity === 'all')) ? '#E71D2B' : '#555555',
+                      fontWeight: (currentCity === c || (c === 'All Cities' && currentCity === 'all')) ? 600 : 500,
+                    }}
+                    onMouseEnter={e => { e.currentTarget.style.background = '#FFF0F1'; e.currentTarget.style.color = '#E71D2B'; }}
+                    onMouseLeave={e => {
+                      const isActive = currentCity === c || (c === 'All Cities' && currentCity === 'all');
+                      e.currentTarget.style.background = 'transparent';
+                      e.currentTarget.style.color = isActive ? '#E71D2B' : '#555555';
+                    }}
+                  >
+                    <span>{c}</span>
+                    {(currentCity === c || (c === 'All Cities' && currentCity === 'all')) && (
+                      <CheckCircle2 size={13} color="#E71D2B" />
+                    )}
+                  </div>
+                ))}
+              </div>
+            )}
+          </div>
 
-        {/* Dropdown 2: Services Menu (Desktop Only) */}
-        <div 
-          style={{ position: 'relative' }} 
-          className="hidden-mobile"
-          onMouseEnter={() => setServicesOpen(true)}
-          onMouseLeave={() => setServicesOpen(false)}
-        >
+          {/* Instants link */}
           <button
+            id="view-mode-reels"
+            onClick={() => setViewMode('reels')}
             style={{
-              background: 'transparent',
-              border: 'none',
-              color: 'var(--text-secondary)',
-              fontSize: '13px',
-              fontWeight: 600,
-              padding: '8px 12px',
-              cursor: 'pointer',
-              display: 'flex',
-              alignItems: 'center',
-              gap: '4px'
+              ...NAV_LINK_STYLE,
+              color: viewMode === 'reels' ? '#E71D2B' : '#555555',
+              fontWeight: viewMode === 'reels' ? 600 : 500,
             }}
+            onMouseEnter={e => e.currentTarget.style.color = '#E71D2B'}
+            onMouseLeave={e => { if (viewMode !== 'reels') e.currentTarget.style.color = '#555555'; }}
           >
-            Services <ChevronDown size={14} />
+            <Zap size={14} />
+            Instants
           </button>
 
-          {servicesOpen && (
-            <div style={{
-              position: 'absolute',
-              top: '100%',
-              left: 0,
-              width: '260px',
-              background: '#ffffff',
-              border: '1px solid var(--border-subtle)',
-              borderRadius: 'var(--radius-md)',
-              boxShadow: 'var(--shadow-lg)',
-              padding: '12px',
-              zIndex: 60
-            }}>
-              <div 
-                onClick={() => { setViewMode('catalogue'); setServicesOpen(false); }}
-                style={{ padding: '8px 10px', borderRadius: '6px', cursor: 'pointer' }}
-                onMouseEnter={e => e.currentTarget.style.background = 'var(--bg-secondary)'}
-                onMouseLeave={e => e.currentTarget.style.background = 'transparent'}
-              >
-                <div style={{ fontSize: '13px', fontWeight: 700, color: 'var(--text-primary)' }}>Full Inventory Portfolio</div>
-                <div style={{ fontSize: '11px', color: 'var(--text-muted)' }}>Browse 16+ luxury penthouses & estates</div>
-              </div>
-
-              <div 
-                onClick={() => { onOpenAISearch(); setServicesOpen(false); }}
-                style={{ padding: '8px 10px', borderRadius: '6px', cursor: 'pointer' }}
-                onMouseEnter={e => e.currentTarget.style.background = 'var(--bg-secondary)'}
-                onMouseLeave={e => e.currentTarget.style.background = 'transparent'}
-              >
-                <div style={{ fontSize: '13px', fontWeight: 700, color: 'var(--text-primary)' }}>AI Vibe Search</div>
-                <div style={{ fontSize: '11px', color: 'var(--text-muted)' }}>Find residences matching your lifestyle</div>
-              </div>
-
-              <div 
-                onClick={() => { onOpenListProperty(); setServicesOpen(false); }}
-                style={{ padding: '8px 10px', borderRadius: '6px', cursor: 'pointer' }}
-                onMouseEnter={e => e.currentTarget.style.background = 'var(--bg-secondary)'}
-                onMouseLeave={e => e.currentTarget.style.background = 'transparent'}
-              >
-                <div style={{ fontSize: '13px', fontWeight: 700, color: 'var(--accent-primary)' }}>List Your Estate</div>
-                <div style={{ fontSize: '11px', color: 'var(--text-muted)' }}>Direct owner & broker listing engine</div>
-              </div>
-            </div>
-          )}
-        </div>
-
-        {/* Real-time GPS Location Fetcher (Desktop Only) */}
-        <div 
-          className="hidden-mobile"
-          style={{
-            display: 'flex',
-            alignItems: 'center',
-            gap: '4px',
-            background: 'var(--bg-secondary)',
-            border: '1px solid var(--border-subtle)',
-            borderRadius: 'var(--radius-full)',
-            padding: '4px 6px 4px 12px'
-          }}
-        >
-          <span style={{
-            width: '8px',
-            height: '8px',
-            borderRadius: '50%',
-            background: 'var(--accent-emerald)'
-          }} className="live-pulse" />
+          {/* Catalogue link */}
           <button
-            onClick={onOpenLocationModal}
+            id="view-mode-catalogue"
+            onClick={() => setViewMode('catalogue')}
             style={{
-              background: 'transparent',
-              border: 'none',
-              fontSize: '13px',
-              fontWeight: 700,
-              color: 'var(--text-primary)',
-              cursor: 'pointer',
-              display: 'flex',
-              alignItems: 'center',
-              gap: '4px',
-              padding: '2px 4px'
+              ...NAV_LINK_STYLE,
+              color: viewMode === 'catalogue' ? '#E71D2B' : '#555555',
+              fontWeight: viewMode === 'catalogue' ? 600 : 500,
             }}
+            onMouseEnter={e => e.currentTarget.style.color = '#E71D2B'}
+            onMouseLeave={e => { if (viewMode !== 'catalogue') e.currentTarget.style.color = '#555555'; }}
           >
-            <MapPin size={13} color="#2563eb" />
-            <span>{currentCity || 'Mumbai'}</span>
+            <LayoutGrid size={14} />
+            Catalogue
           </button>
-          
+
           <button
-            onClick={onDetectGPS}
-            disabled={isDetectingGPS}
-            style={{
-              background: '#ffffff',
-              border: '1px solid var(--border-subtle)',
-              borderRadius: '50%',
-              width: '24px',
-              height: '24px',
-              display: 'flex',
-              alignItems: 'center',
-              justifyContent: 'center',
-              cursor: 'pointer',
-              color: 'var(--text-muted)',
-              transition: 'all 0.2s ease'
-            }}
-            title="Real-time GPS Location Fetch"
+            style={NAV_LINK_STYLE}
+            onMouseEnter={e => e.currentTarget.style.color = '#E71D2B'}
+            onMouseLeave={e => e.currentTarget.style.color = '#555555'}
           >
-            <RotateCw size={11} className={isDetectingGPS ? 'animate-spin' : ''} />
+            <CalendarCheck size={14} />
+            Book Visit
           </button>
-        </div>
+        </nav>
       </div>
 
-      {/* Center: View Switcher (Desktop Only) */}
-      <div 
-        className="hidden-mobile"
-        style={{
-          background: 'var(--bg-secondary)',
-          padding: '4px',
-          borderRadius: 'var(--radius-full)',
-          border: '1px solid var(--border-subtle)',
-          display: 'flex',
-          alignItems: 'center',
-          gap: '4px'
-        }}
-      >
-        <button
-          id="view-mode-reels"
-          onClick={() => setViewMode('reels')}
-          style={{
-            background: viewMode === 'reels' ? 'var(--accent-primary)' : 'transparent',
-            color: viewMode === 'reels' ? '#ffffff' : 'var(--text-muted)',
-            fontWeight: 700,
-            fontSize: '13px',
-            padding: '7px 16px',
-            borderRadius: 'var(--radius-full)',
-            border: 'none',
-            cursor: 'pointer',
-            display: 'flex',
-            alignItems: 'center',
-            gap: '6px',
-            transition: 'all 0.2s ease',
-            boxShadow: viewMode === 'reels' ? 'var(--shadow-sm)' : 'none'
-          }}
-        >
-          <Zap size={15} />
-          Instants
-        </button>
+      {/* ─── RIGHT: Actions Cluster ─── */}
+      <div style={{ display: 'flex', alignItems: 'center', gap: '8px', flexShrink: 0 }}>
 
-        <button
-          id="view-mode-catalogue"
-          onClick={() => setViewMode('catalogue')}
-          style={{
-            background: viewMode === 'catalogue' ? 'var(--accent-primary)' : 'transparent',
-            color: viewMode === 'catalogue' ? '#ffffff' : 'var(--text-muted)',
-            fontWeight: 700,
-            fontSize: '13px',
-            padding: '7px 16px',
-            borderRadius: 'var(--radius-full)',
-            border: 'none',
-            cursor: 'pointer',
-            display: 'flex',
-            alignItems: 'center',
-            gap: '6px',
-            transition: 'all 0.2s ease',
-            boxShadow: viewMode === 'catalogue' ? 'var(--shadow-sm)' : 'none'
-          }}
-        >
-          <LayoutGrid size={15} />
-          Massive Inventory
-        </button>
-      </div>
-
-      {/* Right: Actions Cluster (Zero Overflow on Mobile) */}
-      <div style={{ display: 'flex', alignItems: 'center', gap: '6px', flexShrink: 0 }}>
-        {/* Mobile-Only Compact City Switcher Badge */}
+        {/* Mobile City Badge */}
         <button
           onClick={onOpenLocationModal}
           className="hidden-desktop"
           style={{
-            background: 'var(--bg-secondary)',
-            border: '1px solid var(--border-subtle)',
-            borderRadius: 'var(--radius-full)',
+            background: '#F5F5F5',
+            border: '1px solid #EDEDED',
+            borderRadius: '9999px',
             height: '34px',
             padding: '0 10px',
             display: 'flex',
             alignItems: 'center',
             gap: '4px',
             fontSize: '11px',
-            fontWeight: 700,
-            color: 'var(--accent-primary)',
+            fontWeight: 500,
+            fontFamily: "'Poppins', sans-serif",
+            color: '#1F1F1F',
             cursor: 'pointer',
             whiteSpace: 'nowrap',
             flexShrink: 0,
-            boxSizing: 'border-box'
           }}
           title="Change City"
         >
-          <MapPin size={12} color="#2563eb" />
+          <MapPin size={11} color="#E71D2B" />
           <span style={{ maxWidth: '65px', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
-            {currentCity === 'all' ? 'All Cities' : currentCity || 'Mumbai'}
+            {currentCity === 'all' ? 'All' : currentCity || 'Mumbai'}
           </span>
         </button>
 
-        {/* WhatsApp Share Button */}
+        {/* Desktop City Pill */}
         <button
-          onClick={handleShareWhatsApp}
-          className="btn-whatsapp navbar-whatsapp-btn"
-          title="Share Portal on WhatsApp"
+          onClick={onOpenLocationModal}
+          className="hidden-mobile"
+          style={{
+            background: '#F5F5F5',
+            border: '1px solid #EDEDED',
+            borderRadius: '9999px',
+            height: '34px',
+            padding: '0 12px',
+            display: 'flex',
+            alignItems: 'center',
+            gap: '6px',
+            fontSize: '12.5px',
+            fontWeight: 500,
+            fontFamily: "'Poppins', sans-serif",
+            color: '#1F1F1F',
+            cursor: 'pointer',
+            flexShrink: 0,
+            transition: 'all 0.18s ease',
+          }}
+          onMouseEnter={e => { e.currentTarget.style.background = '#FFF0F1'; e.currentTarget.style.borderColor = '#E71D2B'; }}
+          onMouseLeave={e => { e.currentTarget.style.background = '#F5F5F5'; e.currentTarget.style.borderColor = '#EDEDED'; }}
+          title="Change City"
         >
-          <Share2 size={13} />
-          <span className="hidden-mobile">WhatsApp</span>
+          <MapPin size={12} color="#E71D2B" />
+          {currentCity === 'all' ? 'All Cities' : currentCity || 'Mumbai'}
+          <button
+            onClick={e => { e.stopPropagation(); onDetectGPS(); }}
+            disabled={isDetectingGPS}
+            style={{
+              background: 'transparent',
+              border: 'none',
+              cursor: 'pointer',
+              padding: '0',
+              display: 'flex',
+              color: '#999',
+              marginLeft: '2px',
+            }}
+            title="Detect GPS"
+          >
+            <RotateCw size={11} className={isDetectingGPS ? 'animate-spin' : ''} />
+          </button>
         </button>
 
-        {/* AI Vibe Search Trigger (Desktop Only) */}
+        {/* AI Vibe Search (Desktop) */}
         <button
           id="btn-ai-search-trigger"
           onClick={onOpenAISearch}
-          className="btn-secondary hidden-mobile"
-          style={{ fontSize: '12px', padding: '7px 14px' }}
+          className="hidden-mobile"
+          style={{
+            background: '#F5F5F5',
+            border: '1px solid #EDEDED',
+            borderRadius: '9999px',
+            height: '34px',
+            padding: '0 14px',
+            display: 'flex',
+            alignItems: 'center',
+            gap: '6px',
+            fontSize: '12.5px',
+            fontWeight: 500,
+            fontFamily: "'Poppins', sans-serif",
+            color: '#555555',
+            cursor: 'pointer',
+            flexShrink: 0,
+            transition: 'all 0.18s ease',
+          }}
+          onMouseEnter={e => { e.currentTarget.style.background = '#FFF0F1'; e.currentTarget.style.borderColor = '#E71D2B'; e.currentTarget.style.color = '#E71D2B'; }}
+          onMouseLeave={e => { e.currentTarget.style.background = '#F5F5F5'; e.currentTarget.style.borderColor = '#EDEDED'; e.currentTarget.style.color = '#555555'; }}
         >
-          <Sparkles size={14} color="#2563eb" />
-          <span>AI Vibe Search</span>
+          <Sparkles size={13} color="#E71D2B" />
+          AI Search
         </button>
 
-        {/* Wishlist Pill (Desktop Only — on mobile, it's in bottom bar) */}
+        {/* Wishlist (Desktop) */}
         <button
           id="btn-wishlist-trigger"
           onClick={onOpenWishlist}
           className="hidden-mobile"
           style={{
-            background: wishlistCount > 0 ? 'rgba(225, 29, 72, 0.08)' : 'var(--bg-secondary)',
-            color: wishlistCount > 0 ? 'var(--accent-rose)' : 'var(--text-secondary)',
-            border: wishlistCount > 0 ? '1px solid rgba(225, 29, 72, 0.3)' : '1px solid var(--border-subtle)',
-            borderRadius: 'var(--radius-full)',
-            padding: '7px 14px',
-            fontSize: '12px',
-            fontWeight: 700,
+            background: wishlistCount > 0 ? '#FFF0F1' : '#F5F5F5',
+            color: wishlistCount > 0 ? '#E71D2B' : '#555555',
+            border: wishlistCount > 0 ? '1px solid rgba(231,29,43,0.25)' : '1px solid #EDEDED',
+            borderRadius: '9999px',
+            padding: '0 14px',
+            height: '34px',
+            fontSize: '12.5px',
+            fontWeight: 500,
+            fontFamily: "'Poppins', sans-serif",
             cursor: 'pointer',
             display: 'flex',
             alignItems: 'center',
-            gap: '6px'
+            gap: '6px',
+            transition: 'all 0.18s ease',
           }}
         >
-          <Heart size={14} fill={wishlistCount > 0 ? 'currentColor' : 'none'} />
-          <span>Wishlist</span>
-          <span>({wishlistCount})</span>
+          <Heart size={13} fill={wishlistCount > 0 ? 'currentColor' : 'none'} />
+          Saved
+          {wishlistCount > 0 && (
+            <span style={{
+              background: '#E71D2B',
+              color: '#fff',
+              fontSize: '10px',
+              fontWeight: 700,
+              minWidth: '18px',
+              height: '18px',
+              borderRadius: '99px',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              padding: '0 4px',
+            }}>
+              {wishlistCount}
+            </span>
+          )}
         </button>
 
-        {/* List Property CTA (Desktop Only — on mobile, it's the center + button in bottom bar) */}
+        {/* List Property CTA (Desktop) */}
         <button
           id="btn-navbar-list-property"
           onClick={onOpenListProperty}
           className="btn-primary hidden-mobile"
-          style={{ fontSize: '12px', padding: '8px 16px' }}
+          style={{ fontSize: '12.5px', padding: '8px 16px', fontWeight: 600 }}
         >
-          <PlusCircle size={15} />
-          <span>List Inventory</span>
+          <PlusCircle size={14} />
+          List Property
         </button>
 
-        {/* Profile / Auth Button (Desktop Only — on mobile, it's in bottom bar) */}
+        {/* Profile / Auth (Desktop) */}
         <div style={{ position: 'relative' }} className="hidden-mobile">
           {currentUser ? (
             <div>
               <button
                 onClick={() => setProfileMenuOpen(!profileMenuOpen)}
                 style={{
-                  background: 'var(--bg-secondary)',
-                  border: '1px solid var(--border-subtle)',
-                  borderRadius: 'var(--radius-full)',
-                  padding: '4px 12px 4px 6px',
+                  background: '#F5F5F5',
+                  border: '1px solid #EDEDED',
+                  borderRadius: '9999px',
+                  padding: '3px 12px 3px 3px',
                   display: 'flex',
                   alignItems: 'center',
                   gap: '8px',
-                  cursor: 'pointer'
+                  cursor: 'pointer',
+                  transition: 'all 0.18s ease',
                 }}
+                onMouseEnter={e => { e.currentTarget.style.borderColor = '#E71D2B'; }}
+                onMouseLeave={e => { e.currentTarget.style.borderColor = '#EDEDED'; }}
               >
                 <img
                   src={currentUser.avatar}
@@ -431,14 +366,14 @@ export default function Navbar({
                   style={{ width: '28px', height: '28px', borderRadius: '50%', objectFit: 'cover' }}
                 />
                 <div style={{ textAlign: 'left' }}>
-                  <div style={{ fontSize: '12px', fontWeight: 700, color: 'var(--text-primary)', lineHeight: 1.1 }}>
+                  <div style={{ fontSize: '12px', fontWeight: 600, color: '#1F1F1F', lineHeight: 1.1, fontFamily: "'Poppins', sans-serif" }}>
                     {currentUser.name}
                   </div>
-                  <div style={{ fontSize: '10px', color: 'var(--accent-emerald)', fontWeight: 600 }}>
+                  <div style={{ fontSize: '10px', color: '#16a34a', fontWeight: 500, fontFamily: "'Poppins', sans-serif" }}>
                     {currentUser.role}
                   </div>
                 </div>
-                <ChevronDown size={12} color="var(--text-muted)" />
+                <ChevronDown size={12} color="#999" />
               </button>
 
               {profileMenuOpen && (
@@ -446,28 +381,29 @@ export default function Navbar({
                   position: 'absolute',
                   top: '100%',
                   right: 0,
-                  width: '200px',
+                  width: '190px',
                   background: '#ffffff',
-                  border: '1px solid var(--border-subtle)',
-                  borderRadius: 'var(--radius-md)',
-                  boxShadow: 'var(--shadow-lg)',
+                  border: '1px solid #EDEDED',
+                  borderRadius: '14px',
+                  boxShadow: '0 12px 40px rgba(0,0,0,0.10)',
                   padding: '8px',
                   marginTop: '6px',
-                  zIndex: 60
+                  zIndex: 60,
                 }}>
-                  <div 
+                  <div
                     onClick={() => { onOpenListProperty(); setProfileMenuOpen(false); }}
-                    style={{ padding: '8px 10px', borderRadius: '6px', fontSize: '13px', fontWeight: 600, cursor: 'pointer', color: 'var(--text-primary)' }}
-                    onMouseEnter={e => e.currentTarget.style.background = 'var(--bg-secondary)'}
-                    onMouseLeave={e => e.currentTarget.style.background = 'transparent'}
+                    style={{ ...DROPDOWN_ITEM_STYLE, color: '#1F1F1F' }}
+                    onMouseEnter={e => { e.currentTarget.style.background = '#F5F5F5'; }}
+                    onMouseLeave={e => { e.currentTarget.style.background = 'transparent'; }}
                   >
                     + Add New Property
                   </div>
-                  <div 
+                  <div style={{ height: '1px', background: '#EDEDED', margin: '4px 0' }} />
+                  <div
                     onClick={() => { onLogout(); setProfileMenuOpen(false); }}
-                    style={{ padding: '8px 10px', borderRadius: '6px', fontSize: '13px', fontWeight: 600, cursor: 'pointer', color: 'var(--accent-rose)', display: 'flex', alignItems: 'center', gap: '6px' }}
-                    onMouseEnter={e => e.currentTarget.style.background = '#fee2e2'}
-                    onMouseLeave={e => e.currentTarget.style.background = 'transparent'}
+                    style={{ ...DROPDOWN_ITEM_STYLE, color: '#E71D2B' }}
+                    onMouseEnter={e => { e.currentTarget.style.background = '#FFF0F1'; }}
+                    onMouseLeave={e => { e.currentTarget.style.background = 'transparent'; }}
                   >
                     <LogOut size={13} />
                     Sign Out
@@ -479,11 +415,26 @@ export default function Navbar({
             <button
               id="btn-navbar-auth"
               onClick={onOpenAuth}
-              className="btn-secondary"
-              style={{ fontSize: '12px', padding: '7px 14px' }}
+              style={{
+                background: '#ffffff',
+                color: '#E71D2B',
+                border: '1.5px solid #E71D2B',
+                borderRadius: '9999px',
+                padding: '7px 16px',
+                fontSize: '12.5px',
+                fontWeight: 500,
+                fontFamily: "'Poppins', sans-serif",
+                cursor: 'pointer',
+                display: 'flex',
+                alignItems: 'center',
+                gap: '6px',
+                transition: 'all 0.18s ease',
+              }}
+              onMouseEnter={e => { e.currentTarget.style.background = '#E71D2B'; e.currentTarget.style.color = '#ffffff'; }}
+              onMouseLeave={e => { e.currentTarget.style.background = '#ffffff'; e.currentTarget.style.color = '#E71D2B'; }}
             >
-              <User size={14} />
-              <span>Sign In</span>
+              <User size={13} />
+              Sign In
             </button>
           )}
         </div>

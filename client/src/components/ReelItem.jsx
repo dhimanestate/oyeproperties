@@ -179,7 +179,7 @@ export default function ReelItem({
   const handleShareWhatsApp = (e) => {
     e?.stopPropagation();
     const text = encodeURIComponent(
-      `🏡 Check out this luxury residence on Oye Properties:\n*${property.title}*\n📍 ${property.location.locality}, ${property.location.city}\n💰 Asking: ${property.priceFormatted} (${property.pricePerSqFt})\n✨ Specs: ${property.bhk} BHK • ${property.areaSqFt} sq.ft\n🔗 Explore here: ${window.location.origin}?prop=${property.id}`
+      `Check out this property on Oye Properties:\n${property.title}\n${property.location.locality}, ${property.location.city}\nAsking: ${property.priceFormatted} (${property.pricePerSqFt})\nSpecs: ${property.bhk} BHK, ${property.areaSqFt} sq.ft\nView: ${window.location.origin}?prop=${property.id}`
     );
     window.open(`https://wa.me/?text=${text}`, '_blank');
   };
@@ -210,18 +210,19 @@ export default function ReelItem({
             {/* Top Row: Location & Verified / Owner Badges */}
             <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '14px', flexWrap: 'wrap', gap: '8px' }}>
               <div style={{
-                background: 'var(--bg-secondary)',
-                border: '1px solid var(--border-subtle)',
+                background: '#F5F5F5',
+                border: '1px solid #EDEDED',
                 padding: '5px 12px',
-                borderRadius: 'var(--radius-full)',
+                borderRadius: '9999px',
                 display: 'flex',
                 alignItems: 'center',
                 gap: '6px',
                 fontSize: '12px',
-                color: 'var(--accent-primary)',
-                fontWeight: 700
+                color: '#555555',
+                fontWeight: 500,
+                fontFamily: "'Poppins', sans-serif",
               }}>
-                <MapPin size={13} color="#2563eb" />
+                <MapPin size={13} color="#E71D2B" />
                 <span>{property.location.locality}, {property.location.city}</span>
               </div>
 
@@ -262,60 +263,45 @@ export default function ReelItem({
 
             {/* Price Showcase with Estimated EMI Badge */}
             <div style={{ marginBottom: '12px' }}>
-              <div style={{ fontSize: '10px', textTransform: 'uppercase', letterSpacing: '0.08em', color: 'var(--text-muted)', fontWeight: 700, marginBottom: '2px' }}>
-                Offered Price
+              <div style={{ fontSize: '10px', textTransform: 'uppercase', letterSpacing: '0.08em', color: '#999999', fontWeight: 500, fontFamily: "'Poppins', sans-serif", marginBottom: '2px' }}>
+                Asking Price
               </div>
-              <div style={{ display: 'flex', alignItems: 'baseline', gap: '10px', flexWrap: 'wrap' }}>
+              <div style={{ display: 'flex', alignItems: 'baseline', gap: '8px', flexWrap: 'wrap' }}>
                 <span style={{
-                  fontFamily: 'var(--font-display)',
-                  fontSize: '34px',
-                  fontWeight: 800,
-                  color: 'var(--accent-primary)',
+                  fontFamily: "'Poppins', sans-serif",
+                  fontSize: '32px',
+                  fontWeight: 700,
+                  color: '#E71D2B',
                   letterSpacing: '-0.02em',
                   lineHeight: 1.1
                 }}>
                   {property.priceFormatted}
                 </span>
-                <span style={{ fontSize: '13px', color: 'var(--text-secondary)', fontWeight: 600 }}>
+                <span style={{ fontSize: '13px', color: '#555555', fontWeight: 400, fontFamily: "'Poppins', sans-serif" }}>
                   ({property.pricePerSqFt})
                 </span>
               </div>
-
-              {/* Estimated EMI Pill */}
-              <div style={{
-                display: 'inline-flex',
-                alignItems: 'center',
-                gap: '5px',
-                marginTop: '6px',
-                background: '#f8fafc',
-                border: '1px solid var(--border-subtle)',
-                padding: '3px 8px',
-                borderRadius: 'var(--radius-sm)',
-                fontSize: '11px',
-                color: 'var(--text-secondary)'
-              }}>
-                <Calculator size={12} color="#2563eb" />
-                <span>Est. EMI: <strong style={{ color: 'var(--accent-primary)' }}>₹{estMonthlyEmi} L/mo*</strong></span>
-              </div>
             </div>
 
-            {/* Title & Poetic Architectural Tagline */}
+            {/* Title */}
             <h2 style={{
-              fontFamily: 'var(--font-serif)',
-              fontSize: '23px',
-              fontWeight: 800,
-              color: 'var(--text-primary)',
+              fontFamily: "'Poppins', sans-serif",
+              fontSize: '22px',
+              fontWeight: 600,
+              color: '#1F1F1F',
               lineHeight: 1.25,
-              marginBottom: '6px'
+              marginBottom: '4px'
             }}>
               {property.title}
             </h2>
 
             <p style={{
               fontSize: '13px',
-              color: 'var(--text-secondary)',
+              color: '#555555',
+              fontFamily: "'Poppins', sans-serif",
               lineHeight: 1.45,
-              marginBottom: '16px'
+              marginBottom: '16px',
+              fontWeight: 400,
             }}>
               {property.tagline}
             </p>
@@ -326,49 +312,49 @@ export default function ReelItem({
               gridTemplateColumns: 'repeat(2, 1fr)',
               gap: '8px',
               marginBottom: '16px',
-              background: 'var(--bg-secondary)',
+              background: '#F5F5F5',
               padding: '12px 14px',
-              borderRadius: 'var(--radius-md)',
-              border: '1px solid var(--border-subtle)'
+              borderRadius: '12px',
+              border: '1px solid #EDEDED'
             }}>
               <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-                <BedDouble size={16} color="#2563eb" />
+                <BedDouble size={16} color="#E71D2B" />
                 <div>
-                  <div style={{ fontSize: '10px', color: 'var(--text-muted)', textTransform: 'uppercase', fontWeight: 600 }}>Configuration</div>
-                  <div style={{ fontSize: '13px', fontWeight: 700, color: 'var(--accent-primary)' }}>{property.bhk} BHK Suite</div>
+                  <div style={{ fontSize: '10px', color: '#999', textTransform: 'uppercase', fontWeight: 500, fontFamily: "'Poppins', sans-serif" }}>Configuration</div>
+                  <div style={{ fontSize: '13px', fontWeight: 600, color: '#1F1F1F', fontFamily: "'Poppins', sans-serif" }}>{property.bhk} BHK</div>
                 </div>
               </div>
 
               <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-                <Maximize2 size={16} color="#2563eb" />
+                <Maximize2 size={16} color="#E71D2B" />
                 <div>
-                  <div style={{ fontSize: '10px', color: 'var(--text-muted)', textTransform: 'uppercase', fontWeight: 600 }}>Carpet Area</div>
-                  <div style={{ fontSize: '13px', fontWeight: 700, color: 'var(--accent-primary)' }}>{property.areaSqFt.toLocaleString()} sq.ft</div>
+                  <div style={{ fontSize: '10px', color: '#999', textTransform: 'uppercase', fontWeight: 500, fontFamily: "'Poppins', sans-serif" }}>Carpet Area</div>
+                  <div style={{ fontSize: '13px', fontWeight: 600, color: '#1F1F1F', fontFamily: "'Poppins', sans-serif" }}>{property.areaSqFt.toLocaleString()} sq.ft</div>
                 </div>
               </div>
 
               <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-                <Bath size={16} color="#2563eb" />
+                <Bath size={16} color="#E71D2B" />
                 <div>
-                  <div style={{ fontSize: '10px', color: 'var(--text-muted)', textTransform: 'uppercase', fontWeight: 600 }}>Bathrooms</div>
-                  <div style={{ fontSize: '13px', fontWeight: 700, color: 'var(--accent-primary)' }}>{property.baths || property.bhk} Luxury Baths</div>
+                  <div style={{ fontSize: '10px', color: '#999', textTransform: 'uppercase', fontWeight: 500, fontFamily: "'Poppins', sans-serif" }}>Bathrooms</div>
+                  <div style={{ fontSize: '13px', fontWeight: 600, color: '#1F1F1F', fontFamily: "'Poppins', sans-serif" }}>{property.baths || property.bhk} Baths</div>
                 </div>
               </div>
 
               <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-                <Compass size={16} color="#2563eb" />
+                <CheckCircle2 size={16} color="#16a34a" />
                 <div>
-                  <div style={{ fontSize: '10px', color: 'var(--text-muted)', textTransform: 'uppercase', fontWeight: 600 }}>Availability</div>
-                  <div style={{ fontSize: '13px', fontWeight: 700, color: '#047857' }}>{property.status}</div>
+                  <div style={{ fontSize: '10px', color: '#999', textTransform: 'uppercase', fontWeight: 500, fontFamily: "'Poppins', sans-serif" }}>Availability</div>
+                  <div style={{ fontSize: '13px', fontWeight: 600, color: '#16a34a', fontFamily: "'Poppins', sans-serif" }}>{property.status}</div>
                 </div>
               </div>
 
               {property.facing && (
                 <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-                  <Compass size={16} color="#b45309" />
+                  <Compass size={16} color="#555555" />
                   <div>
-                    <div style={{ fontSize: '10px', color: 'var(--text-muted)', textTransform: 'uppercase', fontWeight: 600 }}>Facing</div>
-                    <div style={{ fontSize: '13px', fontWeight: 700, color: '#b45309' }}>{property.facing}</div>
+                    <div style={{ fontSize: '10px', color: '#999', textTransform: 'uppercase', fontWeight: 500, fontFamily: "'Poppins', sans-serif" }}>Facing</div>
+                    <div style={{ fontSize: '13px', fontWeight: 600, color: '#555555', fontFamily: "'Poppins', sans-serif" }}>{property.facing}</div>
                   </div>
                 </div>
               )}
@@ -442,14 +428,14 @@ export default function ReelItem({
             )}
           </div>
 
-          {/* Bottom Action Clusters (100% User Friendly & High Contrast) */}
+          {/* Bottom Action Clusters */}
           <div>
             <div style={{ display: 'flex', gap: '8px', marginBottom: '8px' }}>
               <button
                 id={`btn-desktop-callback-${property.id}`}
                 onClick={() => onOpenCallback(property)}
                 className="btn-primary"
-                style={{ flex: 1.1, justifyContent: 'center', padding: '12px 14px', fontSize: '13px' }}
+                style={{ flex: 1.1, justifyContent: 'center', padding: '12px 14px', fontSize: '13px', fontWeight: 600 }}
               >
                 <PhoneCall size={15} />
                 <span>Get a Call Back</span>
@@ -459,10 +445,10 @@ export default function ReelItem({
                 id={`btn-desktop-knowmore-${property.id}`}
                 onClick={() => onOpenDetail(property)}
                 className="btn-secondary"
-                style={{ flex: 1, justifyContent: 'center', padding: '12px 14px', fontSize: '13px' }}
+                style={{ flex: 1, justifyContent: 'center', padding: '12px 14px', fontSize: '13px', fontWeight: 500 }}
               >
                 <Info size={15} />
-                <span>Deep Specs & Tour</span>
+                <span>Specs &amp; Tour</span>
               </button>
             </div>
 
@@ -472,28 +458,35 @@ export default function ReelItem({
                 onClick={handleShareWhatsApp}
                 className="btn-whatsapp"
                 style={{ flex: 1, justifyContent: 'center', padding: '9px 12px', fontSize: '12px' }}
-                title="Share Estate Brochure on WhatsApp"
+                title="Share on WhatsApp"
               >
                 <MessageCircle size={15} />
-                <span>WhatsApp Brochure</span>
+                <span>WhatsApp</span>
               </button>
 
               <button
                 id={`btn-desktop-wishlist-${property.id}`}
                 onClick={handleLike}
-                className={`btn-secondary ${isWishlisted ? 'active-heart' : ''}`}
                 style={{
                   padding: '9px 14px',
                   fontSize: '12px',
-                  color: isWishlisted ? '#f43f5e' : 'var(--text-secondary)',
-                  borderColor: isWishlisted ? '#f43f5e' : 'var(--border-subtle)',
-                  background: isWishlisted ? '#fff1f2' : 'var(--bg-secondary)',
-                  gap: '6px'
+                  color: isWishlisted ? '#E71D2B' : '#555555',
+                  borderColor: isWishlisted ? '#E71D2B' : '#EDEDED',
+                  background: isWishlisted ? '#FFF0F1' : '#F5F5F5',
+                  border: isWishlisted ? '1.5px solid #E71D2B' : '1px solid #EDEDED',
+                  borderRadius: '9999px',
+                  cursor: 'pointer',
+                  display: 'flex',
+                  alignItems: 'center',
+                  gap: '6px',
+                  fontFamily: "'Poppins', sans-serif",
+                  fontWeight: 500,
+                  transition: 'all 0.18s ease',
                 }}
-                title="Save to Wishlist Portfolio"
+                title="Save to Wishlist"
               >
                 <Heart size={15} fill={isWishlisted ? 'currentColor' : 'none'} />
-                <span>{isWishlisted ? 'Saved' : 'Wishlist'}</span>
+                <span>{isWishlisted ? 'Saved' : 'Save'}</span>
               </button>
             </div>
           </div>
@@ -845,22 +838,23 @@ export default function ReelItem({
           pointerEvents: 'none'
         }}>
           <div style={{
-            background: 'rgba(0, 0, 0, 0.55)',
+            background: 'rgba(0, 0, 0, 0.52)',
             backdropFilter: 'blur(10px)',
             WebkitBackdropFilter: 'blur(10px)',
-            border: '1px solid rgba(255, 255, 255, 0.25)',
+            border: '1px solid rgba(255, 255, 255, 0.22)',
             padding: '5px 12px',
-            borderRadius: 'var(--radius-full)',
+            borderRadius: '9999px',
             display: 'flex',
             alignItems: 'center',
             gap: '5px',
             fontSize: '11px',
             color: '#ffffff',
-            fontWeight: 700,
+            fontWeight: 500,
+            fontFamily: "'Poppins', sans-serif",
             boxShadow: '0 4px 12px rgba(0, 0, 0, 0.35)',
             pointerEvents: 'auto'
           }}>
-            <MapPin size={12} color="#38bdf8" />
+            <MapPin size={12} color="#E71D2B" />
             <span>{property.location.locality}, {property.location.city}</span>
           </div>
 
@@ -929,7 +923,7 @@ export default function ReelItem({
 
         {/* Right Floating Action Column (No White BG, Filled Visible Icons) */}
         <div className="reel-actions-column">
-          {/* Wishlist Heart Button */}
+          {/* Wishlist Heart Button — icon only */}
           <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
             <button
               id={`btn-reel-heart-${property.id}`}
@@ -943,16 +937,16 @@ export default function ReelItem({
                 alignItems: 'center',
                 justifyContent: 'center'
               }}
-              title="Add to Wishlist"
+              title="Save to Wishlist"
             >
-              <Heart 
-                size={32} 
-                fill={isWishlisted ? '#f43f5e' : 'rgba(255, 255, 255, 0.95)'} 
-                color={isWishlisted ? '#f43f5e' : '#ffffff'}
+              <Heart
+                size={30}
+                fill={isWishlisted ? '#E71D2B' : 'rgba(255,255,255,0.9)'}
+                color={isWishlisted ? '#E71D2B' : '#ffffff'}
                 style={{ filter: 'drop-shadow(0 2px 8px rgba(0,0,0,0.8))' }}
               />
             </button>
-            <span style={{ fontSize: '11px', fontWeight: 800, color: '#ffffff', textShadow: '0 1px 4px rgba(0,0,0,0.9)', marginTop: '1px' }}>
+            <span style={{ fontSize: '11px', fontWeight: 600, color: '#ffffff', textShadow: '0 1px 4px rgba(0,0,0,0.9)', marginTop: '1px', fontFamily: "'Poppins', sans-serif" }}>
               {likesCount > 999 ? (likesCount / 1000).toFixed(1) + 'k' : likesCount}
             </span>
           </div>
@@ -988,7 +982,7 @@ export default function ReelItem({
             </span>
           </div>
 
-          {/* Know More Specs Button (Filled Sapphire Blue) */}
+          {/* Info button — icon only */}
           <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
             <button
               id={`btn-reel-know-more-${property.id}`}
@@ -999,28 +993,26 @@ export default function ReelItem({
                 cursor: 'pointer',
                 padding: '4px'
               }}
-              title="Deep Specs & EMI"
+              title="Specs & Details"
             >
               <div style={{
-                width: '42px',
-                height: '42px',
+                width: '40px',
+                height: '40px',
                 borderRadius: '50%',
-                background: '#0b1c3d',
+                background: 'rgba(0,0,0,0.5)',
+                backdropFilter: 'blur(8px)',
+                border: '1px solid rgba(255,255,255,0.25)',
                 display: 'flex',
                 alignItems: 'center',
                 justifyContent: 'center',
-                boxShadow: '0 4px 16px rgba(0,0,0,0.55)',
-                border: '1.5px solid rgba(255,255,255,0.18)'
+                boxShadow: '0 4px 14px rgba(0,0,0,0.45)'
               }}>
-                <Info size={22} color="#ffffff" strokeWidth={2.4} />
+                <Info size={20} color="#ffffff" strokeWidth={2} />
               </div>
             </button>
-            <span style={{ fontSize: '10px', fontWeight: 800, color: '#ffffff', textShadow: '0 1px 4px rgba(0,0,0,0.9)', marginTop: '1px' }}>
-              Specs
-            </span>
           </div>
 
-          {/* Call Back Button (Filled Royal Navy) */}
+          {/* Call Back Button */}
           <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
             <button
               id={`btn-reel-callback-${property.id}`}
@@ -1034,25 +1026,22 @@ export default function ReelItem({
               title="Get a Call Back"
             >
               <div style={{
-                width: '42px',
-                height: '42px',
+                width: '40px',
+                height: '40px',
                 borderRadius: '50%',
-                background: 'var(--accent-primary)',
+                background: '#E71D2B',
                 border: '1.5px solid rgba(255,255,255,0.4)',
                 display: 'flex',
                 alignItems: 'center',
                 justifyContent: 'center',
-                boxShadow: '0 4px 14px rgba(0,0,0,0.45)'
+                boxShadow: '0 4px 16px rgba(231,29,43,0.5)'
               }}>
-                <PhoneCall size={19} color="#ffffff" strokeWidth={2.4} />
+                <PhoneCall size={18} color="#ffffff" strokeWidth={2.2} />
               </div>
             </button>
-            <span style={{ fontSize: '10px', fontWeight: 800, color: '#ffffff', textShadow: '0 1px 4px rgba(0,0,0,0.9)', marginTop: '1px' }}>
-              Call
-            </span>
           </div>
 
-          {/* Sound Toggle (Translucent Dark Glass) */}
+          {/* Sound Toggle */}
           <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
             <button
               id="btn-reel-sound-toggle"
@@ -1066,26 +1055,22 @@ export default function ReelItem({
                 cursor: 'pointer',
                 padding: '4px'
               }}
-              title={isMuted ? 'Unmute Sound' : 'Mute Sound'}
+              title={isMuted ? 'Unmute' : 'Mute'}
             >
               <div style={{
-                width: '38px',
-                height: '38px',
+                width: '36px',
+                height: '36px',
                 borderRadius: '50%',
                 background: 'rgba(0,0,0,0.5)',
                 backdropFilter: 'blur(8px)',
-                border: '1px solid rgba(255,255,255,0.3)',
+                border: '1px solid rgba(255,255,255,0.25)',
                 display: 'flex',
                 alignItems: 'center',
                 justifyContent: 'center',
-                boxShadow: '0 4px 12px rgba(0,0,0,0.4)'
               }}>
-                {isMuted ? <VolumeX size={18} color="#ffffff" /> : <Volume2 size={18} color="#38bdf8" />}
+                {isMuted ? <VolumeX size={16} color="#ffffff" /> : <Volume2 size={16} color="#E71D2B" />}
               </div>
             </button>
-            <span style={{ fontSize: '10px', fontWeight: 800, color: '#ffffff', textShadow: '0 1px 4px rgba(0,0,0,0.9)', marginTop: '1px' }}>
-              {isMuted ? 'Muted' : 'Audio'}
-            </span>
           </div>
         </div>
 
@@ -1099,130 +1084,46 @@ export default function ReelItem({
           color: '#ffffff',
           pointerEvents: 'auto'
         }}>
-          {/* Price Header with EMI Tag */}
-          <div style={{ display: 'flex', alignItems: 'baseline', flexWrap: 'wrap', gap: '6px', marginBottom: '2px' }}>
+          {/* Price Header — clean and minimal */}
+          <div style={{ display: 'flex', alignItems: 'baseline', flexWrap: 'wrap', gap: '6px', marginBottom: '3px' }}>
             <span style={{
-              fontFamily: 'var(--font-display)',
-              fontSize: '24px',
-              fontWeight: 900,
+              fontFamily: "'Poppins', sans-serif",
+              fontSize: '22px',
+              fontWeight: 700,
               color: '#ffffff',
-              letterSpacing: '-0.02em',
+              letterSpacing: '-0.01em',
               textShadow: '0 2px 8px rgba(0,0,0,0.95)'
             }}>
               {property.priceFormatted}
             </span>
-            <span style={{ fontSize: '11px', color: 'rgba(255,255,255,0.9)', fontWeight: 600, textShadow: '0 1px 4px rgba(0,0,0,0.85)' }}>
-              ({property.pricePerSqFt})
-            </span>
-            <span style={{
-              fontSize: '10px',
-              color: '#38bdf8',
-              background: 'rgba(0,0,0,0.55)',
-              backdropFilter: 'blur(6px)',
-              border: '1px solid rgba(255,255,255,0.25)',
-              padding: '2px 6px',
-              borderRadius: '4px',
-              fontWeight: 700
-            }}>
-              EMI ~₹{estMonthlyEmi}L/mo*
+            <span style={{ fontSize: '11px', color: 'rgba(255,255,255,0.75)', fontWeight: 400, textShadow: '0 1px 4px rgba(0,0,0,0.8)', fontFamily: "'Poppins', sans-serif" }}>
+              {property.pricePerSqFt}
             </span>
           </div>
 
-          {/* Property Title */}
+          {/* Property Title (1 line) */}
           <h2 style={{
-            fontSize: '16px',
-            fontWeight: 800,
+            fontSize: '15px',
+            fontWeight: 600,
+            fontFamily: "'Poppins', sans-serif",
             color: '#ffffff',
             lineHeight: 1.2,
-            marginBottom: '3px',
-            textShadow: '0 2px 8px rgba(0,0,0,0.95)'
-          }}>
-            {property.title}
-          </h2>
-          
-          {/* Compact Tagline (1 Line Ellipsis) */}
-          <p style={{
-            fontSize: '11px',
-            color: 'rgba(255,255,255,0.9)',
-            lineHeight: 1.3,
             marginBottom: '8px',
+            textShadow: '0 2px 8px rgba(0,0,0,0.95)',
             display: '-webkit-box',
             WebkitLineClamp: 1,
             WebkitBoxOrient: 'vertical',
             overflow: 'hidden',
-            textShadow: '0 1px 4px rgba(0,0,0,0.85)'
           }}>
-            {property.tagline}
-          </p>
+            {property.title}
+          </h2>
 
-          {/* Spec Badges Row (Translucent Glass Badges) */}
-          <div style={{ display: 'flex', alignItems: 'center', gap: '5px', flexWrap: 'wrap', marginBottom: '10px' }}>
-            <span style={{
-              background: 'rgba(0,0,0,0.5)',
-              backdropFilter: 'blur(8px)',
-              border: '1px solid rgba(255,255,255,0.25)',
-              color: '#ffffff',
-              padding: '2px 8px',
-              borderRadius: '6px',
-              fontSize: '10px',
-              fontWeight: 700,
-              display: 'flex',
-              alignItems: 'center',
-              gap: '4px'
-            }}>
-              <BedDouble size={12} color="#38bdf8" />
-              {property.bhk} BHK
+          {/* Minimal Spec Line */}
+          <div style={{ display: 'flex', alignItems: 'center', gap: '6px', marginBottom: '10px', flexWrap: 'wrap' }}>
+            <span style={{ fontSize: '11px', color: 'rgba(255,255,255,0.82)', fontFamily: "'Poppins', sans-serif", fontWeight: 400 }}>
+              {property.bhk} BHK &nbsp;·&nbsp; {property.areaSqFt.toLocaleString()} sq.ft &nbsp;·&nbsp; {property.status}
+              {property.facing ? ` · ${property.facing}` : ''}
             </span>
-
-            <span style={{
-              background: 'rgba(0,0,0,0.5)',
-              backdropFilter: 'blur(8px)',
-              border: '1px solid rgba(255,255,255,0.25)',
-              color: '#ffffff',
-              padding: '2px 8px',
-              borderRadius: '6px',
-              fontSize: '10px',
-              fontWeight: 700,
-              display: 'flex',
-              alignItems: 'center',
-              gap: '4px'
-            }}>
-              <Maximize2 size={12} color="#38bdf8" />
-              {property.areaSqFt.toLocaleString()} sq.ft
-            </span>
-
-            <span style={{
-              background: 'rgba(37,99,235,0.65)',
-              backdropFilter: 'blur(8px)',
-              border: '1px solid rgba(255,255,255,0.3)',
-              color: '#ffffff',
-              padding: '2px 8px',
-              borderRadius: '6px',
-              fontSize: '10px',
-              fontWeight: 700
-            }}>
-              {property.status}
-            </span>
-
-            {/* Direction Facing Badge */}
-            {property.facing && (
-              <span style={{
-                background: 'rgba(180, 83, 9, 0.6)',
-                backdropFilter: 'blur(8px)',
-                border: '1px solid rgba(255,255,255,0.25)',
-                color: '#ffffff',
-                padding: '2px 8px',
-                borderRadius: '6px',
-                fontSize: '10px',
-                fontWeight: 700,
-                display: 'inline-flex',
-                alignItems: 'center',
-                gap: '3px'
-              }}>
-                <Compass size={10} />
-                {property.facing}
-              </span>
-            )}
           </div>
 
           {/* Quick Dual Action Buttons */}
@@ -1233,23 +1134,23 @@ export default function ReelItem({
               style={{
                 flex: 1,
                 justifyContent: 'center',
-                fontSize: '11px',
-                fontWeight: 700,
-                padding: '7px 12px',
-                background: 'rgba(255, 255, 255, 0.2)',
+                fontSize: '12px',
+                fontWeight: 500,
+                fontFamily: "'Poppins', sans-serif",
+                padding: '8px 12px',
+                background: 'rgba(255,255,255,0.18)',
                 backdropFilter: 'blur(12px)',
-                border: '1px solid rgba(255, 255, 255, 0.4)',
-                borderRadius: 'var(--radius-full)',
+                border: '1px solid rgba(255,255,255,0.35)',
+                borderRadius: '9999px',
                 color: '#ffffff',
                 display: 'flex',
                 alignItems: 'center',
                 gap: '5px',
                 cursor: 'pointer',
-                boxShadow: '0 2px 10px rgba(0,0,0,0.3)'
               }}
             >
               <Info size={13} />
-              <span>Specs & Tour</span>
+              <span>Details</span>
             </button>
 
             <button
@@ -1258,18 +1159,19 @@ export default function ReelItem({
               style={{
                 flex: 1,
                 justifyContent: 'center',
-                fontSize: '11px',
-                fontWeight: 700,
-                padding: '7px 12px',
-                background: 'var(--accent-primary)',
-                border: '1px solid rgba(255, 255, 255, 0.3)',
-                borderRadius: 'var(--radius-full)',
+                fontSize: '12px',
+                fontWeight: 600,
+                fontFamily: "'Poppins', sans-serif",
+                padding: '8px 12px',
+                background: '#E71D2B',
+                border: '1px solid rgba(255,255,255,0.3)',
+                borderRadius: '9999px',
                 color: '#ffffff',
                 display: 'flex',
                 alignItems: 'center',
                 gap: '5px',
                 cursor: 'pointer',
-                boxShadow: '0 4px 14px rgba(0,0,0,0.4)'
+                boxShadow: '0 4px 16px rgba(231,29,43,0.5)'
               }}
             >
               <PhoneCall size={13} />

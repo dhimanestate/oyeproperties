@@ -29,7 +29,7 @@ export default function PropertyCard({
   const handleShareWhatsApp = (e) => {
     e.stopPropagation();
     const text = encodeURIComponent(
-      `🏡 Check out this luxury residence on Oye Properties:\n*${property.title}*\n📍 ${property.location.locality}, ${property.location.city}\n💰 Asking: ${property.priceFormatted} (${property.pricePerSqFt})\n✨ Specs: ${property.bhk} BHK • ${property.areaSqFt} sq.ft\n🔗 View details: ${window.location.origin}?prop=${property.id}`
+      `Check out this property on Oye Properties:\n${property.title}\n${property.location.locality}, ${property.location.city}\nAsking: ${property.priceFormatted} (${property.pricePerSqFt})\nSpecs: ${property.bhk} BHK, ${property.areaSqFt} sq.ft\nView: ${window.location.origin}?prop=${property.id}`
     );
     window.open(`https://wa.me/?text=${text}`, '_blank');
   };
@@ -39,15 +39,16 @@ export default function PropertyCard({
       id={`property-card-${property.id}`}
       style={{
         background: '#ffffff',
-        border: isHovered ? '1px solid var(--accent-primary)' : '1px solid var(--border-card)',
+        border: isHovered ? '1.5px solid #E71D2B' : '1px solid #EDEDED',
         borderRadius: 'var(--radius-lg)',
         overflow: 'hidden',
         display: 'flex',
         flexDirection: 'column',
-        transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
+        transition: 'all 0.28s cubic-bezier(0.4, 0, 0.2, 1)',
         transform: isHovered ? 'translateY(-4px)' : 'none',
-        boxShadow: isHovered ? 'var(--shadow-lg)' : 'var(--shadow-sm)',
-        position: 'relative'
+        boxShadow: isHovered ? '0 16px 40px rgba(0,0,0,0.10)' : '0 1px 4px rgba(0,0,0,0.05)',
+        position: 'relative',
+        fontFamily: "'Poppins', sans-serif",
       }}
       onMouseEnter={() => setIsHovered(true)}
       onMouseLeave={() => setIsHovered(false)}
@@ -88,33 +89,35 @@ export default function PropertyCard({
                 onWatchReel(property);
               }}
               style={{
-                background: 'rgba(255, 255, 255, 0.95)',
-                color: 'var(--accent-primary)',
+                background: 'rgba(255,255,255,0.95)',
+                color: '#E71D2B',
                 border: 'none',
-                padding: '6px 12px',
-                borderRadius: 'var(--radius-full)',
+                padding: '5px 12px',
+                borderRadius: '9999px',
                 fontSize: '11px',
-                fontWeight: 700,
+                fontWeight: 600,
+                fontFamily: "'Poppins', sans-serif",
                 cursor: 'pointer',
                 display: 'flex',
                 alignItems: 'center',
                 gap: '5px',
-                boxShadow: '0 4px 12px rgba(0,0,0,0.2)'
+                boxShadow: '0 4px 12px rgba(0,0,0,0.18)'
               }}
             >
-              <Zap size={13} color="#2563eb" fill="#2563eb" />
+              <Zap size={13} color="#E71D2B" fill="#E71D2B" />
               Watch Instant
             </button>
           )}
 
           {property.isOwnerListing && (
             <span style={{
-              background: 'var(--accent-primary)',
+              background: '#E71D2B',
               color: '#ffffff',
-              padding: '6px 10px',
-              borderRadius: 'var(--radius-full)',
+              padding: '5px 10px',
+              borderRadius: '9999px',
               fontSize: '11px',
-              fontWeight: 700
+              fontWeight: 600,
+              fontFamily: "'Poppins', sans-serif",
             }}>
               Owner Listing
             </span>
@@ -152,9 +155,9 @@ export default function PropertyCard({
               onToggleWishlist(property);
             }}
             style={{
-              background: isWishlisted ? '#f43f5e' : 'rgba(255, 255, 255, 0.95)',
+              background: isWishlisted ? '#E71D2B' : 'rgba(255, 255, 255, 0.95)',
               border: 'none',
-              color: isWishlisted ? '#ffffff' : 'var(--text-secondary)',
+              color: '#ffffff',
               width: '34px',
               height: '34px',
               borderRadius: '50%',
@@ -166,7 +169,7 @@ export default function PropertyCard({
             }}
             title={isWishlisted ? 'Remove from Wishlist' : 'Add to Wishlist'}
           >
-            <Heart size={16} fill={isWishlisted ? '#ffffff' : 'none'} />
+            <Heart size={16} fill={isWishlisted ? '#ffffff' : '#999'} color={isWishlisted ? '#ffffff' : '#999'} />
           </button>
         </div>
 
@@ -182,31 +185,32 @@ export default function PropertyCard({
         }}>
           <div>
             <div style={{
-              fontFamily: 'var(--font-display)',
-              fontSize: '24px',
-              fontWeight: 800,
+              fontFamily: "'Poppins', sans-serif",
+              fontSize: '22px',
+              fontWeight: 700,
               color: '#ffffff',
-              textShadow: '0 2px 8px rgba(0,0,0,0.7)'
+              textShadow: '0 2px 10px rgba(0,0,0,0.65)',
             }}>
               {property.priceFormatted}
             </div>
-            <div style={{ fontSize: '11px', color: '#e2e8f0' }}>
+            <div style={{ fontSize: '11px', color: 'rgba(255,255,255,0.75)', fontFamily: "'Poppins', sans-serif" }}>
               {property.pricePerSqFt}
             </div>
           </div>
 
           <div style={{
-            background: 'rgba(255, 255, 255, 0.95)',
+            background: 'rgba(255,255,255,0.95)',
             padding: '4px 10px',
-            borderRadius: 'var(--radius-sm)',
+            borderRadius: '8px',
             fontSize: '11px',
-            color: 'var(--accent-primary)',
-            fontWeight: 700,
+            color: '#555555',
+            fontWeight: 500,
+            fontFamily: "'Poppins', sans-serif",
             display: 'flex',
             alignItems: 'center',
             gap: '4px'
           }}>
-            <MapPin size={12} color="#2563eb" />
+            <MapPin size={12} color="#E71D2B" />
             {property.location.locality}
           </div>
         </div>
@@ -215,20 +219,21 @@ export default function PropertyCard({
       {/* Card Content */}
       <div style={{ padding: 'clamp(12px, 4vw, 18px)', display: 'flex', flexDirection: 'column', flex: 1 }}>
         <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '6px' }}>
-          <span style={{ fontSize: '11px', textTransform: 'uppercase', letterSpacing: '0.1em', color: '#2563eb', fontWeight: 700 }}>
+          <span style={{ fontSize: '10px', textTransform: 'uppercase', letterSpacing: '0.12em', color: '#E71D2B', fontWeight: 600, fontFamily: "'Poppins', sans-serif" }}>
             {property.propertyType}
           </span>
           {property.verified && (
-            <span style={{ fontSize: '11px', color: 'var(--accent-emerald)', display: 'flex', alignItems: 'center', gap: '3px', fontWeight: 700 }}>
+            <span style={{ fontSize: '11px', color: '#16a34a', display: 'flex', alignItems: 'center', gap: '3px', fontWeight: 500, fontFamily: "'Poppins', sans-serif" }}>
               <CheckCircle2 size={12} /> Verified
             </span>
           )}
         </div>
 
         <h3 style={{
-          fontSize: '16px',
-          fontWeight: 800,
-          color: 'var(--text-primary)',
+          fontSize: '15px',
+          fontWeight: 600,
+          fontFamily: "'Poppins', sans-serif",
+          color: '#1F1F1F',
           lineHeight: 1.3,
           marginBottom: '6px',
           display: '-webkit-box',
@@ -288,30 +293,32 @@ export default function PropertyCard({
         }}>
           {/* Availability / Status */}
           <span style={{
-            background: 'rgba(5, 150, 105, 0.1)',
-            border: '1px solid rgba(5, 150, 105, 0.25)',
-            color: '#047857',
+            background: 'rgba(22, 163, 74, 0.08)',
+            border: '1px solid rgba(22, 163, 74, 0.2)',
+            color: '#16a34a',
             padding: '4px 10px',
-            borderRadius: 'var(--radius-full)',
+            borderRadius: '9999px',
             fontSize: '11px',
-            fontWeight: 700,
+            fontWeight: 500,
+            fontFamily: "'Poppins', sans-serif",
             display: 'inline-flex',
             alignItems: 'center',
             gap: '4px'
           }}>
-            ✓ {property.status}
+            <CheckCircle2 size={10} /> {property.status}
           </span>
 
           {/* Direction Facing */}
           {property.facing && (
             <span style={{
-              background: 'rgba(217, 119, 6, 0.08)',
-              border: '1px solid rgba(217, 119, 6, 0.22)',
-              color: '#b45309',
+              background: '#F5F5F5',
+              border: '1px solid #EDEDED',
+              color: '#555555',
               padding: '4px 10px',
-              borderRadius: 'var(--radius-full)',
+              borderRadius: '9999px',
               fontSize: '11px',
-              fontWeight: 700,
+              fontWeight: 500,
+              fontFamily: "'Poppins', sans-serif",
               display: 'inline-flex',
               alignItems: 'center',
               gap: '4px'
