@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { API_BASE } from './config';
 import Navbar from './components/Navbar';
 import LocationDetectorModal from './components/LocationDetectorModal';
@@ -14,6 +14,9 @@ import ListPropertyModal from './components/ListPropertyModal';
 import MobileBottomNav from './components/MobileBottomNav';
 import TopSearchFilterStrip from './components/TopSearchFilterStrip';
 import FilterModal from './components/FilterModal';
+import UserDashboard from './components/UserDashboard';
+
+const TOKEN_KEY = 'oye_auth_token';
 
 export default function App() {
   const [viewMode, setViewMode] = useState('reels'); // 'reels' or 'catalogue'
@@ -32,6 +35,7 @@ export default function App() {
   });
   const [isAuthModalOpen, setIsAuthModalOpen] = useState(false);
   const [isListModalOpen, setIsListModalOpen] = useState(false);
+  const [isDashboardOpen, setIsDashboardOpen] = useState(false);
   const [authRedirectReason, setAuthRedirectReason] = useState('');
 
   // Properties Data
@@ -72,14 +76,62 @@ export default function App() {
   const [activeDetailProperty, setActiveDetailProperty] = useState(null);
   const [activeCallbackProperty, setActiveCallbackProperty] = useState(null);
 
-  // Save wishlist to localStorage
+  // Sync wishlist from backend when authenticated
   useEffect(() => {
-    try {
-      localStorage.setItem('lumiere_guest_wishlist', JSON.stringify(wishlist));
-    } catch (e) {
-      console.error(e);
+    const token = localStorage.getItem(TOKEN_KEY);
+    if (token && currentUser) {
+      fetch(`${API_BASE}/api/users/wishlist`, {
+        headers: { 'Authorization': `Bearer ${token}` }
+      })
+        .then(r => r.json())
+        .then(data => {
+          if (data.wishlist && Array.isArray(data.wishlist) && data.wishlist.length > 0) {
+            setWishlist(prev => {
+              const merged = [...data.wishlist];
+              prev.forEach(p => {
+                if (!merged.some(m => m.id === p.id)) merged.push(p);
+              });
+              return merged;
+            });
+          }
+        })
+        .catch(console.error);
     }
-  }, [wishlist]);
+  }, [currentUser]);
+
+
+  // ── Handle Google OAuth callback token in URL ────────────────────────────────
+  useEffect(() => {
+    const params = new URLSearchParams(window.location.search);
+    const authToken = params.get('auth_token');
+    if (authToken) {
+      localStorage.setItem(TOKEN_KEY, authToken);
+      // Fetch the user profile using the token
+      fetch(`${API_BASE}/api/auth/me`, {
+        headers: { 'Authorization': `Bearer ${authToken}` }
+      })
+        .then(r => r.json())
+        .then(data => {
+          if (data.user) {
+            setCurrentUser(data.user);
+            localStorage.setItem('lumiere_user', JSON.stringify(data.user));
+            // Check if there was a redirect intent (e.g. list property)
+            const redirectIntent = sessionStorage.getItem('oye_auth_redirect');
+            if (redirectIntent) {
+              sessionStorage.removeItem('oye_auth_redirect');
+              setTimeout(() => setIsListModalOpen(true), 300);
+            }
+          }
+        })
+        .catch(console.error)
+        .finally(() => {
+          // Clean token from URL without page reload
+          const url = new URL(window.location.href);
+          url.searchParams.delete('auth_token');
+          window.history.replaceState({}, '', url.toString());
+        });
+    }
+  }, []);
 
   // Initial Auto-Location Detection on App Load with GPS Precision
   useEffect(() => {
@@ -197,16 +249,37 @@ export default function App() {
     }
   };
 
-  // Wishlist actions
-  const handleToggleWishlist = (property) => {
+  // Wishlist actions (Local + Backend sync)
+  const handleToggleWishlist = async (property) => {
+    const exists = wishlist.some(item => item.id === property.id);
+    const token = localStorage.getItem(TOKEN_KEY);
+
     setWishlist(prev => {
-      const exists = prev.some(item => item.id === property.id);
-      if (exists) {
-        return prev.filter(item => item.id !== property.id);
-      } else {
-        return [...prev, property];
+      const next = exists
+        ? prev.filter(item => item.id !== property.id)
+        : [...prev, property];
+      try {
+        localStorage.setItem('lumiere_guest_wishlist', JSON.stringify(next));
+      } catch (e) {
+        console.error(e);
       }
+      return next;
     });
+
+    // If authenticated, sync with MongoDB / backend user profile
+    if (token) {
+      try {
+        await fetch(`${API_BASE}/api/users/wishlist/${property.id}`, {
+          method: exists ? 'DELETE' : 'POST',
+          headers: {
+            'Authorization': `Bearer ${token}`,
+            'Content-Type': 'application/json'
+          }
+        });
+      } catch (err) {
+        console.error('Wishlist sync error:', err);
+      }
+    }
   };
 
   // Compare actions
@@ -245,10 +318,11 @@ export default function App() {
     setIsListModalOpen(true);
   };
 
-  const handleAuthSuccess = (user) => {
+  const handleAuthSuccess = (user, token) => {
     setCurrentUser(user);
     try {
       localStorage.setItem('lumiere_user', JSON.stringify(user));
+      if (token) localStorage.setItem(TOKEN_KEY, token);
     } catch (e) {
       console.error(e);
     }
@@ -265,9 +339,11 @@ export default function App() {
     setCurrentUser(null);
     try {
       localStorage.removeItem('lumiere_user');
+      localStorage.removeItem(TOKEN_KEY);
     } catch (e) {
       console.error(e);
     }
+    setIsDashboardOpen(false);
   };
 
   const handlePropertyCreated = (newProperty) => {
@@ -306,6 +382,7 @@ export default function App() {
           setAuthRedirectReason('');
           setIsAuthModalOpen(true);
         }}
+        onOpenDashboard={() => setIsDashboardOpen(true)}
         onLogout={handleLogout}
         onDetectGPS={handleDetectGPS}
         isDetectingGPS={isDetectingGPS}
@@ -469,6 +546,28 @@ export default function App() {
         currentUser={currentUser}
       />
 
+      {/* User Dashboard Modal (My Listings, Saved, Inquiries, Profile Settings) */}
+      <UserDashboard
+        isOpen={isDashboardOpen}
+        onClose={() => setIsDashboardOpen(false)}
+        currentUser={currentUser}
+        onLogout={handleLogout}
+        onOpenDetail={(prop) => {
+          setIsDashboardOpen(false);
+          setActiveDetailProperty(prop);
+        }}
+        onOpenCallback={(prop) => {
+          setIsDashboardOpen(false);
+          setActiveCallbackProperty(prop);
+        }}
+        onOpenListProperty={() => {
+          setIsDashboardOpen(false);
+          setIsListModalOpen(true);
+        }}
+        wishlist={wishlist}
+        onRemoveWishlistItem={(id) => handleToggleWishlist({ id })}
+      />
+
       {/* Mobile Sticky Bottom Navigation Bar */}
       <MobileBottomNav
         viewMode={viewMode}
@@ -481,6 +580,7 @@ export default function App() {
           setAuthRedirectReason('');
           setIsAuthModalOpen(true);
         }}
+        onOpenDashboard={() => setIsDashboardOpen(true)}
       />
     </div>
   );

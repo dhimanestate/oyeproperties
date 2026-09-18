@@ -154,7 +154,7 @@ export default function FilterModal({
           {/* Section 1: Listing Purpose (Buy / Rent / Commercial) */}
           <div className="filter-section">
             <div className="filter-section-title">
-              <Home size={14} color="#2563eb" />
+              <Home size={14} color="#E71D2B" />
               <span>Listing Purpose</span>
             </div>
             <div className="filter-chips-grid">
@@ -175,7 +175,7 @@ export default function FilterModal({
           {/* Section 2: Location / Prime Market */}
           <div className="filter-section">
             <div className="filter-section-title">
-              <MapPin size={14} color="#2563eb" />
+              <MapPin size={14} color="#E71D2B" />
               <span>Location / City</span>
             </div>
             <div className="filter-chips-grid">
@@ -196,7 +196,7 @@ export default function FilterModal({
           {/* Section 3: Property Type / Category */}
           <div className="filter-section">
             <div className="filter-section-title">
-              <Building2 size={14} color="#2563eb" />
+              <Building2 size={14} color="#E71D2B" />
               <span>Property Category</span>
             </div>
             <div className="filter-chips-grid">
@@ -238,7 +238,7 @@ export default function FilterModal({
           <div className="filter-section">
             <div className="filter-section-title" style={{ justifyContent: 'space-between', width: '100%' }}>
               <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
-                <IndianRupee size={14} color="#2563eb" />
+                <IndianRupee size={14} color="#E71D2B" />
                 <span>Max Budget:</span>
               </div>
               <span style={{ fontSize: '13px', fontWeight: 800, color: 'var(--accent-primary)' }}>

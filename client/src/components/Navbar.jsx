@@ -60,6 +60,7 @@ export default function Navbar({
   onOpenListProperty,
   currentUser,
   onOpenAuth,
+  onOpenDashboard,
   onLogout,
   onDetectGPS,
   isDetectingGPS
@@ -381,32 +382,51 @@ export default function Navbar({
                   position: 'absolute',
                   top: '100%',
                   right: 0,
-                  width: '190px',
+                  width: '210px',
                   background: '#ffffff',
                   border: '1px solid #EDEDED',
                   borderRadius: '14px',
-                  boxShadow: '0 12px 40px rgba(0,0,0,0.10)',
+                  boxShadow: '0 12px 40px rgba(0,0,0,0.12)',
                   padding: '8px',
                   marginTop: '6px',
                   zIndex: 60,
                 }}>
                   <div
+                    id="btn-navbar-dashboard"
+                    onClick={() => { onOpenDashboard?.(); setProfileMenuOpen(false); }}
+                    style={{ ...DROPDOWN_ITEM_STYLE, color: '#1F1F1F', fontWeight: 600 }}
+                    onMouseEnter={e => { e.currentTarget.style.background = '#F5F5F5'; }}
+                    onMouseLeave={e => { e.currentTarget.style.background = 'transparent'; }}
+                  >
+                    <span style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                      <User size={15} color="#E71D2B" />
+                      My Dashboard
+                    </span>
+                  </div>
+                  <div
+                    id="btn-navbar-add-prop"
                     onClick={() => { onOpenListProperty(); setProfileMenuOpen(false); }}
                     style={{ ...DROPDOWN_ITEM_STYLE, color: '#1F1F1F' }}
                     onMouseEnter={e => { e.currentTarget.style.background = '#F5F5F5'; }}
                     onMouseLeave={e => { e.currentTarget.style.background = 'transparent'; }}
                   >
-                    + Add New Property
+                    <span style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                      <PlusCircle size={15} color="#555" />
+                      Add New Property
+                    </span>
                   </div>
                   <div style={{ height: '1px', background: '#EDEDED', margin: '4px 0' }} />
                   <div
+                    id="btn-navbar-signout"
                     onClick={() => { onLogout(); setProfileMenuOpen(false); }}
                     style={{ ...DROPDOWN_ITEM_STYLE, color: '#E71D2B' }}
                     onMouseEnter={e => { e.currentTarget.style.background = '#FFF0F1'; }}
                     onMouseLeave={e => { e.currentTarget.style.background = 'transparent'; }}
                   >
-                    <LogOut size={13} />
-                    Sign Out
+                    <span style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                      <LogOut size={15} />
+                      Sign Out
+                    </span>
                   </div>
                 </div>
               )}

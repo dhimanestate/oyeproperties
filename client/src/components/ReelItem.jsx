@@ -228,9 +228,9 @@ export default function ReelItem({
 
               {property.isOwnerListing ? (
                 <div style={{
-                  background: '#eff6ff',
-                  border: '1px solid #bfdbfe',
-                  color: '#1d4ed8',
+                  background: '#FFF0F1',
+                  border: '1px solid rgba(231, 29, 43, 0.25)',
+                  color: '#E71D2B',
                   padding: '4px 10px',
                   borderRadius: 'var(--radius-full)',
                   fontSize: '11px',
@@ -372,8 +372,8 @@ export default function ReelItem({
                       width: '14px',
                       height: '14px',
                       borderRadius: '50%',
-                      background: '#eff6ff',
-                      color: '#2563eb',
+                      background: '#FFF0F1',
+                      color: '#E71D2B',
                       display: 'flex',
                       alignItems: 'center',
                       justifyContent: 'center',
@@ -395,7 +395,7 @@ export default function ReelItem({
                   </span>
                   <button 
                     onClick={() => onOpenDetail(property)}
-                    style={{ background: 'none', border: 'none', color: '#2563eb', fontSize: '11px', fontWeight: 600, cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '2px' }}
+                    style={{ background: 'none', border: 'none', color: '#E71D2B', fontSize: '11px', fontWeight: 600, cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '2px' }}
                   >
                     <span>View Gallery</span>
                     <ChevronRight size={12} />
@@ -674,7 +674,7 @@ export default function ReelItem({
                 </>
               ) : (
                 <>
-                  <Volume2 size={16} color="#2563eb" />
+                  <Volume2 size={16} color="#E71D2B" />
                   <div style={{ display: 'flex', alignItems: 'center', gap: '2px', height: '14px' }}>
                     <div className="soundwave-bar" />
                     <div className="soundwave-bar" />
@@ -860,11 +860,11 @@ export default function ReelItem({
 
           {property.isOwnerListing ? (
             <div style={{
-              background: 'rgba(30, 58, 138, 0.75)',
+              background: 'rgba(231, 29, 43, 0.9)',
               backdropFilter: 'blur(10px)',
               WebkitBackdropFilter: 'blur(10px)',
-              border: '1px solid rgba(147, 197, 253, 0.4)',
-              color: '#dbeafe',
+              border: '1px solid rgba(255, 255, 255, 0.4)',
+              color: '#ffffff',
               padding: '4px 10px',
               borderRadius: 'var(--radius-full)',
               fontSize: '10.5px',

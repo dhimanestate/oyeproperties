@@ -70,11 +70,11 @@ export default function AIVibeSearchBar({
               width: '38px',
               height: '38px',
               borderRadius: '12px',
-              background: 'linear-gradient(135deg, #0b1c3d 0%, #1e3a8a 100%)',
+              background: 'linear-gradient(135deg, #E71D2B 0%, #C41523 100%)',
               display: 'flex',
               alignItems: 'center',
               justifyContent: 'center',
-              boxShadow: '0 4px 12px rgba(11, 28, 61, 0.2)',
+              boxShadow: '0 2px 8px rgba(0, 0, 0, 0.08)',
               flexShrink: 0
             }}>
               <Sparkles size={18} color="#ffffff" />
@@ -202,7 +202,7 @@ export default function AIVibeSearchBar({
                 onMouseEnter={e => {
                   e.currentTarget.style.borderColor = 'var(--accent-primary)';
                   e.currentTarget.style.color = 'var(--accent-primary)';
-                  e.currentTarget.style.background = '#eff6ff';
+                  e.currentTarget.style.background = '#FFF0F1';
                 }}
                 onMouseLeave={e => {
                   e.currentTarget.style.borderColor = 'var(--border-subtle)';
@@ -277,9 +277,9 @@ export default function AIVibeSearchBar({
                             <span
                               key={idx}
                               style={{
-                                background: '#eff6ff',
-                                color: '#1d4ed8',
-                                border: '1px solid #bfdbfe',
+                                background: '#FFF0F1',
+                                color: '#E71D2B',
+                                border: '1px solid rgba(231, 29, 43, 0.25)',
                                 fontSize: '9.5px',
                                 padding: '2px 6px',
                                 borderRadius: '4px',

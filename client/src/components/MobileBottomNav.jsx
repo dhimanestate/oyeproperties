@@ -10,7 +10,8 @@ export default function MobileBottomNav({
   wishlistCount,
   onOpenWishlist,
   currentUser,
-  onOpenAuth
+  onOpenAuth,
+  onOpenDashboard,
 }) {
   const tabStyle = (active) => ({
     background: 'transparent',
@@ -112,14 +113,15 @@ export default function MobileBottomNav({
         <span style={labelStyle(false)}>Saved</span>
       </button>
 
-      {/* 5. Profile */}
+      {/* 5. Profile / Dashboard */}
       <button
-        onClick={onOpenAuth}
+        id="btn-mobile-profile"
+        onClick={currentUser ? onOpenDashboard : onOpenAuth}
         style={tabStyle(!!currentUser)}
       >
         <User size={20} strokeWidth={currentUser ? 2.4 : 1.8} />
         <span style={labelStyle(!!currentUser)}>
-          {currentUser ? 'Profile' : 'Sign In'}
+          {currentUser ? 'Dashboard' : 'Sign In'}
         </span>
       </button>
     </nav>

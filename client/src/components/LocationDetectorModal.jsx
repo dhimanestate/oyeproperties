@@ -88,11 +88,11 @@ export default function LocationDetectorModal({
               width: '38px',
               height: '38px',
               borderRadius: '10px',
-              background: 'linear-gradient(135deg, #0b1c3d 0%, #1e3a8a 100%)',
+              background: 'linear-gradient(135deg, #E71D2B 0%, #C41523 100%)',
               display: 'flex',
               alignItems: 'center',
               justifyContent: 'center',
-              boxShadow: '0 4px 12px rgba(11, 28, 61, 0.2)'
+              boxShadow: '0 2px 8px rgba(0, 0, 0, 0.08)'
             }}>
               <Compass size={20} color="#ffffff" />
             </div>
@@ -124,8 +124,8 @@ export default function LocationDetectorModal({
 
         {/* GPS Live Detection Banner */}
         <div style={{
-          background: 'linear-gradient(135deg, #f0f7ff 0%, #e0f2fe 100%)',
-          border: '1px solid #bfdbfe',
+          background: 'linear-gradient(135deg, #FFF0F1 0%, #FFE4E6 100%)',
+          border: '1px solid rgba(231, 29, 43, 0.2)',
           borderRadius: 'var(--radius-md)',
           padding: '16px',
           marginBottom: '24px',
@@ -186,7 +186,7 @@ export default function LocationDetectorModal({
                   onClose();
                 }}
                 style={{
-                  background: isSelected ? '#eff6ff' : '#f8fafc',
+                  background: isSelected ? '#FFF0F1' : '#f8fafc',
                   border: isSelected ? '2px solid var(--accent-primary)' : '1px solid var(--border-subtle)',
                   borderRadius: 'var(--radius-md)',
                   padding: '12px',

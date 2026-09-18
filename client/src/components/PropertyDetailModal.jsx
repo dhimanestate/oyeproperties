@@ -571,7 +571,7 @@ export default function PropertyDetailModal({
 
                     <div>
                       <div style={{ fontSize: '10.5px', color: 'var(--text-muted)', fontWeight: 600 }}>5-Yr Capital Gain Est.</div>
-                      <div style={{ fontSize: '15px', fontWeight: 800, color: '#2563eb' }}>
+                      <div style={{ fontSize: '15px', fontWeight: 800, color: '#E71D2B' }}>
                         {property.financials.projectedCapitalAppreciation5Yr}
                       </div>
                     </div>
@@ -604,7 +604,7 @@ export default function PropertyDetailModal({
                 {property.title}
               </h2>
               <div style={{ display: 'flex', alignItems: 'center', gap: '6px', color: 'var(--text-secondary)', fontSize: '12px' }}>
-                <MapPin size={13} color="#2563eb" />
+                <MapPin size={13} color="#E71D2B" />
                 {property.location.address}
               </div>
             </div>
@@ -685,7 +685,7 @@ export default function PropertyDetailModal({
                     gap: '5px'
                   }}
                 >
-                  <Sparkles size={11} color="#2563eb" />
+                  <Sparkles size={11} color="#E71D2B" />
                   {amenity}
                 </span>
               ))}

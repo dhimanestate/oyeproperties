@@ -106,8 +106,8 @@ export default function WishlistDrawer({
         {/* Portfolio Summary Card */}
         {wishlist.length > 0 && (
           <div style={{
-            background: 'linear-gradient(135deg, #f0f7ff 0%, #e0edff 100%)',
-            border: '1px solid #bfdbfe',
+            background: 'linear-gradient(135deg, #FFF0F1 0%, #FFE4E6 100%)',
+            border: '1px solid rgba(231, 29, 43, 0.2)',
             borderRadius: 'var(--radius-md)',
             padding: '16px',
             marginBottom: '20px',

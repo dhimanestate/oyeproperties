@@ -213,7 +213,7 @@ export default function CompareDrawer({
                 Category
               </div>
               {comparedProperties.map(p => (
-                <div key={p.id} style={{ fontSize: '13px', fontWeight: 700, color: '#2563eb', borderTop: '1px solid var(--border-subtle)', paddingTop: '10px' }}>
+                <div key={p.id} style={{ fontSize: '13px', fontWeight: 700, color: '#E71D2B', borderTop: '1px solid var(--border-subtle)', paddingTop: '10px' }}>
                   {p.propertyType}
                 </div>
               ))}

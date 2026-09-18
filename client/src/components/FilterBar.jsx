@@ -50,16 +50,16 @@ export default function FilterBar({
               type="button"
               onClick={() => onFilterChange('bhk', b)}
               style={{
-                background: filters.bhk === b ? '#0b1c3d' : 'var(--bg-secondary)',
+                background: filters.bhk === b ? '#E71D2B' : 'var(--bg-secondary)',
                 color: filters.bhk === b ? '#ffffff' : 'var(--text-secondary)',
-                border: filters.bhk === b ? '1px solid #0b1c3d' : '1px solid var(--border-subtle)',
+                border: filters.bhk === b ? '1px solid #E71D2B' : '1px solid var(--border-subtle)',
                 borderRadius: 'var(--radius-full)',
                 padding: '6px 14px',
                 fontSize: '12px',
                 fontWeight: filters.bhk === b ? 700 : 500,
                 cursor: 'pointer',
                 transition: 'all 0.2s ease',
-                boxShadow: filters.bhk === b ? '0 2px 8px rgba(11, 28, 61, 0.2)' : 'none'
+                boxShadow: filters.bhk === b ? '0 2px 8px rgba(231, 29, 43, 0.22)' : 'none'
               }}
             >
               {b === 'all' ? 'All BHK' : `${b} BHK`}
@@ -76,9 +76,9 @@ export default function FilterBar({
               type="button"
               onClick={() => onFilterChange('propertyType', filters.propertyType === t.value ? 'all' : t.value)}
               style={{
-                background: filters.propertyType === t.value ? '#0b1c3d' : 'var(--bg-secondary)',
+                background: filters.propertyType === t.value ? '#E71D2B' : 'var(--bg-secondary)',
                 color: filters.propertyType === t.value ? '#ffffff' : 'var(--text-secondary)',
-                border: filters.propertyType === t.value ? '1px solid #0b1c3d' : '1px solid var(--border-subtle)',
+                border: filters.propertyType === t.value ? '1px solid #E71D2B' : '1px solid var(--border-subtle)',
                 borderRadius: 'var(--radius-full)',
                 padding: '6px 14px',
                 fontSize: '12px',
@@ -150,7 +150,7 @@ export default function FilterBar({
                     border: 'none',
                     cursor: 'pointer',
                     transition: 'all 0.2s ease',
-                    boxShadow: filters.bhk === b ? '0 2px 8px rgba(11, 28, 61, 0.3)' : 'none'
+                    boxShadow: filters.bhk === b ? '0 2px 8px rgba(231, 29, 43, 0.22)' : 'none'
                   }}
                 >
                   {b === 'all' ? 'All' : b === '5' ? '5+ BHK' : `${b} BHK`}

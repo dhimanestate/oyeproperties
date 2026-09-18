@@ -189,7 +189,7 @@ export default function CallbackModal({
                 }}
               />
               <div style={{ flex: 1 }}>
-                <div style={{ fontSize: '11px', color: '#2563eb', fontWeight: 700 }}>
+                <div style={{ fontSize: '11px', color: '#E71D2B', fontWeight: 700 }}>
                   Assigned Private Portfolio Manager
                 </div>
                 <div style={{ fontSize: '15px', fontWeight: 800, color: 'var(--text-primary)' }}>
