@@ -415,6 +415,155 @@ html, body {
     z-index: 1;
   }
 
+  /* Sideways Horizontal Media Carousel */
+  .reel-media-carousel {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    display: flex;
+    overflow-x: auto;
+    overflow-y: hidden;
+    scroll-snap-type: x mandatory;
+    -webkit-overflow-scrolling: touch;
+    scrollbar-width: none;
+    z-index: 1;
+  }
+
+  .reel-media-carousel::-webkit-scrollbar {
+    display: none;
+  }
+
+  .reel-media-slide {
+    flex: 0 0 100%;
+    width: 100%;
+    height: 100%;
+    scroll-snap-align: start;
+    scroll-snap-stop: always;
+    position: relative;
+    overflow: hidden;
+    background: #020617;
+  }
+
+  .reel-carousel-image {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    display: block;
+    user-select: none;
+  }
+
+  /* Instagram-style Story / Carousel Dots & Counter Badge */
+  .reel-carousel-indicator-wrap {
+    position: absolute;
+    top: 48px;
+    left: 14px;
+    right: 14px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 10px;
+    z-index: 15;
+    pointer-events: none;
+  }
+
+  .reel-carousel-indicator-wrap.desktop-pos {
+    top: 68px;
+    left: 28px;
+    right: 28px;
+  }
+
+  .reel-carousel-dots {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    pointer-events: auto;
+  }
+
+  .reel-carousel-dot {
+    height: 3.5px;
+    width: 14px;
+    border-radius: 4px;
+    background: rgba(255, 255, 255, 0.4);
+    border: none;
+    padding: 0;
+    cursor: pointer;
+    transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+  }
+
+  .reel-carousel-dot.active {
+    width: 24px;
+    background: #38bdf8;
+    box-shadow: 0 0 10px rgba(56, 189, 248, 0.9);
+  }
+
+  .reel-carousel-counter-badge {
+    background: rgba(0, 0, 0, 0.55);
+    backdrop-filter: blur(8px);
+    -webkit-backdrop-filter: blur(8px);
+    border: 1px solid rgba(255, 255, 255, 0.22);
+    color: #ffffff;
+    padding: 3px 8px;
+    border-radius: var(--radius-full);
+    font-size: 10.5px;
+    font-weight: 700;
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    pointer-events: auto;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.35);
+  }
+
+  /* Floating Tap Chevron Buttons */
+  .reel-media-nav-btn {
+    position: absolute;
+    top: 50%;
+    transform: translateY(-50%);
+    width: 34px;
+    height: 34px;
+    border-radius: 50%;
+    background: rgba(0, 0, 0, 0.45);
+    backdrop-filter: blur(8px);
+    -webkit-backdrop-filter: blur(8px);
+    border: 1px solid rgba(255, 255, 255, 0.3);
+    color: #ffffff;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    z-index: 18;
+    padding: 0;
+    transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+    box-shadow: 0 4px 14px rgba(0, 0, 0, 0.45);
+  }
+
+  .reel-media-nav-btn:hover {
+    background: #2563eb;
+    border-color: rgba(255, 255, 255, 0.6);
+    transform: translateY(-50%) scale(1.1);
+  }
+
+  .reel-media-nav-btn.prev {
+    left: 10px;
+  }
+
+  .reel-media-nav-btn.next {
+    right: 10px;
+  }
+
+  .reel-media-nav-btn.desktop-pos.prev {
+    left: 18px;
+    width: 38px;
+    height: 38px;
+  }
+
+  .reel-media-nav-btn.desktop-pos.next {
+    right: 18px;
+    width: 38px;
+    height: 38px;
+  }
+
   .reel-gradient-overlay {
     position: absolute;
     top: 0;

@@ -40,7 +40,9 @@
     },
     "reelVideo": "https://assets.mixkit.co/videos/preview/mixkit-modern-luxury-house-exterior-at-night-42998-large.mp4",
     "images": [
-      "https://images.unsplash.com/photo-1600607687939-ce8a6c25118c?auto=format&fit=crop&w=1200&q=80"
+      "https://images.unsplash.com/photo-1600607687939-ce8a6c25118c?auto=format&fit=crop&w=1200&q=80",
+      "https://images.unsplash.com/photo-1600596542815-ffad4c1539a9?auto=format&fit=crop&w=1200&q=80",
+      "https://images.unsplash.com/photo-1600585154340-be6161a56a0c?auto=format&fit=crop&w=1200&q=80"
     ],
     "virtualTour360": {
       "enabled": true,

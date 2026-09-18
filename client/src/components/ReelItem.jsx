@@ -1,4 +1,4 @@
-import React, { useState, useRef, useEffect } from 'react';
+import React, { useState, useRef, useEffect, useMemo } from 'react';
 import { 
   Heart, 
   Info, 
@@ -22,6 +22,7 @@ import {
   Images, 
   Award,
   ChevronRight,
+  ChevronLeft,
   Maximize
 } from 'lucide-react';
 
@@ -37,15 +38,43 @@ export default function ReelItem({
   isMobile
 }) {
   const videoRef = useRef(null);
+  const carouselRef = useRef(null);
+  const desktopCarouselRef = useRef(null);
+  const [activeMediaIndex, setActiveMediaIndex] = useState(0);
   const [likesCount, setLikesCount] = useState(property.likesCount || 1280);
   const [showHeartBurst, setShowHeartBurst] = useState(false);
   const [isPlaying, setIsPlaying] = useState(true);
   const [showPlayOverlay, setShowPlayOverlay] = useState(false);
 
-  // Auto-play / pause video when slide enters / leaves active viewport
+  // Full media list for sideways carousel: video first, then all high-res photos
+  const mediaItems = useMemo(() => {
+    const list = [];
+    if (property.reelVideo) {
+      list.push({
+        id: `${property.id}-media-video`,
+        type: 'video',
+        src: property.reelVideo,
+        poster: property.images?.[0],
+        title: 'Cinematic Reel Tour'
+      });
+    }
+    if (Array.isArray(property.images)) {
+      property.images.forEach((img, idx) => {
+        list.push({
+          id: `${property.id}-media-img-${idx}`,
+          type: 'image',
+          src: img,
+          title: idx === 0 ? 'Exterior Elevation' : `Interior View ${idx + 1}`
+        });
+      });
+    }
+    return list.length > 0 ? list : [{ id: `${property.id}-media-fallback`, type: 'image', src: property.images?.[0] }];
+  }, [property]);
+
+  // Auto-play / pause video when slide enters / leaves active viewport or changes media slide
   useEffect(() => {
     if (videoRef.current) {
-      if (isActive) {
+      if (isActive && activeMediaIndex === 0) {
         videoRef.current.currentTime = 0;
         const playPromise = videoRef.current.play();
         if (playPromise !== undefined) {
@@ -54,7 +83,7 @@ export default function ReelItem({
             .catch(() => {
               if (videoRef.current) {
                 videoRef.current.muted = true;
-                videoRef.current.play();
+                videoRef.current.play().catch(() => {});
                 setIsPlaying(true);
               }
             });
@@ -64,7 +93,53 @@ export default function ReelItem({
         setIsPlaying(false);
       }
     }
+  }, [isActive, activeMediaIndex]);
+
+  // Reset to first slide (video) when scrolling away to another property
+  useEffect(() => {
+    if (!isActive) {
+      setActiveMediaIndex(0);
+      if (carouselRef.current) {
+        carouselRef.current.scrollLeft = 0;
+      }
+      if (desktopCarouselRef.current) {
+        desktopCarouselRef.current.scrollLeft = 0;
+      }
+    }
   }, [isActive]);
+
+  const scrollToMedia = (idx, e) => {
+    e?.stopPropagation();
+    if (idx < 0 || idx >= mediaItems.length) return;
+    setActiveMediaIndex(idx);
+    if (carouselRef.current) {
+      const slide = carouselRef.current.children[idx];
+      if (slide) {
+        carouselRef.current.scrollTo({
+          left: slide.offsetLeft,
+          behavior: 'smooth'
+        });
+      }
+    }
+    if (desktopCarouselRef.current) {
+      const slide = desktopCarouselRef.current.children[idx];
+      if (slide) {
+        desktopCarouselRef.current.scrollTo({
+          left: slide.offsetLeft,
+          behavior: 'smooth'
+        });
+      }
+    }
+  };
+
+  const handleCarouselScroll = (e) => {
+    const container = e.currentTarget;
+    if (!container || container.clientWidth === 0) return;
+    const newIdx = Math.round(container.scrollLeft / container.clientWidth);
+    if (newIdx !== activeMediaIndex && newIdx >= 0 && newIdx < mediaItems.length) {
+      setActiveMediaIndex(newIdx);
+    }
+  };
 
   // Sync mute state with video element
   useEffect(() => {
@@ -72,6 +147,7 @@ export default function ReelItem({
       videoRef.current.muted = isMuted;
     }
   }, [isMuted]);
+
 
   const handleTogglePlay = (e) => {
     e?.stopPropagation();
@@ -426,18 +502,97 @@ export default function ReelItem({
         {/* Right Side: Full-Height Cinematic Video Canvas (Zero Blank Area Left & Right) */}
         <div 
           className="reel-desktop-video-panel"
-          onClick={handleTogglePlay}
-          style={{ cursor: 'pointer' }}
+          style={{ position: 'relative', overflow: 'hidden' }}
         >
-          <video
-            ref={videoRef}
-            src={property.reelVideo}
-            poster={property.images[0]}
-            loop
-            muted={isMuted}
-            playsInline
-          />
+          {/* Horizontal Media Carousel */}
+          <div 
+            ref={desktopCarouselRef}
+            className="reel-media-carousel"
+            onScroll={handleCarouselScroll}
+          >
+            {mediaItems.map((item, idx) => (
+              <div 
+                key={`desktop-${item.id}`} 
+                className="reel-media-slide" 
+                onClick={handleTogglePlay}
+                style={{ cursor: 'pointer' }}
+              >
+                {item.type === 'video' ? (
+                  <video
+                    ref={videoRef}
+                    src={item.src}
+                    poster={item.poster}
+                    loop
+                    muted={isMuted}
+                    playsInline
+                  />
+                ) : (
+                  <img
+                    src={item.src}
+                    alt={`${property.title} - View ${idx}`}
+                    className="reel-carousel-image"
+                    loading={idx < 2 ? 'eager' : 'lazy'}
+                  />
+                )}
+              </div>
+            ))}
+          </div>
+
           <div className="reel-desktop-video-overlay" />
+
+          {/* Desktop Media Carousel Indicators */}
+          {mediaItems.length > 1 && (
+            <div className="reel-carousel-indicator-wrap desktop-pos">
+              <div className="reel-carousel-dots">
+                {mediaItems.map((_, i) => (
+                  <button
+                    key={`d-dot-${i}`}
+                    type="button"
+                    onClick={(e) => scrollToMedia(i, e)}
+                    className={`reel-carousel-dot ${i === activeMediaIndex ? 'active' : ''}`}
+                    title={`View media ${i + 1}`}
+                  />
+                ))}
+              </div>
+              <div className="reel-carousel-counter-badge">
+                {activeMediaIndex === 0 && mediaItems[0].type === 'video' ? (
+                  <>
+                    <Play size={10} fill="#ffffff" />
+                    <span>Video 1/{mediaItems.length}</span>
+                  </>
+                ) : (
+                  <>
+                    <Images size={11} />
+                    <span>Photo {activeMediaIndex + 1}/{mediaItems.length}</span>
+                  </>
+                )}
+              </div>
+            </div>
+          )}
+
+          {/* Desktop Left/Right Media Chevrons */}
+          {mediaItems.length > 1 && activeMediaIndex > 0 && (
+            <button
+              type="button"
+              className="reel-media-nav-btn desktop-pos prev"
+              onClick={(e) => scrollToMedia(activeMediaIndex - 1, e)}
+              title="Previous photo"
+            >
+              <ChevronLeft size={22} strokeWidth={2.4} />
+            </button>
+          )}
+
+          {mediaItems.length > 1 && activeMediaIndex < mediaItems.length - 1 && (
+            <button
+              type="button"
+              className="reel-media-nav-btn desktop-pos next"
+              onClick={(e) => scrollToMedia(activeMediaIndex + 1, e)}
+              title="Next photo"
+            >
+              <ChevronRight size={22} strokeWidth={2.4} />
+            </button>
+          )}
+
 
           {/* Play / Pause Interactive Ripple Overlay */}
           {showPlayOverlay && (
@@ -588,19 +743,94 @@ export default function ReelItem({
   return (
     <div className="reel-slide reel-card" id={`reel-slide-${property.id}`}>
       <div className="reel-mobile-view">
-        {/* Fullscreen Video Background */}
-        <video
-          ref={videoRef}
-          className="reel-video"
-          src={property.reelVideo}
-          poster={property.images[0]}
-          loop
-          muted={isMuted}
-          playsInline
-          onClick={handleTogglePlay}
-        />
+        {/* Horizontal Carousel Container (Sideways swipe to check property images) */}
+        <div 
+          ref={carouselRef}
+          className="reel-media-carousel"
+          onScroll={handleCarouselScroll}
+        >
+          {mediaItems.map((item, idx) => (
+            <div key={item.id} className="reel-media-slide">
+              {item.type === 'video' ? (
+                <video
+                  ref={videoRef}
+                  className="reel-video"
+                  src={item.src}
+                  poster={item.poster}
+                  loop
+                  muted={isMuted}
+                  playsInline
+                  onClick={handleTogglePlay}
+                />
+              ) : (
+                <img
+                  src={item.src}
+                  alt={`${property.title} - View ${idx}`}
+                  className="reel-carousel-image"
+                  loading={idx < 2 ? 'eager' : 'lazy'}
+                  onClick={handleTogglePlay}
+                />
+              )}
+            </div>
+          ))}
+        </div>
 
         <div className="reel-gradient-overlay" />
+
+        {/* Carousel Story Indicator Dots & Media Counter (Instagram style) */}
+        {mediaItems.length > 1 && (
+          <div className="reel-carousel-indicator-wrap">
+            <div className="reel-carousel-dots">
+              {mediaItems.map((_, i) => (
+                <button
+                  key={`m-dot-${i}`}
+                  type="button"
+                  onClick={(e) => scrollToMedia(i, e)}
+                  className={`reel-carousel-dot ${i === activeMediaIndex ? 'active' : ''}`}
+                  title={`View item ${i + 1}`}
+                />
+              ))}
+            </div>
+            <div className="reel-carousel-counter-badge">
+              {activeMediaIndex === 0 && mediaItems[0].type === 'video' ? (
+                <>
+                  <Play size={10} fill="#ffffff" />
+                  <span>Video 1/{mediaItems.length}</span>
+                </>
+              ) : (
+                <>
+                  <Images size={11} />
+                  <span>Photo {activeMediaIndex + 1}/{mediaItems.length}</span>
+                </>
+              )}
+            </div>
+          </div>
+        )}
+
+        {/* Floating Left Chevron Arrow (Tap to go to previous media) */}
+        {mediaItems.length > 1 && activeMediaIndex > 0 && (
+          <button
+            type="button"
+            className="reel-media-nav-btn prev"
+            onClick={(e) => scrollToMedia(activeMediaIndex - 1, e)}
+            title="Previous photo"
+          >
+            <ChevronLeft size={22} strokeWidth={2.4} />
+          </button>
+        )}
+
+        {/* Floating Right Chevron Arrow (Tap to go to next media) */}
+        {mediaItems.length > 1 && activeMediaIndex < mediaItems.length - 1 && (
+          <button
+            type="button"
+            className="reel-media-nav-btn next"
+            onClick={(e) => scrollToMedia(activeMediaIndex + 1, e)}
+            title="Next photo"
+          >
+            <ChevronRight size={22} strokeWidth={2.4} />
+          </button>
+        )}
+
 
         {/* Top Badges: Location & Verification (Positioned neatly beneath top sub-navbar) */}
         <div style={{
