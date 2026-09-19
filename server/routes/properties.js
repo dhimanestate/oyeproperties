@@ -66,6 +66,8 @@ router.get('/', async (req, res) => {
 
     if (mongoose.connection.readyState === 1) {
       const query = {};
+      // Only show approved properties to the public
+      query.approvalStatus = 'approved';
 
       if (city && city !== 'all' && city !== 'All Cities') {
         query['location.city'] = { $regex: new RegExp(`^${city}$`, 'i') };
@@ -324,6 +326,8 @@ router.post('/', requireAuth, async (req, res) => {
       likesCount: 0,
       viewsCount: 0,
       listedBy: userId,
+      approvalStatus: 'pending', // Requires admin approval before going live
+      isOyeListing: false,
     };
 
     if (mongoose.connection.readyState === 1) {

@@ -46,6 +46,21 @@ const userSchema = new mongoose.Schema({
     type: Boolean,
     default: false,
   },
+
+  // ─── Admin Control Fields ─────────────────────────────────────────────────
+  isBanned: { type: Boolean, default: false },
+  banReason: { type: String },
+  lastActiveAt: { type: Date },
+
+  // In-app notifications (bell icon)
+  notifications: [{
+    title: { type: String, required: true },
+    message: { type: String, required: true },
+    type: { type: String, enum: ['offer', 'alert', 'reminder', 'approval', 'general'], default: 'general' },
+    read: { type: Boolean, default: false },
+    link: { type: String },
+    createdAt: { type: Date, default: Date.now },
+  }],
 }, {
   timestamps: true,
 });

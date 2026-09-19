@@ -4,12 +4,25 @@
     "name": "Rohan Dhiman",
     "email": "rohan@oyeproperties.com",
     "phone": "+91 98765 43210",
-    "password": "$2b$10$RURsCakH9KadcwkTh6VPdOYDoBzHpWewxXSFva.thx5BnMFJ2FK/6",
-    "role": "Property Owner",
+    "password": "$2a$10$aF5yMrpMtndFaALDKdS9EO1Y51Tsa.zr7p.1EYWDRtMlldp4vV/YS",
+    "role": "Admin",
     "avatar": "https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=300&q=80",
     "createdAt": "2026-09-18T12:39:50.142Z",
     "wishlist": [
       "prop-103"
-    ]
+    ],
+    "notifications": []
+  },
+  {
+    "_id": "usr-rohan-dhiman-gmail",
+    "name": "Rohan Dhiman",
+    "email": "dhimanrohan09@gmail.com",
+    "phone": "+91 98765 43210",
+    "password": "$2a$10$aF5yMrpMtndFaALDKdS9EO1Y51Tsa.zr7p.1EYWDRtMlldp4vV/YS",
+    "role": "Admin",
+    "avatar": "https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=300&q=80",
+    "createdAt": "2026-09-18T12:39:50.142Z",
+    "wishlist": [],
+    "notifications": []
   }
 ]

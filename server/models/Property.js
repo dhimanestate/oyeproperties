@@ -101,6 +101,40 @@ const propertySchema = new mongoose.Schema({
     enum: ['buy', 'rent', 'commercial', 'all'],
     default: 'buy',
   },
+
+  // ─── Admin Control Fields ─────────────────────────────────────────────────
+  // Approval workflow: user-submitted listings start as 'pending'
+  approvalStatus: {
+    type: String,
+    enum: ['pending', 'approved', 'rejected'],
+    default: 'approved', // admin-posted default to approved; user-posted overridden in route
+    index: true,
+  },
+
+  // True = posted directly by an admin (Oye Properties official listing)
+  isOyeListing: { type: Boolean, default: false, index: true },
+
+  // Manually curated by admin as a Top Pick
+  topPick: { type: Boolean, default: false, index: true },
+
+  // Cities where this property is pinned/promoted
+  pinnedInCities: [{ type: String }],
+
+  // Track when last 10-day refresh reminder was sent to the lister
+  lastRefreshPromptSentAt: { type: Date },
+
+  // Availability status confirmed by lister
+  listingStatus: {
+    type: String,
+    enum: ['available', 'sold', 'rented', 'unknown'],
+    default: 'available',
+  },
+
+  // Admin rejection reason / internal notes
+  adminNotes: { type: String },
+
+  // Priority score for area-wise promotion (higher = shown first)
+  promotionScore: { type: Number, default: 0 },
 }, {
   timestamps: true,
 });

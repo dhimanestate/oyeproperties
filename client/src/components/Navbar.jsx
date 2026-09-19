@@ -1,4 +1,5 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
+
 import {
   Zap,
   LayoutGrid,
@@ -11,7 +12,10 @@ import {
   RotateCw,
   LogOut,
   CheckCircle2,
-  CalendarCheck
+  CalendarCheck,
+  Bell,
+  Shield,
+  X
 } from 'lucide-react';
 import OyeLogo from './OyeLogo';
 
@@ -63,10 +67,15 @@ export default function Navbar({
   onOpenDashboard,
   onLogout,
   onDetectGPS,
-  isDetectingGPS
+  isDetectingGPS,
+  onOpenAdminPanel,
+  notifications,
+  unreadNotifCount,
+  onMarkNotifsRead,
 }) {
   const [exploreOpen, setExploreOpen] = useState(false);
   const [profileMenuOpen, setProfileMenuOpen] = useState(false);
+  const [notifOpen, setNotifOpen] = useState(false);
 
   const cities = ['All Cities', 'Mumbai', 'Delhi NCR', 'Dubai', 'Goa', 'Bangalore', 'Hyderabad'];
 
@@ -107,7 +116,7 @@ export default function Navbar({
                 borderRadius: '14px',
                 boxShadow: '0 12px 40px rgba(0,0,0,0.10)',
                 padding: '10px',
-                zIndex: 60,
+                zIndex: 1100,
               }}>
                 <div style={{ fontSize: '10px', fontWeight: 600, color: '#999', textTransform: 'uppercase', letterSpacing: '0.12em', marginBottom: '6px', padding: '0 6px' }}>
                   Select City
@@ -212,6 +221,92 @@ export default function Navbar({
             {currentCity === 'all' ? 'All' : currentCity || 'Mumbai'}
           </span>
         </button>
+
+        {/* Mobile Admin Portal Button (Visible only to Admin users on Mobile) */}
+        {currentUser?.role === 'Admin' && (
+          <button
+            id="btn-mobile-navbar-admin"
+            onClick={onOpenAdminPanel}
+            className="hidden-desktop"
+            style={{
+              background: '#FFF0F1',
+              border: '1.5px solid #E71D2B',
+              borderRadius: '9999px',
+              height: '34px',
+              padding: '0 10px',
+              display: 'flex',
+              alignItems: 'center',
+              gap: '4px',
+              fontSize: '11.5px',
+              fontWeight: 700,
+              fontFamily: "'Poppins', sans-serif",
+              color: '#E71D2B',
+              cursor: 'pointer',
+              whiteSpace: 'nowrap',
+              flexShrink: 0,
+            }}
+            title="Open Admin Console"
+          >
+            <Shield size={13} color="#E71D2B" />
+            <span>Admin</span>
+          </button>
+        )}
+
+        {/* Mobile Profile / Sign In Button */}
+        {currentUser ? (
+          <button
+            id="btn-mobile-navbar-profile"
+            onClick={onOpenDashboard}
+            className="hidden-desktop"
+            style={{
+              background: '#F5F5F5',
+              border: '1.5px solid #E71D2B',
+              borderRadius: '50%',
+              width: '34px',
+              height: '34px',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              cursor: 'pointer',
+              padding: 0,
+              flexShrink: 0,
+              overflow: 'hidden',
+            }}
+            title="Open Dashboard"
+          >
+            <img
+              src={currentUser.avatar || 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=150&q=80'}
+              alt={currentUser.name}
+              style={{ width: '100%', height: '100%', objectFit: 'cover' }}
+            />
+          </button>
+        ) : (
+          <button
+            id="btn-mobile-navbar-signin"
+            onClick={onOpenAuth}
+            className="hidden-desktop"
+            style={{
+              background: '#ffffff',
+              color: '#E71D2B',
+              border: '1.5px solid #E71D2B',
+              borderRadius: '9999px',
+              height: '32px',
+              padding: '0 10px',
+              fontSize: '11px',
+              fontWeight: 600,
+              fontFamily: "'Poppins', sans-serif",
+              cursor: 'pointer',
+              display: 'flex',
+              alignItems: 'center',
+              gap: '4px',
+              whiteSpace: 'nowrap',
+              flexShrink: 0,
+            }}
+          >
+            <User size={12} />
+            <span>Sign In</span>
+          </button>
+        )}
 
         {/* Desktop City Pill */}
         <div
@@ -346,6 +441,77 @@ export default function Navbar({
           List Property
         </button>
 
+        {/* Notification Bell (Desktop) */}
+        {currentUser && (
+          <div className="hidden-mobile" style={{ position: 'relative' }}>
+            <button
+              id="btn-navbar-notifications"
+              onClick={() => { setNotifOpen(!notifOpen); if (!notifOpen && onMarkNotifsRead) onMarkNotifsRead(); }}
+              style={{
+                background: '#F5F5F5',
+                border: '1px solid #EDEDED',
+                borderRadius: '9999px',
+                width: '36px', height: '36px',
+                display: 'flex', alignItems: 'center', justifyContent: 'center',
+                cursor: 'pointer',
+                position: 'relative',
+                transition: 'all 0.18s ease',
+                color: '#555555',
+              }}
+              title="Notifications"
+            >
+              <Bell size={16} color="#555" />
+              {unreadNotifCount > 0 && (
+                <span style={{
+                  position: 'absolute', top: '-4px', right: '-4px',
+                  background: '#E71D2B', color: '#fff',
+                  fontSize: '9px', fontWeight: 700,
+                  minWidth: '16px', height: '16px',
+                  borderRadius: '99px',
+                  display: 'flex', alignItems: 'center', justifyContent: 'center',
+                  padding: '0 3px',
+                }}>{unreadNotifCount > 9 ? '9+' : unreadNotifCount}</span>
+              )}
+            </button>
+
+            {notifOpen && (
+              <div style={{
+                position: 'absolute', top: '110%', right: 0,
+                width: '340px', maxHeight: '440px', overflowY: 'auto',
+                background: '#fff', border: '1px solid #EDEDED',
+                borderRadius: '16px', boxShadow: '0 16px 48px rgba(0,0,0,0.14)',
+                padding: '12px', zIndex: 1100,
+              }}>
+                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '8px', padding: '0 4px' }}>
+                  <div style={{ fontWeight: 700, fontSize: '13px', fontFamily: "'Poppins', sans-serif", color: '#1F1F1F' }}>Notifications</div>
+                  <button onClick={() => setNotifOpen(false)} style={{ background: 'none', border: 'none', cursor: 'pointer', color: '#999', padding: '2px' }}>
+                    <X size={15} />
+                  </button>
+                </div>
+                {(notifications || []).length === 0 ? (
+                  <div style={{ textAlign: 'center', color: '#999', padding: '2rem 0', fontFamily: "'Poppins', sans-serif", fontSize: '13px' }}>No notifications yet</div>
+                ) : (
+                  (notifications || []).slice(0, 20).map((n, i) => (
+                    <div key={i} style={{
+                      padding: '10px', borderRadius: '10px', marginBottom: '6px',
+                      background: n.read ? '#FAFAFA' : '#FFF0F1',
+                      border: n.read ? '1px solid #EDEDED' : '1px solid rgba(231,29,43,0.18)',
+                    }}>
+                      <div style={{ fontSize: '12.5px', fontWeight: 600, color: '#1F1F1F', fontFamily: "'Poppins', sans-serif", marginBottom: '3px' }}>
+                        {n.title}
+                      </div>
+                      <div style={{ fontSize: '11.5px', color: '#555', fontFamily: "'Poppins', sans-serif", lineHeight: 1.4 }}>{n.message}</div>
+                      <div style={{ fontSize: '10px', color: '#999', marginTop: '4px', fontFamily: "'Poppins', sans-serif" }}>
+                        {new Date(n.createdAt).toLocaleString('en-IN', { day: 'numeric', month: 'short', hour: '2-digit', minute: '2-digit' })}
+                      </div>
+                    </div>
+                  ))
+                )}
+              </div>
+            )}
+          </div>
+        )}
+
         {/* Profile / Auth (Desktop) */}
         <div className="hidden-mobile" style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
           {currentUser ? (
@@ -396,7 +562,7 @@ export default function Navbar({
                     boxShadow: '0 12px 40px rgba(0,0,0,0.12)',
                     padding: '8px',
                     marginTop: '6px',
-                    zIndex: 60,
+                    zIndex: 1100,
                   }}>
                     <div
                       id="btn-navbar-dashboard"
@@ -422,6 +588,21 @@ export default function Navbar({
                         Add New Property
                       </span>
                     </div>
+                    {currentUser.role === 'Admin' && (
+                      <div
+                        id="btn-navbar-admin"
+                        onClick={() => { onOpenAdminPanel?.(); setProfileMenuOpen(false); }}
+                        style={{ ...DROPDOWN_ITEM_STYLE, color: '#E71D2B', fontWeight: 600 }}
+                        onMouseEnter={e => { e.currentTarget.style.background = '#FFF0F1'; }}
+                        onMouseLeave={e => { e.currentTarget.style.background = 'transparent'; }}
+                      >
+                        <span style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                          <Shield size={14} color="#E71D2B" />
+                          Admin Console
+                        </span>
+                        <span style={{ background: '#E71D2B', color: '#fff', fontSize: '9px', padding: '2px 6px', borderRadius: '99px', fontWeight: 700 }}>ADMIN</span>
+                      </div>
+                    )}
                     <div style={{ height: '1px', background: '#EDEDED', margin: '4px 0' }} />
                     <div
                       id="btn-navbar-signout"

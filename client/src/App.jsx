@@ -15,6 +15,7 @@ import MobileBottomNav from './components/MobileBottomNav';
 import TopSearchFilterStrip from './components/TopSearchFilterStrip';
 import FilterModal from './components/FilterModal';
 import UserDashboard from './components/UserDashboard';
+import AdminPanel from './components/admin/AdminPanel';
 
 const TOKEN_KEY = 'oye_auth_token';
 
@@ -36,7 +37,12 @@ export default function App() {
   const [isAuthModalOpen, setIsAuthModalOpen] = useState(false);
   const [isListModalOpen, setIsListModalOpen] = useState(false);
   const [isDashboardOpen, setIsDashboardOpen] = useState(false);
+  const [isAdminPanelOpen, setIsAdminPanelOpen] = useState(false);
   const [authRedirectReason, setAuthRedirectReason] = useState('');
+
+  // Notifications
+  const [notifications, setNotifications] = useState([]);
+  const [unreadNotifCount, setUnreadNotifCount] = useState(0);
 
   // Properties Data
   const [properties, setProperties] = useState([]);
@@ -98,6 +104,42 @@ export default function App() {
         .catch(console.error);
     }
   }, [currentUser]);
+
+  // Fetch in-app notifications for logged-in user
+  const fetchNotifications = useCallback(async () => {
+    const token = localStorage.getItem(TOKEN_KEY);
+    if (!token || !currentUser) return;
+    try {
+      const r = await fetch(`${API_BASE}/api/users/notifications`, {
+        headers: { 'Authorization': `Bearer ${token}` },
+      });
+      const data = await r.json();
+      if (data.success && Array.isArray(data.notifications)) {
+        setNotifications(data.notifications);
+        setUnreadNotifCount(data.notifications.filter(n => !n.read).length);
+      }
+    } catch { /* silent */ }
+  }, [currentUser]);
+
+  useEffect(() => {
+    fetchNotifications();
+    // Poll every 30 seconds for new notifications
+    const interval = setInterval(fetchNotifications, 30000);
+    return () => clearInterval(interval);
+  }, [fetchNotifications]);
+
+  const handleMarkNotifsRead = useCallback(async () => {
+    const token = localStorage.getItem(TOKEN_KEY);
+    if (!token) return;
+    try {
+      await fetch(`${API_BASE}/api/users/notifications/read`, {
+        method: 'PATCH',
+        headers: { 'Authorization': `Bearer ${token}` },
+      });
+      setNotifications(prev => prev.map(n => ({ ...n, read: true })));
+      setUnreadNotifCount(0);
+    } catch { /* silent */ }
+  }, []);
 
 
   // ── Handle Google OAuth callback token in URL ────────────────────────────────
@@ -451,6 +493,10 @@ export default function App() {
         onLogout={handleLogout}
         onDetectGPS={handleDetectGPS}
         isDetectingGPS={isDetectingGPS}
+        onOpenAdminPanel={() => setIsAdminPanelOpen(true)}
+        notifications={notifications}
+        unreadNotifCount={unreadNotifCount}
+        onMarkNotifsRead={handleMarkNotifsRead}
       />
 
       {/* Global Sticky Expanded Search & Filter White Strip */}
@@ -631,6 +677,10 @@ export default function App() {
         }}
         wishlist={wishlist}
         onRemoveWishlistItem={(id) => handleToggleWishlist({ id })}
+        onOpenAdminPanel={() => {
+          setIsDashboardOpen(false);
+          setIsAdminPanelOpen(true);
+        }}
       />
 
       {/* Mobile Sticky Bottom Navigation Bar */}
@@ -647,6 +697,15 @@ export default function App() {
         }}
         onOpenDashboard={() => setIsDashboardOpen(true)}
       />
+
+      {/* Admin Panel — full-screen overlay, only for Admin role */}
+      {isAdminPanelOpen && currentUser?.role === 'Admin' && (
+        <AdminPanel
+          currentUser={currentUser}
+          token={localStorage.getItem(TOKEN_KEY)}
+          onClose={() => setIsAdminPanelOpen(false)}
+        />
+      )}
     </div>
   );
 }

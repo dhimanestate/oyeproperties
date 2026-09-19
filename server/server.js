@@ -184,6 +184,87 @@ const startServer = async () => {
   app.use('/api/leads', leadsRoutes);
   app.use('/api/users', usersRoutes);
 
+  // Admin routes (protected by requireAdmin middleware)
+  const { default: adminRoutes, runRefreshReminders } = await import('./routes/admin.js');
+  app.use('/api/admin', adminRoutes);
+
+  // Public: site config endpoint (no auth needed, for client to fetch CMS settings)
+  app.get('/api/config', async (req, res) => {
+    try {
+      const SiteConfig = (await import('./models/SiteConfig.js')).default;
+      let config = await SiteConfig.findOne({ configKey: 'main' });
+      if (!config) config = await SiteConfig.create({ configKey: 'main' });
+      return res.json({ success: true, config });
+    } catch {
+      return res.json({ success: true, config: {} });
+    }
+  });
+
+  // Public: user notifications endpoint
+  app.get('/api/users/notifications', async (req, res) => {
+    try {
+      const authHeader = req.headers.authorization;
+      if (!authHeader || !authHeader.startsWith('Bearer ')) {
+        return res.status(401).json({ error: 'Auth required.' });
+      }
+      const jwt = (await import('jsonwebtoken')).default;
+      const JWT_SECRET = process.env.JWT_SECRET || 'oye-properties-jwt-secret-key-32chars-minimum-secure';
+      const decoded = jwt.verify(authHeader.split(' ')[1], JWT_SECRET);
+      const User = (await import('./models/User.js')).default;
+      const user = await User.findById(decoded.userId).select('notifications').lean();
+      return res.json({ success: true, notifications: user?.notifications || [] });
+    } catch {
+      return res.status(401).json({ error: 'Invalid token.' });
+    }
+  });
+
+  // Mark notifications as read
+  app.patch('/api/users/notifications/read', async (req, res) => {
+    try {
+      const authHeader = req.headers.authorization;
+      if (!authHeader || !authHeader.startsWith('Bearer ')) {
+        return res.status(401).json({ error: 'Auth required.' });
+      }
+      const jwt = (await import('jsonwebtoken')).default;
+      const JWT_SECRET = process.env.JWT_SECRET || 'oye-properties-jwt-secret-key-32chars-minimum-secure';
+      const decoded = jwt.verify(authHeader.split(' ')[1], JWT_SECRET);
+      const User = (await import('./models/User.js')).default;
+      await User.updateOne(
+        { _id: decoded.userId },
+        { $set: { 'notifications.$[].read': true } }
+      );
+      return res.json({ success: true });
+    } catch {
+      return res.status(401).json({ error: 'Invalid token.' });
+    }
+  });
+
+  // User responds to refresh reminder: update listing status
+  app.patch('/api/users/listings/:id/status', async (req, res) => {
+    try {
+      const authHeader = req.headers.authorization;
+      if (!authHeader || !authHeader.startsWith('Bearer ')) {
+        return res.status(401).json({ error: 'Auth required.' });
+      }
+      const jwt = (await import('jsonwebtoken')).default;
+      const JWT_SECRET = process.env.JWT_SECRET || 'oye-properties-jwt-secret-key-32chars-minimum-secure';
+      const decoded = jwt.verify(authHeader.split(' ')[1], JWT_SECRET);
+      const Property = (await import('./models/Property.js')).default;
+      const { listingStatus } = req.body;
+      const valid = ['available', 'sold', 'rented', 'unknown'];
+      if (!valid.includes(listingStatus)) return res.status(400).json({ error: 'Invalid status.' });
+      const prop = await Property.findOneAndUpdate(
+        { _id: req.params.id, listedBy: decoded.userId },
+        { listingStatus, lastRefreshPromptSentAt: new Date() },
+        { new: true }
+      );
+      if (!prop) return res.status(404).json({ error: 'Property not found.' });
+      return res.json({ success: true, listingStatus: prop.listingStatus });
+    } catch {
+      return res.status(500).json({ error: 'Failed to update status.' });
+    }
+  });
+
   // ─── JSON Fallback (when MongoDB not connected) ────────────────────────────
   if (!mongoConnected) {
     const propertiesPath = path.join(__dirname, 'data', 'properties.json');
@@ -226,6 +307,22 @@ const startServer = async () => {
       setInterval(async () => {
         try { await fetch(pingTarget); } catch { /* ignore */ }
       }, 4 * 60 * 1000);
+    }
+
+    // ─── 10-Day Refresh Reminder Scheduler ──────────────────────────────────
+    // Runs every 24 hours to check for properties needing a status refresh
+    if (mongoConnected) {
+      const REMINDER_INTERVAL = 24 * 60 * 60 * 1000; // 24 hours
+      console.log('⏰  10-day refresh reminder scheduler active (runs every 24h)');
+      setInterval(async () => {
+        console.log('🔄  Running scheduled refresh reminder check...');
+        try {
+          const count = await runRefreshReminders();
+          if (count > 0) console.log(`📬  Sent ${count} refresh reminder notifications.`);
+        } catch (e) {
+          console.error('Scheduled reminder error:', e.message);
+        }
+      }, REMINDER_INTERVAL);
     }
   });
 };

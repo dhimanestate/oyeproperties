@@ -223,4 +223,34 @@ router.get('/inquiries', async (req, res) => {
   }
 });
 
+// ─── GET /api/users/notifications ─────────────────────────────────────────────
+router.get('/notifications', async (req, res) => {
+  try {
+    if (mongoose.connection.readyState === 1) {
+      const user = await User.findById(req.user.userId).select('notifications').lean();
+      if (!user) return res.json({ success: true, notifications: [] });
+      return res.json({ success: true, notifications: (user.notifications || []).slice(0, 50) });
+    }
+    const users = getFallbackUsers();
+    const u = users.find(u => u.id === req.user.userId || u._id === req.user.userId);
+    res.json({ success: true, notifications: (u?.notifications || []).slice(0, 50) });
+  } catch (err) {
+    res.status(500).json({ success: false, error: 'Server error' });
+  }
+});
+
+// ─── PATCH /api/users/notifications/read ──────────────────────────────────────
+router.patch('/notifications/read', async (req, res) => {
+  try {
+    if (mongoose.connection.readyState === 1) {
+      await User.findByIdAndUpdate(req.user.userId, {
+        $set: { 'notifications.$[].read': true },
+      });
+    }
+    res.json({ success: true });
+  } catch (err) {
+    res.status(500).json({ success: false, error: 'Server error' });
+  }
+});
+
 export default router;

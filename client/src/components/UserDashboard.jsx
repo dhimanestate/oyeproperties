@@ -3,7 +3,7 @@ import {
   X, Home, Heart, Bell, User, Settings, LogOut,
   PlusCircle, MapPin, ChevronRight, Loader2,
   CheckCircle2, Clock, Phone, Building2, Trash2,
-  Edit3, Camera,
+  Edit3, Camera, Shield,
 } from 'lucide-react';
 import { API_BASE } from '../config';
 
@@ -32,6 +32,7 @@ export default function UserDashboard({
   onOpenDetail,
   onOpenCallback,
   onOpenListProperty,
+  onOpenAdminPanel,
   wishlist,
   onRemoveWishlistItem,
 }) {
@@ -155,6 +156,38 @@ export default function UserDashboard({
               {currentUser?.role} · {currentUser?.email}
             </div>
           </div>
+          {/* Admin Console Button (Visible to Admin Users) */}
+          {currentUser?.role === 'Admin' && (
+            <button
+              id="btn-dashboard-admin-console"
+              onClick={() => {
+                onClose();
+                onOpenAdminPanel?.();
+              }}
+              style={{
+                background: '#E71D2B',
+                color: '#ffffff',
+                border: 'none',
+                borderRadius: 'var(--radius-full)',
+                padding: '6px 14px',
+                fontSize: '12px',
+                fontWeight: 700,
+                cursor: 'pointer',
+                display: 'flex',
+                alignItems: 'center',
+                gap: '6px',
+                flexShrink: 0,
+                fontFamily: 'var(--font-poppins)',
+                boxShadow: '0 2px 10px rgba(231,29,43,0.35)',
+                transition: 'all 0.18s ease',
+              }}
+              title="Open Admin Console"
+            >
+              <Shield size={13} color="#ffffff" />
+              <span>Admin Console</span>
+            </button>
+          )}
+
           <button
             id="btn-dashboard-logout"
             onClick={() => { onLogout?.(); onClose(); }}
@@ -189,6 +222,52 @@ export default function UserDashboard({
           </button>
         </div>
 
+        {/* ── Admin Mode Quick Access Banner ── */}
+        {currentUser?.role === 'Admin' && (
+          <div style={{
+            background: 'linear-gradient(90deg, #FFF0F1 0%, #FFF8F8 100%)',
+            borderBottom: '1px solid #FFD0D4',
+            padding: '10px 20px',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'space-between',
+            gap: '12px',
+            flexShrink: 0,
+          }}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+              <Shield size={16} color="#E71D2B" />
+              <div>
+                <span style={{ fontSize: '12px', fontWeight: 700, color: '#1F1F1F', fontFamily: 'var(--font-poppins)' }}>
+                  Administrator Access Active
+                </span>
+                <span style={{ fontSize: '11px', color: '#666666', marginLeft: '6px', fontFamily: 'var(--font-poppins)' }}>
+                  (Approvals, CMS, Users & Stats)
+                </span>
+              </div>
+            </div>
+            <button
+              onClick={() => {
+                onClose();
+                onOpenAdminPanel?.();
+              }}
+              style={{
+                background: '#E71D2B',
+                color: '#ffffff',
+                border: 'none',
+                borderRadius: '6px',
+                padding: '5px 12px',
+                fontSize: '11.5px',
+                fontWeight: 700,
+                fontFamily: 'var(--font-poppins)',
+                cursor: 'pointer',
+                whiteSpace: 'nowrap',
+              }}
+            >
+              Open Admin Portal &rarr;
+            </button>
+          </div>
+        )}
+
         {/* ── Tabs ── */}
         <div style={{
           display: 'flex',
@@ -220,6 +299,34 @@ export default function UserDashboard({
               {tab.label}
             </button>
           ))}
+          {currentUser?.role === 'Admin' && (
+            <button
+              onClick={() => {
+                onClose();
+                onOpenAdminPanel?.();
+              }}
+              style={{
+                padding: '10px 18px',
+                border: '1.5px solid #E71D2B',
+                borderRadius: 'var(--radius-full)',
+                background: '#FFF0F1',
+                color: '#E71D2B',
+                fontWeight: 700,
+                fontSize: '13px',
+                fontFamily: 'var(--font-poppins)',
+                cursor: 'pointer',
+                transition: 'all 0.2s ease',
+                whiteSpace: 'nowrap',
+                flexShrink: 0,
+                display: 'flex',
+                alignItems: 'center',
+                gap: '6px',
+              }}
+            >
+              <Shield size={13} color="#E71D2B" />
+              Admin Portal
+            </button>
+          )}
         </div>
 
         {/* ── Body ── */}

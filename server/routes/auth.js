@@ -398,4 +398,38 @@ router.post('/logout', (req, res) => {
   }
 });
 
+// ─── GET /api/users/notifications — Fetch user's in-app notifications ─────────
+router.get('/notifications', requireAuth, async (req, res) => {
+  try {
+    if (mongoose.connection.readyState === 1) {
+      const user = await User.findById(req.user.userId).select('notifications').lean();
+      if (!user) return res.json({ success: true, notifications: [] });
+      return res.json({ success: true, notifications: (user.notifications || []).slice(0, 50) });
+    }
+    // Fallback
+    const users = getFallbackUsers();
+    const user = users.find(u => u.id === req.user.userId || u._id === req.user.userId);
+    res.json({ success: true, notifications: (user?.notifications || []).slice(0, 50) });
+  } catch (err) {
+    console.error('Fetch notifications error:', err);
+    res.status(500).json({ success: false, error: 'Server error' });
+  }
+});
+
+// ─── PATCH /api/users/notifications/read — Mark all notifications as read ─────
+router.patch('/notifications/read', requireAuth, async (req, res) => {
+  try {
+    if (mongoose.connection.readyState === 1) {
+      await User.findByIdAndUpdate(req.user.userId, {
+        $set: { 'notifications.$[].read': true },
+      });
+      return res.json({ success: true });
+    }
+    res.json({ success: true });
+  } catch (err) {
+    console.error('Mark read error:', err);
+    res.status(500).json({ success: false, error: 'Server error' });
+  }
+});
+
 export default router;
