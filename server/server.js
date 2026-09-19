@@ -169,9 +169,79 @@ app.get('/api/cities', async (req, res) => {
   }
 });
 
+async function ensureDefaultAdmins() {
+  try {
+    const bcrypt = (await import('bcryptjs')).default;
+    const User = (await import('./models/User.js')).default;
+    const defaultAdmins = [
+      {
+        name: 'Rohan Dhiman',
+        email: 'dhimanrohan09@gmail.com',
+        phone: '+91 98765 43210',
+        role: 'Admin',
+        passwordPlain: 'password123',
+      },
+      {
+        name: 'Rohan Dhiman',
+        email: 'rohan@oyeproperties.com',
+        phone: '+91 98765 43210',
+        role: 'Admin',
+        passwordPlain: 'password123',
+      },
+    ];
+
+    for (const admin of defaultAdmins) {
+      const cleanEmail = admin.email.toLowerCase().trim();
+      const existing = await User.findOne({ email: cleanEmail }).select('+password');
+      const hashedPassword = await bcrypt.hash(admin.passwordPlain, 10);
+
+      if (!existing) {
+        await User.create({
+          name: admin.name,
+          email: cleanEmail,
+          phone: admin.phone,
+          password: hashedPassword,
+          role: 'Admin',
+          isVerified: true,
+          avatar: 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=300&q=80',
+        });
+        console.log(`👑  [Auth] Initialized default Admin account: ${cleanEmail}`);
+      } else {
+        let needsSave = false;
+        if (existing.role !== 'Admin') {
+          existing.role = 'Admin';
+          needsSave = true;
+        }
+        if (!existing.password) {
+          existing.password = hashedPassword;
+          needsSave = true;
+        } else {
+          const isMatch = await bcrypt.compare(admin.passwordPlain, existing.password);
+          if (!isMatch) {
+            existing.password = hashedPassword;
+            needsSave = true;
+          }
+        }
+        if (needsSave) {
+          await existing.save();
+          console.log(`👑  [Auth] Synced & restored Admin credentials for: ${cleanEmail}`);
+        } else {
+          console.log(`👑  [Auth] Admin account verified: ${cleanEmail}`);
+        }
+      }
+    }
+  } catch (err) {
+    console.error('⚠️  Failed to ensure default admins on startup:', err.message);
+  }
+}
+
 // Mount modular routes (dynamic import after passport is configured by auth.js)
 const startServer = async () => {
   mongoConnected = await connectDB();
+
+  if (mongoConnected) {
+    await ensureDefaultAdmins();
+  }
 
   const { default: authRoutes } = await import('./routes/auth.js');
   const { default: propertiesRoutes } = await import('./routes/properties.js');
