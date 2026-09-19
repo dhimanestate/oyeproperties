@@ -1,7 +1,6 @@
 import dotenv from 'dotenv';
 import path from 'path';
 import { fileURLToPath } from 'url';
-import fs from 'fs';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -202,17 +201,10 @@ const startServer = async () => {
     console.warn('🟡  Running in JSON fallback mode. Start MongoDB for full functionality.');
   }
 
-  // ─── Static Frontend Serving (Production) ───────────────────────────────────
-  const clientDistPath = path.join(__dirname, '..', 'client', 'dist');
-  if (fs.existsSync(clientDistPath)) {
-    app.use(express.static(clientDistPath));
-    app.get('*', (req, res) => {
-      if (req.path.startsWith('/api')) {
-        return res.status(404).json({ error: 'API endpoint not found' });
-      }
-      res.sendFile(path.join(clientDistPath, 'index.html'));
-    });
-  }
+  // ─── 404 for Unknown API Routes ───────────────────────────────────────────────
+  app.use('/api/*', (req, res) => {
+    res.status(404).json({ error: 'API endpoint not found' });
+  });
 
   // ─── Global Error Handler ─────────────────────────────────────────────────────
   app.use((err, req, res, _next) => {
