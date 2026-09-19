@@ -8,8 +8,8 @@ export default function OyeLogo({ isMobile = false }) {
         alt="Oye Properties"
         className="oye-brand-logo-img"
         style={{
-          height: isMobile ? '44px' : '52px',
-          maxHeight: isMobile ? '44px' : '52px',
+          height: isMobile ? '60px' : '90px',
+          maxHeight: isMobile ? '60px' : '90px',
           width: 'auto',
           maxWidth: '240px',
           objectFit: 'contain',
