@@ -89,9 +89,17 @@ export default function App() {
       fetch(`${API_BASE}/api/users/wishlist`, {
         headers: { 'Authorization': `Bearer ${token}` }
       })
-        .then(r => r.json())
+        .then(r => {
+          if (r.status === 401) {
+            localStorage.removeItem(TOKEN_KEY);
+            localStorage.removeItem('lumiere_user');
+            setCurrentUser(null);
+            return null;
+          }
+          return r.json();
+        })
         .then(data => {
-          if (data.wishlist && Array.isArray(data.wishlist) && data.wishlist.length > 0) {
+          if (data && data.wishlist && Array.isArray(data.wishlist) && data.wishlist.length > 0) {
             setWishlist(prev => {
               const merged = [...data.wishlist];
               prev.forEach(p => {
@@ -101,7 +109,7 @@ export default function App() {
             });
           }
         })
-        .catch(console.error);
+        .catch(() => { /* silent */ });
     }
   }, [currentUser]);
 
@@ -113,6 +121,12 @@ export default function App() {
       const r = await fetch(`${API_BASE}/api/users/notifications`, {
         headers: { 'Authorization': `Bearer ${token}` },
       });
+      if (r.status === 401) {
+        localStorage.removeItem(TOKEN_KEY);
+        localStorage.removeItem('lumiere_user');
+        setCurrentUser(null);
+        return;
+      }
       const data = await r.json();
       if (data.success && Array.isArray(data.notifications)) {
         setNotifications(data.notifications);
