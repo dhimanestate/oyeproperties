@@ -210,74 +210,102 @@ export default function ReelItem({
             {/* Top Row: Location & Verified / Owner Badges */}
             <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '14px', flexWrap: 'wrap', gap: '8px' }}>
               <div style={{
-                background: '#F5F5F5',
-                border: '1px solid #EDEDED',
-                padding: '5px 12px',
+                background: 'linear-gradient(135deg, #F8FAFC 0%, #F1F5F9 100%)',
+                border: '1px solid rgba(226, 232, 240, 0.8)',
+                padding: '6px 14px',
                 borderRadius: '9999px',
                 display: 'flex',
                 alignItems: 'center',
-                gap: '6px',
+                gap: '7px',
                 fontSize: '12px',
-                color: '#555555',
-                fontWeight: 500,
+                color: '#334155',
+                fontWeight: 600,
                 fontFamily: "'Poppins', sans-serif",
+                boxShadow: '0 2px 6px rgba(0,0,0,0.03)',
+                letterSpacing: '0.01em'
               }}>
-                <MapPin size={13} color="#E71D2B" />
+                <MapPin size={13} color="#E71D2B" strokeWidth={2.4} />
                 <span>{property.location.locality}, {property.location.city}</span>
               </div>
 
               {property.isOwnerListing ? (
                 <div style={{
-                  background: '#FFF0F1',
-                  border: '1px solid rgba(231, 29, 43, 0.25)',
+                  background: 'linear-gradient(135deg, #FFF0F1 0%, #FFE4E6 100%)',
+                  border: '1px solid rgba(231, 29, 43, 0.28)',
                   color: '#E71D2B',
-                  padding: '4px 10px',
+                  padding: '5px 12px',
                   borderRadius: 'var(--radius-full)',
                   fontSize: '11px',
                   fontWeight: 700,
                   display: 'flex',
                   alignItems: 'center',
-                  gap: '4px'
+                  gap: '5px',
+                  boxShadow: '0 2px 8px rgba(231, 29, 43, 0.08)'
                 }}>
-                  <CheckCircle2 size={12} />
-                  Direct Owner Listed
+                  <CheckCircle2 size={13} strokeWidth={2.4} />
+                  <span>Direct Owner Listed</span>
                 </div>
               ) : (
                 <div style={{
-                  background: '#ecfdf5',
-                  border: '1px solid #a7f3d0',
-                  color: '#047857',
-                  padding: '4px 10px',
+                  background: 'linear-gradient(135deg, #ECFDF5 0%, #D1FAE5 100%)',
+                  border: '1px solid rgba(16, 185, 129, 0.35)',
+                  color: '#065F46',
+                  padding: '5px 12px',
                   borderRadius: 'var(--radius-full)',
                   fontSize: '11px',
                   fontWeight: 700,
                   display: 'flex',
                   alignItems: 'center',
-                  gap: '4px'
+                  gap: '5px',
+                  boxShadow: '0 2px 8px rgba(16, 185, 129, 0.08)'
                 }}>
-                  <ShieldCheck size={12} />
-                  Verified RERA Estate
+                  <ShieldCheck size={13} strokeWidth={2.4} />
+                  <span>Verified RERA Estate</span>
                 </div>
               )}
             </div>
 
             {/* Price Showcase with Estimated EMI Badge */}
-            <div style={{ marginBottom: '12px' }}>
-              <div style={{ fontSize: '10px', textTransform: 'uppercase', letterSpacing: '0.08em', color: '#999999', fontWeight: 500, fontFamily: "'Poppins', sans-serif", marginBottom: '2px' }}>
-                Asking Price
+            <div style={{
+              marginBottom: '14px',
+              padding: '12px 16px',
+              background: 'linear-gradient(135deg, #FFF8F8 0%, #FFFFFF 100%)',
+              borderRadius: '14px',
+              border: '1px solid rgba(231, 29, 43, 0.12)',
+              boxShadow: '0 4px 16px rgba(231, 29, 43, 0.04)'
+            }}>
+              <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '3px' }}>
+                <div style={{ fontSize: '10px', textTransform: 'uppercase', letterSpacing: '0.1em', color: '#888888', fontWeight: 600, fontFamily: "'Poppins', sans-serif" }}>
+                  Demand / Asking Price
+                </div>
+                <div style={{
+                  fontSize: '10.5px',
+                  color: '#E71D2B',
+                  fontWeight: 600,
+                  background: '#FFF0F1',
+                  padding: '2px 8px',
+                  borderRadius: '999px',
+                  display: 'inline-flex',
+                  alignItems: 'center',
+                  gap: '3px'
+                }}>
+                  <Sparkles size={10} />
+                  <span>Prime Valuation</span>
+                </div>
               </div>
-              <div style={{ display: 'flex', alignItems: 'baseline', gap: '8px', flexWrap: 'wrap' }}>
+
+              <div style={{ display: 'flex', alignItems: 'baseline', gap: '10px', flexWrap: 'wrap' }}>
                 <span style={{
                   fontFamily: "'Poppins', sans-serif",
-                  fontSize: '32px',
-                  fontWeight: 700,
+                  fontSize: '34px',
+                  fontWeight: 800,
                   color: '#E71D2B',
-                  letterSpacing: '-0.02em',
-                  lineHeight: 1.1
+                  letterSpacing: '-0.03em',
+                  lineHeight: 1.05
                 }}>
                   {property.priceFormatted}
                 </span>
-                <span style={{ fontSize: '13px', color: '#555555', fontWeight: 400, fontFamily: "'Poppins', sans-serif" }}>
+                <span style={{ fontSize: '13px', color: '#475569', fontWeight: 500, fontFamily: "'Poppins', sans-serif" }}>
                   ({property.pricePerSqFt})
                 </span>
               </div>
@@ -287,19 +315,20 @@ export default function ReelItem({
             <h2 style={{
               fontFamily: "'Poppins', sans-serif",
               fontSize: '22px',
-              fontWeight: 600,
-              color: '#1F1F1F',
+              fontWeight: 700,
+              color: '#0F172A',
               lineHeight: 1.25,
-              marginBottom: '4px'
+              marginBottom: '6px',
+              letterSpacing: '-0.01em'
             }}>
               {property.title}
             </h2>
 
             <p style={{
               fontSize: '13px',
-              color: '#555555',
+              color: '#475569',
               fontFamily: "'Poppins', sans-serif",
-              lineHeight: 1.45,
+              lineHeight: 1.5,
               marginBottom: '16px',
               fontWeight: 400,
             }}>
@@ -310,53 +339,110 @@ export default function ReelItem({
             <div style={{
               display: 'grid',
               gridTemplateColumns: 'repeat(2, 1fr)',
-              gap: '8px',
+              gap: '10px',
               marginBottom: '16px',
-              background: '#F5F5F5',
-              padding: '12px 14px',
-              borderRadius: '12px',
-              border: '1px solid #EDEDED'
+              background: 'linear-gradient(135deg, #F8FAFC 0%, #F1F5F9 100%)',
+              padding: '14px 16px',
+              borderRadius: '14px',
+              border: '1px solid #E2E8F0',
+              boxShadow: 'inset 0 1px 2px rgba(255,255,255,0.8)'
             }}>
-              <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-                <BedDouble size={16} color="#E71D2B" />
+              <div style={{ display: 'flex', alignItems: 'center', gap: '9px' }}>
+                <div style={{
+                  width: '32px',
+                  height: '32px',
+                  borderRadius: '8px',
+                  background: '#FFF0F1',
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  flexShrink: 0
+                }}>
+                  <BedDouble size={16} color="#E71D2B" strokeWidth={2.2} />
+                </div>
                 <div>
-                  <div style={{ fontSize: '10px', color: '#999', textTransform: 'uppercase', fontWeight: 500, fontFamily: "'Poppins', sans-serif" }}>Configuration</div>
-                  <div style={{ fontSize: '13px', fontWeight: 600, color: '#1F1F1F', fontFamily: "'Poppins', sans-serif" }}>{property.bhk} BHK</div>
+                  <div style={{ fontSize: '10px', color: '#64748B', textTransform: 'uppercase', fontWeight: 600, letterSpacing: '0.04em' }}>Configuration</div>
+                  <div style={{ fontSize: '13.5px', fontWeight: 700, color: '#0F172A' }}>{property.bhk} BHK</div>
                 </div>
               </div>
 
-              <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-                <Maximize2 size={16} color="#E71D2B" />
+              <div style={{ display: 'flex', alignItems: 'center', gap: '9px' }}>
+                <div style={{
+                  width: '32px',
+                  height: '32px',
+                  borderRadius: '8px',
+                  background: '#FFF0F1',
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  flexShrink: 0
+                }}>
+                  <Maximize2 size={15} color="#E71D2B" strokeWidth={2.2} />
+                </div>
                 <div>
-                  <div style={{ fontSize: '10px', color: '#999', textTransform: 'uppercase', fontWeight: 500, fontFamily: "'Poppins', sans-serif" }}>Area</div>
-                  <div style={{ fontSize: '13px', fontWeight: 600, color: '#1F1F1F', fontFamily: "'Poppins', sans-serif" }}>
+                  <div style={{ fontSize: '10px', color: '#64748B', textTransform: 'uppercase', fontWeight: 600, letterSpacing: '0.04em' }}>Total Area</div>
+                  <div style={{ fontSize: '13.5px', fontWeight: 700, color: '#0F172A' }}>
                     {property.areaSqFt ? `${property.areaSqFt.toLocaleString()} ${property.areaUnit || 'Sq. Ft.'}` : `${property.carpetAreaSqFt} sq.ft`}
                   </div>
                 </div>
               </div>
 
-              <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-                <span style={{ fontSize: '15px' }}>🏢</span>
+              <div style={{ display: 'flex', alignItems: 'center', gap: '9px' }}>
+                <div style={{
+                  width: '32px',
+                  height: '32px',
+                  borderRadius: '8px',
+                  background: '#FFF0F1',
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  flexShrink: 0,
+                  fontSize: '15px'
+                }}>
+                  🏢
+                </div>
                 <div>
-                  <div style={{ fontSize: '10px', color: '#999', textTransform: 'uppercase', fontWeight: 500, fontFamily: "'Poppins', sans-serif" }}>Floor Level</div>
-                  <div style={{ fontSize: '13px', fontWeight: 600, color: '#1F1F1F', fontFamily: "'Poppins', sans-serif" }}>{property.floor || 'Upper Level'}</div>
+                  <div style={{ fontSize: '10px', color: '#64748B', textTransform: 'uppercase', fontWeight: 600, letterSpacing: '0.04em' }}>Floor Level</div>
+                  <div style={{ fontSize: '13.5px', fontWeight: 700, color: '#0F172A' }}>{property.floor || 'Upper Level'}</div>
                 </div>
               </div>
 
-              <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-                <CheckCircle2 size={16} color="#16a34a" />
+              <div style={{ display: 'flex', alignItems: 'center', gap: '9px' }}>
+                <div style={{
+                  width: '32px',
+                  height: '32px',
+                  borderRadius: '8px',
+                  background: '#ECFDF5',
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  flexShrink: 0
+                }}>
+                  <CheckCircle2 size={16} color="#059669" strokeWidth={2.4} />
+                </div>
                 <div>
-                  <div style={{ fontSize: '10px', color: '#999', textTransform: 'uppercase', fontWeight: 500, fontFamily: "'Poppins', sans-serif" }}>Availability</div>
-                  <div style={{ fontSize: '13px', fontWeight: 600, color: '#16a34a', fontFamily: "'Poppins', sans-serif" }}>{property.status}</div>
+                  <div style={{ fontSize: '10px', color: '#64748B', textTransform: 'uppercase', fontWeight: 600, letterSpacing: '0.04em' }}>Availability</div>
+                  <div style={{ fontSize: '13.5px', fontWeight: 700, color: '#059669' }}>{property.status}</div>
                 </div>
               </div>
 
               {property.facing && (
-                <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-                  <Compass size={16} color="#555555" />
+                <div style={{ display: 'flex', alignItems: 'center', gap: '9px', gridColumn: 'span 2', borderTop: '1px solid #E2E8F0', paddingTop: '8px', marginTop: '2px' }}>
+                  <div style={{
+                    width: '28px',
+                    height: '28px',
+                    borderRadius: '6px',
+                    background: '#EDE9FE',
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    flexShrink: 0
+                  }}>
+                    <Compass size={15} color="#7C3AED" strokeWidth={2.2} />
+                  </div>
                   <div>
-                    <div style={{ fontSize: '10px', color: '#999', textTransform: 'uppercase', fontWeight: 500, fontFamily: "'Poppins', sans-serif" }}>Facing</div>
-                    <div style={{ fontSize: '13px', fontWeight: 600, color: '#555555', fontFamily: "'Poppins', sans-serif" }}>{property.facing}</div>
+                    <span style={{ fontSize: '10px', color: '#64748B', textTransform: 'uppercase', fontWeight: 600, letterSpacing: '0.04em' }}>Facing Direction: </span>
+                    <strong style={{ fontSize: '12.5px', color: '#4C1D95' }}>{property.facing}</strong>
                   </div>
                 </div>
               )}

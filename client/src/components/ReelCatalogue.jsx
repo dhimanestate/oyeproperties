@@ -286,7 +286,7 @@ export default function ReelCatalogue({
           disabled={activeIndex === 0}
           title="Previous Luxury Estate (Arrow Left)"
         >
-          <ChevronLeft size={26} strokeWidth={2.4} />
+          <ChevronLeft size={24} strokeWidth={2.5} />
         </button>
       )}
 
@@ -299,7 +299,7 @@ export default function ReelCatalogue({
           disabled={activeIndex >= filteredReels.length - 1}
           title="Next Luxury Estate (Arrow Right)"
         >
-          <ChevronRight size={26} strokeWidth={2.4} />
+          <ChevronRight size={24} strokeWidth={2.5} />
         </button>
       )}
 
@@ -307,39 +307,39 @@ export default function ReelCatalogue({
       {!isMobile && filteredReels.length > 0 && (
         <div className="reels-slider-dock">
           {/* Active Slide Counter */}
-          <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '14px' }}>
             <div style={{
-              fontFamily: 'var(--font-display)',
-              fontSize: '18px',
+              fontFamily: "'Poppins', sans-serif",
+              fontSize: '16px',
               fontWeight: 800,
-              color: 'var(--accent-primary)',
-              letterSpacing: '-0.02em',
+              color: '#0F172A',
               display: 'flex',
-              alignItems: 'center',
+              alignItems: 'baseline',
               gap: '4px'
             }}>
-              <span>{String(activeIndex + 1).padStart(2, '0')}</span>
-              <span style={{ fontSize: '13px', color: 'var(--text-muted)', fontWeight: 500 }}>/</span>
-              <span style={{ fontSize: '13px', color: 'var(--text-muted)', fontWeight: 500 }}>
+              <span style={{ color: '#E71D2B', fontSize: '18px' }}>{String(activeIndex + 1).padStart(2, '0')}</span>
+              <span style={{ fontSize: '12px', color: '#94A3B8', fontWeight: 500 }}>/</span>
+              <span style={{ fontSize: '12px', color: '#64748B', fontWeight: 600 }}>
                 {String(filteredReels.length).padStart(2, '0')}
               </span>
             </div>
 
-            {/* Clickable Progress Dashes */}
-            <div style={{ display: 'flex', alignItems: 'center', gap: '5px', marginLeft: '6px' }}>
+            {/* Clickable Progress Bars */}
+            <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
               {filteredReels.map((_, i) => (
                 <button
                   key={i}
                   onClick={() => scrollToIndex(i)}
                   style={{
                     height: '5px',
-                    width: i === activeIndex ? '28px' : '10px',
-                    borderRadius: 'var(--radius-full)',
-                    background: i === activeIndex ? 'var(--accent-primary)' : 'var(--border-subtle)',
+                    width: i === activeIndex ? '32px' : '10px',
+                    borderRadius: '9999px',
+                    background: i === activeIndex ? '#E71D2B' : '#E2E8F0',
                     border: 'none',
                     padding: 0,
                     cursor: 'pointer',
-                    transition: 'all 0.25s ease'
+                    transition: 'all 0.3s cubic-bezier(0.16, 1, 0.3, 1)',
+                    boxShadow: i === activeIndex ? '0 2px 8px rgba(231, 29, 43, 0.35)' : 'none'
                   }}
                   title={`Jump to Estate #${i + 1}`}
                 />
@@ -347,28 +347,41 @@ export default function ReelCatalogue({
             </div>
           </div>
 
-          {/* Center Next Property Teaser */}
+          {/* Center Next Property Teaser Pill */}
           {nextProperty && (
             <div 
               onClick={scrollNext}
               style={{
                 display: 'flex',
                 alignItems: 'center',
-                gap: '8px',
+                gap: '10px',
                 cursor: 'pointer',
-                padding: '4px 12px',
-                borderRadius: 'var(--radius-full)',
-                background: 'var(--bg-secondary)',
-                border: '1px solid var(--border-subtle)',
-                transition: 'background 0.2s ease'
+                padding: '5px 14px 5px 8px',
+                borderRadius: '9999px',
+                background: 'linear-gradient(135deg, #FFF0F1 0%, #FFFFFF 100%)',
+                border: '1px solid rgba(231, 29, 43, 0.2)',
+                boxShadow: '0 2px 10px rgba(231, 29, 43, 0.06)',
+                transition: 'all 0.2s ease',
               }}
+              className="next-estate-pill-teaser"
               title="Click to view next property"
             >
-              <span style={{ fontSize: '11px', color: 'var(--text-muted)', fontWeight: 600 }}>Up Next:</span>
-              <span style={{ fontSize: '12px', color: 'var(--accent-primary)', fontWeight: 700, maxWidth: '200px', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
+              <div style={{
+                background: '#E71D2B',
+                color: '#ffffff',
+                fontSize: '10px',
+                fontWeight: 700,
+                padding: '2px 8px',
+                borderRadius: '9999px',
+                letterSpacing: '0.04em',
+                textTransform: 'uppercase'
+              }}>
+                Up Next
+              </div>
+              <span style={{ fontSize: '12.5px', color: '#1E293B', fontWeight: 600, maxWidth: '220px', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
                 {nextProperty.title}
               </span>
-              <ArrowRight size={13} color="var(--accent-primary)" />
+              <ArrowRight size={14} color="#E71D2B" strokeWidth={2.4} />
             </div>
           )}
 
@@ -378,20 +391,23 @@ export default function ReelCatalogue({
             style={{
               display: 'flex',
               alignItems: 'center',
-              gap: '6px',
-              background: 'transparent',
-              border: '1px solid var(--border-subtle)',
-              padding: '6px 14px',
-              borderRadius: 'var(--radius-full)',
+              gap: '7px',
+              background: '#FFFFFF',
+              border: '1.5px solid #E2E8F0',
+              padding: '7px 16px',
+              borderRadius: '9999px',
               fontSize: '12px',
               fontWeight: 700,
-              color: 'var(--accent-primary)',
+              color: '#334155',
               cursor: 'pointer',
-              transition: 'all 0.2s ease'
+              fontFamily: "'Poppins', sans-serif",
+              transition: 'all 0.2s ease',
+              boxShadow: '0 2px 6px rgba(0,0,0,0.03)'
             }}
+            className="dock-grid-btn"
           >
-            <LayoutGrid size={14} />
-            <span>Full Inventory Grid ({filteredReels.length})</span>
+            <LayoutGrid size={14} color="#E71D2B" />
+            <span>All Estates ({filteredReels.length})</span>
           </button>
         </div>
       )}
