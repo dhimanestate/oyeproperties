@@ -39,6 +39,23 @@ const financialsSchema = new mongoose.Schema({
   projectedCapitalAppreciation5Yr: String,
 }, { _id: false });
 
+const contactDetailsSchema = new mongoose.Schema({
+  name: String,
+  phone: String,
+  email: String,
+  whatsapp: String,
+  role: { type: String, default: 'Property Owner' },
+  preferredTime: String,
+}, { _id: false });
+
+const buyingDetailsSchema = new mongoose.Schema({
+  bookingAmount: String,
+  possessionDate: String,
+  ownershipType: { type: String, default: 'Freehold' },
+  paymentTerms: String,
+  demandNegotiable: { type: Boolean, default: true },
+}, { _id: false });
+
 const neighborhoodSchema = new mongoose.Schema({
   walkScore: Number,
   transitScore: Number,
@@ -61,6 +78,7 @@ const propertySchema = new mongoose.Schema({
   priceFormatted: String,
   pricePerSqFt: String,
   areaSqFt: Number,
+  areaUnit: { type: String, default: 'Sq. Ft.' },
   carpetAreaSqFt: Number,
 
   location: { type: locationSchema, required: true },
@@ -73,6 +91,8 @@ const propertySchema = new mongoose.Schema({
 
   builder: builderSchema,
   relationshipManager: rmSchema,
+  contactDetails: contactDetailsSchema,
+  buyingDetails: buyingDetailsSchema,
 
   reelVideo: String,
   images: [String],

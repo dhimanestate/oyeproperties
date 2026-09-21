@@ -250,8 +250,9 @@ router.post('/', requireAuth, async (req, res) => {
   try {
     const {
       title, tagline, propertyType, bhk, baths, price, priceFormatted,
-      areaSqFt, carpetAreaSqFt, location, status, possession, furnishing,
-      amenities, images, reelVideo, ownerInfo,
+      areaSqFt, areaUnit = 'Sq. Ft.', carpetAreaSqFt, location, status, possession, furnishing,
+      facing, floor, amenities, images, reelVideo, ownerInfo,
+      contactDetails, buyingDetails,
     } = req.body;
 
     if (!title || !price || !location?.city) {
@@ -261,17 +262,24 @@ router.post('/', requireAuth, async (req, res) => {
     const priceNum = Number(price);
     const areaNum = Number(areaSqFt) || 2500;
     const userId = req.user._id || req.user.id;
+    const unitSuffix = areaUnit === 'Sq. Yds.' ? 'sq.yd' : 'sq.ft';
+
+    const contactName = contactDetails?.name || ownerInfo?.name || req.user.name || 'Property Owner';
+    const contactPhone = contactDetails?.phone || ownerInfo?.phone || req.user.phone || '+91 98200 14820';
+    const contactWhatsapp = contactDetails?.whatsapp || contactPhone.replace(/\D/g, '');
+    const contactRole = contactDetails?.role || ownerInfo?.role || req.user.role || 'Property Owner';
 
     const propertyPayload = {
       title,
-      tagline: tagline || 'Newly Listed Luxury Property by Owner',
-      propertyType: propertyType || 'Penthouse',
+      tagline: tagline || `Exclusive ${bhk || 3} BHK ${propertyType || 'Property'} in ${location.locality || location.city}`,
+      propertyType: propertyType || 'Apartment',
       bhk: Number(bhk) || 3,
       baths: Number(baths) || 3,
       price: priceNum,
       priceFormatted: priceFormatted || `₹${(priceNum / 10000000).toFixed(2)} Cr`,
-      pricePerSqFt: `₹${Math.round(priceNum / areaNum).toLocaleString()}/sq.ft`,
+      pricePerSqFt: `₹${Math.round(priceNum / areaNum).toLocaleString()}/${unitSuffix}`,
       areaSqFt: areaNum,
+      areaUnit: areaUnit || 'Sq. Ft.',
       carpetAreaSqFt: Number(carpetAreaSqFt) || Math.round(areaNum * 0.85),
       location: {
         city: location.city,
@@ -280,22 +288,37 @@ router.post('/', requireAuth, async (req, res) => {
         coordinates: location.coordinates || { lat: 19.076, lng: 72.8777 },
       },
       status: status || 'Ready to Move',
-      possession: possession || 'Immediate',
+      possession: possession || buyingDetails?.possessionDate || 'Immediate',
       furnishing: furnishing || 'Fully Furnished',
-      facing: 'North-East',
-      floor: 'Upper Level',
+      facing: facing || 'North-East',
+      floor: floor || 'Upper Level',
       builder: {
-        name: req.user.name + (ownerInfo?.role ? ` (${ownerInfo.role})` : ' (Direct Owner)'),
-        experience: 'Direct Listing',
-        reraId: 'VERIFIED-OWNER',
+        name: contactName + ` (${contactRole})`,
+        experience: 'Verified Listing',
+        reraId: 'VERIFIED-LISTING',
       },
       relationshipManager: {
-        name: req.user.name,
-        role: req.user.role || 'Direct Owner',
-        phone: req.user.phone || '+91 98200 14820',
+        name: contactName,
+        role: contactRole,
+        phone: contactPhone,
         rating: 5.0,
-        photo: req.user.avatar,
-        whatsapp: (req.user.phone || '919820014820').replace(/\D/g, ''),
+        photo: req.user.avatar || 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=300&q=80',
+        whatsapp: contactWhatsapp,
+      },
+      contactDetails: {
+        name: contactName,
+        phone: contactPhone,
+        email: contactDetails?.email || req.user.email || '',
+        whatsapp: contactWhatsapp,
+        role: contactRole,
+        preferredTime: contactDetails?.preferredTime || 'Anytime (10 AM - 8 PM)',
+      },
+      buyingDetails: {
+        bookingAmount: buyingDetails?.bookingAmount || '10% Token Amount',
+        possessionDate: buyingDetails?.possessionDate || possession || 'Ready to Move',
+        ownershipType: buyingDetails?.ownershipType || 'Freehold',
+        paymentTerms: buyingDetails?.paymentTerms || 'Bank Loan Available / Flexible Installments',
+        demandNegotiable: buyingDetails?.demandNegotiable ?? true,
       },
       reelVideo: reelVideo || '',
       images: (images && images.length > 0) ? images : [

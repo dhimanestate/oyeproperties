@@ -31,15 +31,18 @@ export default function AdminPropertyEditor({ token, authHeaders, API_BASE, edit
     price: '',
     priceFormatted: '',
     areaSqFt: '',
+    areaUnit: 'Sq. Ft.',
     carpetAreaSqFt: '',
     status: 'Ready to Move',
     possession: 'Immediate',
     furnishing: 'Fully Furnished',
     facing: 'North-East',
-    floor: 'Upper Level',
+    floor: '4th of 14 Floors',
     purpose: 'buy',
     location: { city: 'Mumbai', locality: '', address: '' },
     builder: { name: '', experience: '', reraId: '' },
+    contactDetails: { name: '', phone: '', email: '', whatsapp: '', role: 'Property Owner', preferredTime: '10 AM - 7 PM' },
+    buyingDetails: { bookingAmount: '10% Token', possessionDate: 'Immediate', ownershipType: 'Freehold', paymentTerms: 'Flexible / Bank Approved', demandNegotiable: true },
     amenities: [],
     images: [''],
     reelVideo: '',
@@ -60,8 +63,27 @@ export default function AdminPropertyEditor({ token, authHeaders, API_BASE, edit
       setForm(prev => ({
         ...prev,
         ...editingProperty,
+        areaUnit: editingProperty.areaUnit || 'Sq. Ft.',
+        floor: editingProperty.floor || prev.floor,
         location: editingProperty.location || prev.location,
         builder: editingProperty.builder || prev.builder,
+        contactDetails: {
+          ...prev.contactDetails,
+          name: editingProperty.contactDetails?.name || editingProperty.relationshipManager?.name || editingProperty.builder?.name || '',
+          phone: editingProperty.contactDetails?.phone || editingProperty.relationshipManager?.phone || '',
+          whatsapp: editingProperty.contactDetails?.whatsapp || editingProperty.relationshipManager?.whatsapp || '',
+          role: editingProperty.contactDetails?.role || editingProperty.relationshipManager?.role || 'Property Owner',
+          email: editingProperty.contactDetails?.email || '',
+          preferredTime: editingProperty.contactDetails?.preferredTime || '10 AM - 7 PM',
+        },
+        buyingDetails: {
+          ...prev.buyingDetails,
+          bookingAmount: editingProperty.buyingDetails?.bookingAmount || '10% Token',
+          possessionDate: editingProperty.buyingDetails?.possessionDate || editingProperty.possession || 'Immediate',
+          ownershipType: editingProperty.buyingDetails?.ownershipType || 'Freehold',
+          paymentTerms: editingProperty.buyingDetails?.paymentTerms || 'Flexible / Bank Approved',
+          demandNegotiable: editingProperty.buyingDetails?.demandNegotiable ?? true,
+        },
         amenities: editingProperty.amenities || [],
         images: editingProperty.images?.length ? editingProperty.images : [''],
         financials: editingProperty.financials || prev.financials,
@@ -104,18 +126,29 @@ export default function AdminPropertyEditor({ token, authHeaders, API_BASE, edit
     try {
       const priceNum = Number(String(form.price).replace(/[^0-9.]/g, ''));
       const areaNum = Number(form.areaSqFt) || 2500;
+      const unitLabel = form.areaUnit === 'Sq. Yds.' ? 'sq.yd' : 'sq.ft';
 
       const payload = {
         ...form,
         price: priceNum,
         priceFormatted: form.priceFormatted || `₹${(priceNum / 10000000).toFixed(2)} Cr`,
-        pricePerSqFt: `₹${Math.round(priceNum / areaNum).toLocaleString()}/sq.ft`,
+        pricePerSqFt: `₹${Math.round(priceNum / areaNum).toLocaleString()}/${unitLabel}`,
         areaSqFt: areaNum,
+        areaUnit: form.areaUnit || 'Sq. Ft.',
         carpetAreaSqFt: Number(form.carpetAreaSqFt) || Math.round(areaNum * 0.85),
         bhk: Number(form.bhk),
         baths: Number(form.baths),
+        possession: form.buyingDetails?.possessionDate || form.possession,
         promotionScore: Number(form.promotionScore) || 0,
         images: form.images.filter(img => img.trim()),
+        relationshipManager: {
+          name: form.contactDetails?.name || 'Oye Property Specialist',
+          role: form.contactDetails?.role || 'Property Manager',
+          phone: form.contactDetails?.phone || '+91 98200 14820',
+          rating: 5.0,
+          photo: 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=300&q=80',
+          whatsapp: (form.contactDetails?.whatsapp || form.contactDetails?.phone || '919820014820').replace(/\D/g, ''),
+        }
       };
 
       let url, method;
@@ -154,7 +187,7 @@ export default function AdminPropertyEditor({ token, authHeaders, API_BASE, edit
         <div>
           <h2 className="admin-section-title">{isEdit ? 'Edit Property Listing' : 'Create Oye Verified Listing'}</h2>
           <p className="admin-section-subtitle">
-            {isEdit ? `Modifying: ${editingProperty?.title}` : 'Publish official listings with custom badges and promotion weights'}
+            {isEdit ? `Modifying: ${editingProperty?.title}` : 'Publish official listings with 10-point verified details and promotion weights'}
           </p>
         </div>
         <button className="admin-btn admin-btn-ghost" onClick={onCancel}>
@@ -163,9 +196,9 @@ export default function AdminPropertyEditor({ token, authHeaders, API_BASE, edit
       </div>
 
       <form onSubmit={handleSubmit} className="admin-editor-form">
-        {/* Section: Basic Info */}
+        {/* 1. Basic Info: Title, Type, BHK, Floor */}
         <div className="admin-form-section">
-          <h3 className="admin-form-section-title">Basic Information</h3>
+          <h3 className="admin-form-section-title">1. Title, Type & Specifications</h3>
           <div className="admin-form-grid">
             <div className="admin-form-group admin-span-2">
               <label className="admin-label">Property Title *</label>
@@ -178,7 +211,7 @@ export default function AdminPropertyEditor({ token, authHeaders, API_BASE, edit
               />
             </div>
             <div className="admin-form-group admin-span-2">
-              <label className="admin-label">Tagline</label>
+              <label className="admin-label">Short Tagline / Demand Hook</label>
               <input
                 className="admin-input"
                 value={form.tagline}
@@ -187,7 +220,7 @@ export default function AdminPropertyEditor({ token, authHeaders, API_BASE, edit
               />
             </div>
             <div className="admin-form-group">
-              <label className="admin-label">Property Type</label>
+              <label className="admin-label">Property Type *</label>
               <select className="admin-select" value={form.propertyType} onChange={e => set('propertyType', e.target.value)}>
                 {PROPERTY_TYPES.map(t => <option key={t} value={t}>{t}</option>)}
               </select>
@@ -202,77 +235,45 @@ export default function AdminPropertyEditor({ token, authHeaders, API_BASE, edit
             </div>
             <div className="admin-form-group">
               <label className="admin-label">BHK Configuration</label>
-              <input className="admin-input" type="number" min={1} max={10} value={form.bhk} onChange={e => set('bhk', e.target.value)} />
+              <input className="admin-input" type="number" min={0} max={10} value={form.bhk} onChange={e => set('bhk', e.target.value)} placeholder="e.g. 3" />
             </div>
             <div className="admin-form-group">
               <label className="admin-label">Bathrooms</label>
               <input className="admin-input" type="number" min={1} max={10} value={form.baths} onChange={e => set('baths', e.target.value)} />
             </div>
             <div className="admin-form-group">
+              <label className="admin-label">Floor Details / Level *</label>
+              <input
+                className="admin-input"
+                value={form.floor}
+                onChange={e => set('floor', e.target.value)}
+                placeholder="e.g. 4th of 14 Floors / Penthouse Level / Ground Floor"
+              />
+            </div>
+            <div className="admin-form-group">
+              <label className="admin-label">Facing Direction</label>
+              <select className="admin-select" value={form.facing} onChange={e => set('facing', e.target.value)}>
+                {['North-East', 'East', 'North', 'West', 'South', 'Sea Facing', 'Park Facing', 'Road Facing'].map(f => <option key={f} value={f}>{f}</option>)}
+              </select>
+            </div>
+            <div className="admin-form-group">
               <label className="admin-label">Construction Status</label>
               <select className="admin-select" value={form.status} onChange={e => set('status', e.target.value)}>
-                {['Ready to Move', 'Under Construction', 'Upcoming'].map(s => <option key={s} value={s}>{s}</option>)}
+                {['Ready to Move', 'Under Construction', 'Upcoming / Launch', 'New Resale'].map(s => <option key={s} value={s}>{s}</option>)}
               </select>
             </div>
             <div className="admin-form-group">
               <label className="admin-label">Furnishing Status</label>
               <select className="admin-select" value={form.furnishing} onChange={e => set('furnishing', e.target.value)}>
-                {['Fully Furnished', 'Semi Furnished', 'Unfurnished'].map(f => <option key={f} value={f}>{f}</option>)}
+                {['Fully Furnished', 'Semi Furnished', 'Unfurnished', 'Bare Shell'].map(f => <option key={f} value={f}>{f}</option>)}
               </select>
             </div>
           </div>
         </div>
 
-        {/* Section: Pricing & Area */}
+        {/* 2. Location & City */}
         <div className="admin-form-section">
-          <h3 className="admin-form-section-title">Pricing & Financials</h3>
-          <div className="admin-form-grid">
-            <div className="admin-form-group">
-              <label className="admin-label">Price in INR (Numeric) *</label>
-              <input
-                className="admin-input"
-                type="number"
-                value={form.price}
-                onChange={e => set('price', e.target.value)}
-                placeholder="e.g. 45000000"
-                required
-              />
-            </div>
-            <div className="admin-form-group">
-              <label className="admin-label">Display Price (Formatted)</label>
-              <input
-                className="admin-input"
-                value={form.priceFormatted}
-                onChange={e => set('priceFormatted', e.target.value)}
-                placeholder="e.g. ₹4.50 Cr (auto-computed if empty)"
-              />
-            </div>
-            <div className="admin-form-group">
-              <label className="admin-label">Super Built-up Area (sq.ft)</label>
-              <input className="admin-input" type="number" value={form.areaSqFt} onChange={e => set('areaSqFt', e.target.value)} placeholder="e.g. 2500" />
-            </div>
-            <div className="admin-form-group">
-              <label className="admin-label">Carpet Area (sq.ft)</label>
-              <input className="admin-input" type="number" value={form.carpetAreaSqFt} onChange={e => set('carpetAreaSqFt', e.target.value)} placeholder="Auto: 85% of area" />
-            </div>
-            <div className="admin-form-group">
-              <label className="admin-label">Est. Monthly Rent</label>
-              <input className="admin-input" value={form.financials.estimatedMonthlyRent} onChange={e => setNested('financials', 'estimatedMonthlyRent', e.target.value)} placeholder="e.g. ₹1,20,000" />
-            </div>
-            <div className="admin-form-group">
-              <label className="admin-label">Rental Yield (%)</label>
-              <input className="admin-input" value={form.financials.grossRentalYield} onChange={e => setNested('financials', 'grossRentalYield', e.target.value)} placeholder="e.g. 5.2%" />
-            </div>
-            <div className="admin-form-group">
-              <label className="admin-label">5-Year Growth Forecast</label>
-              <input className="admin-input" value={form.financials.projectedCapitalAppreciation5Yr} onChange={e => setNested('financials', 'projectedCapitalAppreciation5Yr', e.target.value)} placeholder="e.g. +45%" />
-            </div>
-          </div>
-        </div>
-
-        {/* Section: Location */}
-        <div className="admin-form-section">
-          <h3 className="admin-form-section-title">Location & Address</h3>
+          <h3 className="admin-form-section-title">2. City & Location Details</h3>
           <div className="admin-form-grid">
             <div className="admin-form-group">
               <label className="admin-label">Target City *</label>
@@ -281,8 +282,8 @@ export default function AdminPropertyEditor({ token, authHeaders, API_BASE, edit
               </select>
             </div>
             <div className="admin-form-group">
-              <label className="admin-label">Locality / Neighborhood</label>
-              <input className="admin-input" value={form.location.locality} onChange={e => setNested('location', 'locality', e.target.value)} placeholder="e.g. Bandra West, Pali Hill" />
+              <label className="admin-label">Locality / Sector / Neighborhood *</label>
+              <input className="admin-input" value={form.location.locality} onChange={e => setNested('location', 'locality', e.target.value)} placeholder="e.g. Bandra West, Worli, DLF Phase 5" required />
             </div>
             <div className="admin-form-group admin-span-2">
               <label className="admin-label">Complete Street Address</label>
@@ -291,9 +292,155 @@ export default function AdminPropertyEditor({ token, authHeaders, API_BASE, edit
           </div>
         </div>
 
-        {/* Section: Builder */}
+        {/* 3. Area & Pricing / Demand */}
         <div className="admin-form-section">
-          <h3 className="admin-form-section-title">Builder & RERA Compliance</h3>
+          <h3 className="admin-form-section-title">3. Area & Price / Demand</h3>
+          <div className="admin-form-grid">
+            <div className="admin-form-group">
+              <label className="admin-label">Total / Super Area *</label>
+              <input className="admin-input" type="number" value={form.areaSqFt} onChange={e => set('areaSqFt', e.target.value)} placeholder="e.g. 2500" required />
+            </div>
+            <div className="admin-form-group">
+              <label className="admin-label">Area Unit *</label>
+              <select className="admin-select" value={form.areaUnit} onChange={e => set('areaUnit', e.target.value)}>
+                <option value="Sq. Ft.">Sq. Ft. (Square Feet)</option>
+                <option value="Sq. Yds.">Sq. Yds. (Square Yards / Gaj)</option>
+              </select>
+            </div>
+            <div className="admin-form-group">
+              <label className="admin-label">Carpet Area</label>
+              <input className="admin-input" type="number" value={form.carpetAreaSqFt} onChange={e => set('carpetAreaSqFt', e.target.value)} placeholder="Auto: 85% of area" />
+            </div>
+            <div className="admin-form-group">
+              <label className="admin-label">Asking Price / Demand (INR Numeric) *</label>
+              <input
+                className="admin-input"
+                type="number"
+                value={form.price}
+                onChange={e => set('price', e.target.value)}
+                placeholder="e.g. 45000000 (for ₹4.50 Cr)"
+                required
+              />
+            </div>
+            <div className="admin-form-group">
+              <label className="admin-label">Display Price / Demand (Formatted)</label>
+              <input
+                className="admin-input"
+                value={form.priceFormatted}
+                onChange={e => set('priceFormatted', e.target.value)}
+                placeholder="e.g. ₹4.50 Cr (auto-calculated if blank)"
+              />
+            </div>
+            <div className="admin-form-group">
+              <label className="admin-label">Est. Monthly Rent / ROI</label>
+              <input className="admin-input" value={form.financials.estimatedMonthlyRent} onChange={e => setNested('financials', 'estimatedMonthlyRent', e.target.value)} placeholder="e.g. ₹1,20,000 /mo" />
+            </div>
+          </div>
+        </div>
+
+        {/* 4. Photos & Media Gallery */}
+        <div className="admin-form-section">
+          <h3 className="admin-form-section-title">4. Photos & Showcase Gallery</h3>
+          <div className="admin-form-group">
+            <label className="admin-label">Video Tour / Reel URL</label>
+            <input className="admin-input" value={form.reelVideo} onChange={e => set('reelVideo', e.target.value)} placeholder="https://..." />
+          </div>
+          <label className="admin-label" style={{ marginTop: '1rem' }}>Property Gallery Photos (URLs)</label>
+          {form.images.map((img, i) => (
+            <div key={i} className="admin-image-row">
+              <input className="admin-input" value={img} onChange={e => updateImage(i, e.target.value)} placeholder={`Photo URL #${i + 1}`} />
+              {form.images.length > 1 && (
+                <button type="button" className="admin-icon-btn danger" onClick={() => removeImage(i)}>
+                  <CloseIcon size={14} />
+                </button>
+              )}
+              {img && <img src={img} alt="" className="admin-img-preview" onError={e => e.target.style.display = 'none'} />}
+            </div>
+          ))}
+          <button type="button" className="admin-btn admin-btn-ghost admin-btn-sm" onClick={addImageField} style={{ marginTop: '0.5rem' }}>
+            <PlusIcon size={14} /> Add Photo Slot
+          </button>
+        </div>
+
+        {/* 5. Contact & Buying Details */}
+        <div className="admin-form-section">
+          <h3 className="admin-form-section-title">5. Contact & Buying Details</h3>
+          <div className="admin-form-grid">
+            <div className="admin-form-group">
+              <label className="admin-label">Contact Person Name</label>
+              <input
+                className="admin-input"
+                value={form.contactDetails?.name || ''}
+                onChange={e => setNested('contactDetails', 'name', e.target.value)}
+                placeholder="e.g. Rajesh Sharma / Oye Advisor"
+              />
+            </div>
+            <div className="admin-form-group">
+              <label className="admin-label">Contact Phone Number</label>
+              <input
+                className="admin-input"
+                value={form.contactDetails?.phone || ''}
+                onChange={e => setNested('contactDetails', 'phone', e.target.value)}
+                placeholder="e.g. +91 98200 14820"
+              />
+            </div>
+            <div className="admin-form-group">
+              <label className="admin-label">WhatsApp Contact Number</label>
+              <input
+                className="admin-input"
+                value={form.contactDetails?.whatsapp || ''}
+                onChange={e => setNested('contactDetails', 'whatsapp', e.target.value)}
+                placeholder="e.g. 919820014820"
+              />
+            </div>
+            <div className="admin-form-group">
+              <label className="admin-label">Seller / Contact Role</label>
+              <select className="admin-select" value={form.contactDetails?.role || 'Property Owner'} onChange={e => setNested('contactDetails', 'role', e.target.value)}>
+                {['Property Owner', 'Verified Broker', 'Direct Builder', 'Oye Relationship Manager'].map(r => <option key={r} value={r}>{r}</option>)}
+              </select>
+            </div>
+            <div className="admin-form-group">
+              <label className="admin-label">Possession Date / Timeline</label>
+              <input
+                className="admin-input"
+                value={form.buyingDetails?.possessionDate || form.possession || ''}
+                onChange={e => {
+                  setNested('buyingDetails', 'possessionDate', e.target.value);
+                  set('possession', e.target.value);
+                }}
+                placeholder="e.g. Immediate / Ready to Move / Dec 2026"
+              />
+            </div>
+            <div className="admin-form-group">
+              <label className="admin-label">Booking / Token Amount</label>
+              <input
+                className="admin-input"
+                value={form.buyingDetails?.bookingAmount || ''}
+                onChange={e => setNested('buyingDetails', 'bookingAmount', e.target.value)}
+                placeholder="e.g. ₹5,00,000 or 10% Token"
+              />
+            </div>
+            <div className="admin-form-group">
+              <label className="admin-label">Ownership Type</label>
+              <select className="admin-select" value={form.buyingDetails?.ownershipType || 'Freehold'} onChange={e => setNested('buyingDetails', 'ownershipType', e.target.value)}>
+                {['Freehold', 'Leasehold', 'Power of Attorney', 'Co-operative Society'].map(o => <option key={o} value={o}>{o}</option>)}
+              </select>
+            </div>
+            <div className="admin-form-group">
+              <label className="admin-label">Payment / Buying Terms</label>
+              <input
+                className="admin-input"
+                value={form.buyingDetails?.paymentTerms || ''}
+                onChange={e => setNested('buyingDetails', 'paymentTerms', e.target.value)}
+                placeholder="e.g. Bank Loan Approved / 20:80 Scheme / Flexible"
+              />
+            </div>
+          </div>
+        </div>
+
+        {/* 6. Builder & RERA Compliance */}
+        <div className="admin-form-section">
+          <h3 className="admin-form-section-title">6. Builder & RERA Compliance</h3>
           <div className="admin-form-grid">
             <div className="admin-form-group">
               <label className="admin-label">Builder / Developer Name</label>
@@ -305,38 +452,14 @@ export default function AdminPropertyEditor({ token, authHeaders, API_BASE, edit
             </div>
             <div className="admin-form-group">
               <label className="admin-label">RERA Registration ID</label>
-              <input className="admin-input" value={form.builder.reraId} onChange={e => setNested('builder', 'reraId', e.target.value)} placeholder="e.g. P51900012345" />
+              <input className="admin-input" value={form.builder.reraId} onChange={e => setNested('builder', 'reraId', e.target.value)} placeholder="e.g. P51900012345 / VERIFIED" />
             </div>
           </div>
         </div>
 
-        {/* Section: Media */}
+        {/* 7. Amenities */}
         <div className="admin-form-section">
-          <h3 className="admin-form-section-title">Media & Gallery</h3>
-          <div className="admin-form-group">
-            <label className="admin-label">Video Tour / Reel URL</label>
-            <input className="admin-input" value={form.reelVideo} onChange={e => set('reelVideo', e.target.value)} placeholder="https://..." />
-          </div>
-          <label className="admin-label" style={{ marginTop: '1rem' }}>Property Gallery URLs</label>
-          {form.images.map((img, i) => (
-            <div key={i} className="admin-image-row">
-              <input className="admin-input" value={img} onChange={e => updateImage(i, e.target.value)} placeholder={`Image URL #${i + 1}`} />
-              {form.images.length > 1 && (
-                <button type="button" className="admin-icon-btn danger" onClick={() => removeImage(i)}>
-                  <CloseIcon size={14} />
-                </button>
-              )}
-              {img && <img src={img} alt="" className="admin-img-preview" onError={e => e.target.style.display = 'none'} />}
-            </div>
-          ))}
-          <button type="button" className="admin-btn admin-btn-ghost admin-btn-sm" onClick={addImageField} style={{ marginTop: '0.5rem' }}>
-            <PlusIcon size={14} /> Add Image Slot
-          </button>
-        </div>
-
-        {/* Section: Amenities */}
-        <div className="admin-form-section">
-          <h3 className="admin-form-section-title">Amenities & Features</h3>
+          <h3 className="admin-form-section-title">7. Amenities & Privileges</h3>
           <div className="admin-amenities-grid">
             {AMENITIES_LIST.map(a => (
               <label key={a} className={`admin-amenity-chip ${form.amenities.includes(a) ? 'selected' : ''}`}>
@@ -345,27 +468,11 @@ export default function AdminPropertyEditor({ token, authHeaders, API_BASE, edit
               </label>
             ))}
           </div>
-          <div style={{ marginTop: '0.75rem' }}>
-            <input
-              className="admin-input"
-              placeholder="Add custom amenity and press Enter..."
-              onKeyDown={e => {
-                if (e.key === 'Enter') {
-                  e.preventDefault();
-                  const val = e.target.value.trim();
-                  if (val && !form.amenities.includes(val)) {
-                    set('amenities', [...form.amenities, val]);
-                    e.target.value = '';
-                  }
-                }
-              }}
-            />
-          </div>
         </div>
 
-        {/* Section: Admin Controls */}
+        {/* 8. Admin Moderation & Controls */}
         <div className="admin-form-section">
-          <h3 className="admin-form-section-title">Admin Moderation & Promotion</h3>
+          <h3 className="admin-form-section-title">8. Admin Moderation & Promotion</h3>
           <div className="admin-form-grid">
             <div className="admin-form-group">
               <label className="admin-label">Approval Status</label>

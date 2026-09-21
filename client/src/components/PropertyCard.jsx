@@ -198,20 +198,35 @@ export default function PropertyCard({
             </div>
           </div>
 
-          <div style={{
-            background: 'rgba(255,255,255,0.95)',
-            padding: '4px 10px',
-            borderRadius: '8px',
-            fontSize: '11px',
-            color: '#555555',
-            fontWeight: 500,
-            fontFamily: "'Poppins', sans-serif",
-            display: 'flex',
-            alignItems: 'center',
-            gap: '4px'
-          }}>
-            <MapPin size={12} color="#E71D2B" />
-            {property.location.locality}
+          <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-end', gap: '4px' }}>
+            {property.images?.length > 1 && (
+              <span style={{
+                background: 'rgba(0,0,0,0.65)',
+                color: '#ffffff',
+                padding: '2px 8px',
+                borderRadius: '999px',
+                fontSize: '10px',
+                fontWeight: 600,
+                backdropFilter: 'blur(4px)'
+              }}>
+                📷 {property.images.length} Photos
+              </span>
+            )}
+            <div style={{
+              background: 'rgba(255,255,255,0.95)',
+              padding: '4px 10px',
+              borderRadius: '8px',
+              fontSize: '11px',
+              color: '#555555',
+              fontWeight: 500,
+              fontFamily: "'Poppins', sans-serif",
+              display: 'flex',
+              alignItems: 'center',
+              gap: '4px'
+            }}>
+              <MapPin size={12} color="#E71D2B" />
+              {property.location.locality || property.location.address}, {property.location.city}
+            </div>
           </div>
         </div>
       </div>
@@ -220,7 +235,7 @@ export default function PropertyCard({
       <div style={{ padding: 'clamp(12px, 4vw, 18px)', display: 'flex', flexDirection: 'column', flex: 1 }}>
         <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '6px' }}>
           <span style={{ fontSize: '10px', textTransform: 'uppercase', letterSpacing: '0.12em', color: '#E71D2B', fontWeight: 600, fontFamily: "'Poppins', sans-serif" }}>
-            {property.propertyType}
+            {property.propertyType} {property.bhk ? `• ${property.bhk} BHK` : ''}
           </span>
           {property.verified && (
             <span style={{ fontSize: '11px', color: '#16a34a', display: 'flex', alignItems: 'center', gap: '3px', fontWeight: 500, fontFamily: "'Poppins', sans-serif" }}>
@@ -248,7 +263,7 @@ export default function PropertyCard({
           fontSize: '12px',
           color: 'var(--text-muted)',
           lineHeight: 1.4,
-          marginBottom: '14px',
+          marginBottom: '12px',
           display: '-webkit-box',
           WebkitLineClamp: 2,
           WebkitBoxOrient: 'vertical',
@@ -257,30 +272,34 @@ export default function PropertyCard({
           {property.tagline}
         </p>
 
-        {/* Specs Icons Row */}
+        {/* 10-Point Specs Icons Row: BHK, Area (Sq. Ft./Sq. Yds.), Floor */}
         <div style={{
           display: 'grid',
           gridTemplateColumns: 'repeat(3, 1fr)',
-          gap: '8px',
+          gap: '6px',
           background: 'var(--bg-secondary)',
           border: '1px solid var(--border-subtle)',
           borderRadius: 'var(--radius-sm)',
-          padding: '8px',
-          marginBottom: '16px'
+          padding: '8px 10px',
+          marginBottom: '12px'
         }}>
-          <div style={{ display: 'flex', alignItems: 'center', gap: '6px', fontSize: '11px', color: 'var(--text-secondary)' }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '5px', fontSize: '11px', color: 'var(--text-secondary)' }}>
             <BedDouble size={14} color="var(--accent-primary)" />
-            <span style={{ fontWeight: 600 }}>{property.bhk} BHK</span>
+            <span style={{ fontWeight: 600 }}>{property.bhk ? `${property.bhk} BHK` : property.propertyType}</span>
           </div>
 
-          <div style={{ display: 'flex', alignItems: 'center', gap: '6px', fontSize: '11px', color: 'var(--text-secondary)' }}>
-            <Bath size={14} color="var(--accent-primary)" />
-            <span style={{ fontWeight: 600 }}>{property.baths} Baths</span>
-          </div>
-
-          <div style={{ display: 'flex', alignItems: 'center', gap: '6px', fontSize: '11px', color: 'var(--text-secondary)' }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '5px', fontSize: '11px', color: 'var(--text-secondary)' }}>
             <Maximize2 size={14} color="var(--accent-primary)" />
-            <span style={{ fontWeight: 600 }}>{property.carpetAreaSqFt} sqft</span>
+            <span style={{ fontWeight: 600 }}>
+              {property.areaSqFt ? `${property.areaSqFt.toLocaleString()} ${property.areaUnit || 'Sq. Ft.'}` : `${property.carpetAreaSqFt} sq.ft`}
+            </span>
+          </div>
+
+          <div style={{ display: 'flex', alignItems: 'center', gap: '5px', fontSize: '11px', color: 'var(--text-secondary)' }}>
+            <span style={{ fontSize: '13px' }}>🏢</span>
+            <span style={{ fontWeight: 600, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }} title={property.floor || 'Floor Level'}>
+              {property.floor || 'Upper Level'}
+            </span>
           </div>
         </div>
 
@@ -296,9 +315,9 @@ export default function PropertyCard({
             background: 'rgba(22, 163, 74, 0.08)',
             border: '1px solid rgba(22, 163, 74, 0.2)',
             color: '#16a34a',
-            padding: '4px 10px',
+            padding: '3px 8px',
             borderRadius: '9999px',
-            fontSize: '11px',
+            fontSize: '10.5px',
             fontWeight: 500,
             fontFamily: "'Poppins', sans-serif",
             display: 'inline-flex',
@@ -314,9 +333,9 @@ export default function PropertyCard({
               background: '#F5F5F5',
               border: '1px solid #EDEDED',
               color: '#555555',
-              padding: '4px 10px',
+              padding: '3px 8px',
               borderRadius: '9999px',
-              fontSize: '11px',
+              fontSize: '10.5px',
               fontWeight: 500,
               fontFamily: "'Poppins', sans-serif",
               display: 'inline-flex',
@@ -325,6 +344,22 @@ export default function PropertyCard({
             }}>
               <Compass size={11} />
               {property.facing}
+            </span>
+          )}
+
+          {/* Possession Timeline */}
+          {property.possession && (
+            <span style={{
+              background: '#F5F5F5',
+              border: '1px solid #EDEDED',
+              color: '#555555',
+              padding: '3px 8px',
+              borderRadius: '9999px',
+              fontSize: '10.5px',
+              fontWeight: 500,
+              fontFamily: "'Poppins', sans-serif"
+            }}>
+              🔑 {property.possession}
             </span>
           )}
         </div>

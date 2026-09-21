@@ -306,13 +306,15 @@ router.post('/properties', async (req, res) => {
 
     const priceNum = Number(body.price);
     const areaNum = Number(body.areaSqFt) || 2500;
+    const unitSuffix = body.areaUnit === 'Sq. Yds.' ? 'sq.yd' : 'sq.ft';
 
     const propertyPayload = {
       ...body,
       price: priceNum,
       priceFormatted: body.priceFormatted || `₹${(priceNum / 10000000).toFixed(2)} Cr`,
-      pricePerSqFt: body.pricePerSqFt || `₹${Math.round(priceNum / areaNum).toLocaleString()}/sq.ft`,
+      pricePerSqFt: body.pricePerSqFt || `₹${Math.round(priceNum / areaNum).toLocaleString()}/${unitSuffix}`,
       areaSqFt: areaNum,
+      areaUnit: body.areaUnit || 'Sq. Ft.',
       isOyeListing: true,         // Admin-listed = Oye Properties
       approvalStatus: 'approved', // Always auto-approved
       verified: true,

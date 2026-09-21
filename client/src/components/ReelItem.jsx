@@ -328,16 +328,18 @@ export default function ReelItem({
               <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
                 <Maximize2 size={16} color="#E71D2B" />
                 <div>
-                  <div style={{ fontSize: '10px', color: '#999', textTransform: 'uppercase', fontWeight: 500, fontFamily: "'Poppins', sans-serif" }}>Carpet Area</div>
-                  <div style={{ fontSize: '13px', fontWeight: 600, color: '#1F1F1F', fontFamily: "'Poppins', sans-serif" }}>{property.areaSqFt.toLocaleString()} sq.ft</div>
+                  <div style={{ fontSize: '10px', color: '#999', textTransform: 'uppercase', fontWeight: 500, fontFamily: "'Poppins', sans-serif" }}>Area</div>
+                  <div style={{ fontSize: '13px', fontWeight: 600, color: '#1F1F1F', fontFamily: "'Poppins', sans-serif" }}>
+                    {property.areaSqFt ? `${property.areaSqFt.toLocaleString()} ${property.areaUnit || 'Sq. Ft.'}` : `${property.carpetAreaSqFt} sq.ft`}
+                  </div>
                 </div>
               </div>
 
               <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-                <Bath size={16} color="#E71D2B" />
+                <span style={{ fontSize: '15px' }}>🏢</span>
                 <div>
-                  <div style={{ fontSize: '10px', color: '#999', textTransform: 'uppercase', fontWeight: 500, fontFamily: "'Poppins', sans-serif" }}>Bathrooms</div>
-                  <div style={{ fontSize: '13px', fontWeight: 600, color: '#1F1F1F', fontFamily: "'Poppins', sans-serif" }}>{property.baths || property.bhk} Baths</div>
+                  <div style={{ fontSize: '10px', color: '#999', textTransform: 'uppercase', fontWeight: 500, fontFamily: "'Poppins', sans-serif" }}>Floor Level</div>
+                  <div style={{ fontSize: '13px', fontWeight: 600, color: '#1F1F1F', fontFamily: "'Poppins', sans-serif" }}>{property.floor || 'Upper Level'}</div>
                 </div>
               </div>
 
@@ -1120,9 +1122,8 @@ export default function ReelItem({
 
           {/* Minimal Spec Line */}
           <div style={{ display: 'flex', alignItems: 'center', gap: '6px', marginBottom: '10px', flexWrap: 'wrap' }}>
-            <span style={{ fontSize: '11px', color: 'rgba(255,255,255,0.82)', fontFamily: "'Poppins', sans-serif", fontWeight: 400 }}>
-              {property.bhk} BHK &nbsp;·&nbsp; {property.areaSqFt.toLocaleString()} sq.ft &nbsp;·&nbsp; {property.status}
-              {property.facing ? ` · ${property.facing}` : ''}
+            <span style={{ fontSize: '11px', color: 'rgba(255,255,255,0.85)', fontFamily: "'Poppins', sans-serif", fontWeight: 400 }}>
+              {property.bhk ? `${property.bhk} BHK` : property.propertyType} &nbsp;·&nbsp; {property.areaSqFt ? `${property.areaSqFt.toLocaleString()} ${property.areaUnit || 'Sq. Ft.'}` : ''} &nbsp;·&nbsp; 🏢 {property.floor || 'Upper Floor'}
             </span>
           </div>
 

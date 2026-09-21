@@ -198,19 +198,29 @@ export default function CompareDrawer({
                 </div>
               ))}
 
-              {/* Carpet Area */}
+              {/* Total Area */}
               <div style={{ fontSize: '13px', color: 'var(--text-muted)', borderTop: '1px solid var(--border-subtle)', paddingTop: '10px' }}>
-                Carpet Area
+                Area (Super / Total)
               </div>
               {comparedProperties.map(p => (
                 <div key={p.id} style={{ fontSize: '13px', fontWeight: 700, color: 'var(--text-primary)', borderTop: '1px solid var(--border-subtle)', paddingTop: '10px' }}>
-                  {p.carpetAreaSqFt} sq.ft
+                  {p.areaSqFt ? `${p.areaSqFt.toLocaleString()} ${p.areaUnit || 'Sq. Ft.'}` : `${p.carpetAreaSqFt} sq.ft`}
+                </div>
+              ))}
+
+              {/* Floor */}
+              <div style={{ fontSize: '13px', color: 'var(--text-muted)', borderTop: '1px solid var(--border-subtle)', paddingTop: '10px' }}>
+                Floor Level
+              </div>
+              {comparedProperties.map(p => (
+                <div key={p.id} style={{ fontSize: '13px', fontWeight: 700, color: 'var(--text-primary)', borderTop: '1px solid var(--border-subtle)', paddingTop: '10px' }}>
+                  {p.floor || 'Upper Level'}
                 </div>
               ))}
 
               {/* Property Type */}
               <div style={{ fontSize: '13px', color: 'var(--text-muted)', borderTop: '1px solid var(--border-subtle)', paddingTop: '10px' }}>
-                Category
+                Property Type
               </div>
               {comparedProperties.map(p => (
                 <div key={p.id} style={{ fontSize: '13px', fontWeight: 700, color: '#E71D2B', borderTop: '1px solid var(--border-subtle)', paddingTop: '10px' }}>

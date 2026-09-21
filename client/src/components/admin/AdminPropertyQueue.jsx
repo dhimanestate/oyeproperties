@@ -246,10 +246,11 @@ export default function AdminPropertyQueue({ token, authHeaders, API_BASE, onRef
                       onChange={toggleSelectAll}
                     />
                   </th>
-                  <th>Property Details</th>
-                  <th>City / Locality</th>
-                  <th>Price</th>
-                  <th>Listed By</th>
+                  <th>Property Details & Type</th>
+                  <th>City & Location</th>
+                  <th>Area & Floor</th>
+                  <th>Price / Demand</th>
+                  <th>Contact / Lister</th>
                   <th>Approval</th>
                   <th>Badges</th>
                   <th>Date</th>
@@ -269,31 +270,59 @@ export default function AdminPropertyQueue({ token, authHeaders, API_BASE, onRef
                     <td>
                       <div className="admin-prop-cell" onClick={() => setPreviewProp(prop)}>
                         {prop.images?.[0] ? (
-                          <img src={prop.images[0]} alt="" className="admin-prop-thumb" />
+                          <div style={{ position: 'relative' }}>
+                            <img src={prop.images[0]} alt="" className="admin-prop-thumb" />
+                            {prop.images.length > 1 && (
+                              <span style={{
+                                position: 'absolute',
+                                bottom: '2px',
+                                right: '2px',
+                                background: 'rgba(0,0,0,0.7)',
+                                color: '#fff',
+                                fontSize: '9px',
+                                padding: '1px 4px',
+                                borderRadius: '4px',
+                                fontWeight: 700
+                              }}>
+                                📷 {prop.images.length}
+                              </span>
+                            )}
+                          </div>
                         ) : (
                           <div className="admin-prop-thumb-placeholder">No Img</div>
                         )}
                         <div>
                           <div className="admin-prop-title">{prop.title}</div>
-                          <div className="admin-prop-meta">{prop.bhk} BHK · {prop.propertyType}</div>
+                          <div className="admin-prop-meta">
+                            <span style={{ color: 'var(--accent-primary)', fontWeight: 600 }}>{prop.bhk ? `${prop.bhk} BHK` : ''} {prop.propertyType}</span>
+                          </div>
                         </div>
                       </div>
                     </td>
                     <td>
                       <div><strong>{prop.location?.city || '—'}</strong></div>
-                      <div className="admin-meta-sub">{prop.location?.locality || ''}</div>
+                      <div className="admin-meta-sub">{prop.location?.locality || prop.location?.address || ''}</div>
                     </td>
-                    <td><strong>{prop.priceFormatted || '₹—'}</strong></td>
+                    <td>
+                      <div><strong>{prop.areaSqFt ? `${prop.areaSqFt.toLocaleString()} ${prop.areaUnit || 'Sq. Ft.'}` : '—'}</strong></div>
+                      <div className="admin-meta-sub">🏢 {prop.floor || 'Standard Floor'}</div>
+                    </td>
+                    <td>
+                      <div><strong style={{ color: 'var(--accent-primary)' }}>{prop.priceFormatted || '₹—'}</strong></div>
+                      <div className="admin-meta-sub">{prop.pricePerSqFt || ''}</div>
+                    </td>
                     <td>
                       <div className="admin-user-cell">
                         {prop.listedBy?.avatar ? (
                           <img src={prop.listedBy.avatar} alt="" className="admin-user-thumb" />
                         ) : (
-                          <div className="admin-user-avatar-sm">{(prop.listedBy?.name || 'U')[0]?.toUpperCase()}</div>
+                          <div className="admin-user-avatar-sm">{(prop.contactDetails?.name || prop.listedBy?.name || 'U')[0]?.toUpperCase()}</div>
                         )}
                         <div>
-                          <div className="admin-user-cell-name">{prop.listedBy?.name || 'Unknown'}</div>
-                          <div className="admin-meta-sub">{prop.listedBy?.role || 'user'}</div>
+                          <div className="admin-user-cell-name">{prop.contactDetails?.name || prop.listedBy?.name || 'Owner / Lister'}</div>
+                          <div className="admin-meta-sub">
+                            {prop.contactDetails?.phone || prop.relationshipManager?.phone || prop.listedBy?.phone || 'No phone'}
+                          </div>
                         </div>
                       </div>
                     </td>
@@ -380,7 +409,7 @@ export default function AdminPropertyQueue({ token, authHeaders, API_BASE, onRef
                 ))}
                 {properties.length === 0 && (
                   <tr>
-                    <td colSpan={9} className="admin-empty-table-cell">
+                    <td colSpan={10} className="admin-empty-table-cell">
                       {mode === 'pending'
                         ? 'No pending properties in queue. All submissions reviewed!'
                         : 'No property listings found matching the criteria.'}
@@ -450,61 +479,96 @@ export default function AdminPropertyQueue({ token, authHeaders, API_BASE, onRef
         </div>
       )}
 
-      {/* Property Preview Modal */}
+      {/* Property Preview Modal - Complete 10-Point Spec */}
       {previewProp && (
         <div className="admin-modal-overlay" onClick={() => setPreviewProp(null)}>
-          <div className="admin-modal admin-preview-modal" onClick={e => e.stopPropagation()}>
+          <div className="admin-modal admin-preview-modal" onClick={e => e.stopPropagation()} style={{ maxWidth: '780px' }}>
             <div className="admin-modal-header">
-              <h3 className="admin-modal-title">{previewProp.title}</h3>
+              <div>
+                <span style={{ fontSize: '11px', textTransform: 'uppercase', letterSpacing: '0.1em', color: 'var(--accent-primary)', fontWeight: 700 }}>
+                  {previewProp.propertyType} • {previewProp.bhk ? `${previewProp.bhk} BHK` : 'Commercial/Plot'}
+                </span>
+                <h3 className="admin-modal-title" style={{ marginTop: '2px' }}>{previewProp.title}</h3>
+              </div>
               <button className="admin-modal-close" onClick={() => setPreviewProp(null)}>
                 <CloseIcon size={18} />
               </button>
             </div>
 
-            <div className="admin-preview-images">
-              {previewProp.images?.slice(0, 3).map((img, i) => (
-                <img key={i} src={img} alt="" className="admin-preview-img" />
+            {/* Photos Showcase */}
+            <div className="admin-preview-images" style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(140px, 1fr))', gap: '8px', marginBottom: '16px' }}>
+              {previewProp.images?.slice(0, 4).map((img, i) => (
+                <img key={i} src={img} alt="" className="admin-preview-img" style={{ height: '110px', width: '100%', objectFit: 'cover', borderRadius: '8px' }} />
               ))}
             </div>
 
-            <div className="admin-preview-grid">
+            {/* 10-Point Grid */}
+            <div className="admin-preview-grid" style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '12px' }}>
               <div className="admin-preview-item">
-                <span className="admin-preview-label">Location</span>
+                <span className="admin-preview-label">City</span>
+                <span className="admin-preview-value">{previewProp.location?.city || '—'}</span>
+              </div>
+              <div className="admin-preview-item">
+                <span className="admin-preview-label">Location / Address</span>
                 <span className="admin-preview-value">
-                  {previewProp.location?.address || previewProp.location?.locality}, {previewProp.location?.city}
+                  {previewProp.location?.address || previewProp.location?.locality || '—'}
                 </span>
               </div>
               <div className="admin-preview-item">
-                <span className="admin-preview-label">Price</span>
-                <span className="admin-preview-value">{previewProp.priceFormatted || '₹—'}</span>
+                <span className="admin-preview-label">Floor Level</span>
+                <span className="admin-preview-value">{previewProp.floor || 'Standard Floor'}</span>
               </div>
+
               <div className="admin-preview-item">
-                <span className="admin-preview-label">Layout</span>
-                <span className="admin-preview-value">{previewProp.bhk} BHK {previewProp.propertyType}</span>
+                <span className="admin-preview-label">Super / Built-up Area</span>
+                <span className="admin-preview-value">
+                  {previewProp.areaSqFt ? `${previewProp.areaSqFt.toLocaleString()} ${previewProp.areaUnit || 'Sq. Ft.'}` : '—'}
+                </span>
               </div>
               <div className="admin-preview-item">
                 <span className="admin-preview-label">Carpet Area</span>
-                <span className="admin-preview-value">{previewProp.areaSqFt?.toLocaleString()} sq.ft</span>
+                <span className="admin-preview-value">
+                  {previewProp.carpetAreaSqFt ? `${previewProp.carpetAreaSqFt.toLocaleString()} ${previewProp.areaUnit || 'Sq. Ft.'}` : '—'}
+                </span>
               </div>
               <div className="admin-preview-item">
-                <span className="admin-preview-label">Approval Status</span>
-                <span className="admin-preview-value">{previewProp.approvalStatus?.toUpperCase()}</span>
+                <span className="admin-preview-label">Price / Demand</span>
+                <span className="admin-preview-value" style={{ color: 'var(--accent-primary)', fontWeight: 800 }}>
+                  {previewProp.priceFormatted || '₹—'}
+                  {previewProp.pricePerSqFt && <span style={{ fontSize: '11px', color: 'var(--text-muted)', display: 'block' }}>({previewProp.pricePerSqFt})</span>}
+                </span>
+              </div>
+
+              <div className="admin-preview-item">
+                <span className="admin-preview-label">Contact Person</span>
+                <span className="admin-preview-value">
+                  {previewProp.contactDetails?.name || previewProp.relationshipManager?.name || previewProp.listedBy?.name || 'Owner'}
+                </span>
               </div>
               <div className="admin-preview-item">
-                <span className="admin-preview-label">Lister</span>
-                <span className="admin-preview-value">{previewProp.listedBy?.name} ({previewProp.listedBy?.email})</span>
+                <span className="admin-preview-label">Phone & WhatsApp</span>
+                <span className="admin-preview-value">
+                  {previewProp.contactDetails?.phone || previewProp.relationshipManager?.phone || '—'}
+                </span>
+              </div>
+              <div className="admin-preview-item">
+                <span className="admin-preview-label">Possession / Buying Terms</span>
+                <span className="admin-preview-value">
+                  {previewProp.buyingDetails?.possessionDate || previewProp.possession || 'Ready to Move'} ({previewProp.buyingDetails?.bookingAmount || '10% Token'})
+                </span>
               </div>
             </div>
 
             {previewProp.amenities?.length > 0 && (
-              <div className="admin-preview-amenities">
+              <div className="admin-preview-amenities" style={{ marginTop: '12px' }}>
+                <span style={{ fontSize: '11px', fontWeight: 600, color: 'var(--text-muted)', display: 'block', marginBottom: '6px' }}>Amenities:</span>
                 {previewProp.amenities.map((a, i) => (
                   <span key={i} className="admin-tag">{a}</span>
                 ))}
               </div>
             )}
 
-            <div className="admin-modal-actions">
+            <div className="admin-modal-actions" style={{ marginTop: '18px' }}>
               <button className="admin-btn admin-btn-ghost" onClick={() => setPreviewProp(null)}>
                 Close
               </button>
@@ -514,7 +578,7 @@ export default function AdminPropertyQueue({ token, authHeaders, API_BASE, onRef
                     className="admin-btn admin-btn-success"
                     onClick={() => { handleApprove(previewProp._id); setPreviewProp(null); }}
                   >
-                    <CheckIcon size={15} /> Approve
+                    <CheckIcon size={15} /> Approve Listing
                   </button>
                   <button
                     className="admin-btn admin-btn-danger"

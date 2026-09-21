@@ -25,15 +25,24 @@ export default function ListPropertyModal({
   const [formData, setFormData] = useState({
     title: '',
     tagline: '',
-    propertyType: 'Penthouse',
+    propertyType: 'Apartment',
     city: 'Mumbai',
     locality: '',
-    priceCr: '12.50',
-    bhk: '4',
-    baths: '4',
-    areaSqFt: '3500',
+    address: '',
+    priceCr: '4.50',
+    bhk: '3',
+    baths: '3',
+    areaSqFt: '2400',
+    areaUnit: 'Sq. Ft.',
+    floor: '4th of 14 Floors',
     status: 'Ready to Move',
-    furnishing: 'Fully Furnished Designer',
+    possession: 'Immediate',
+    furnishing: 'Fully Furnished',
+    contactName: currentUser?.name || '',
+    contactPhone: currentUser?.phone || '',
+    contactWhatsapp: (currentUser?.phone || '').replace(/\D/g, ''),
+    contactRole: currentUser?.role || 'Property Owner',
+    bookingAmount: '10% Token',
     amenities: ['Private Infinity Pool', 'Smart Home Automation', '24/7 Security'],
     imageUrl: 'https://images.unsplash.com/photo-1600596542815-ffad4c1539a9?auto=format&fit=crop&w=1200&q=80',
     reelVideo: '/videos/reel_worli_sea_face.mp4'
@@ -56,10 +65,10 @@ export default function ListPropertyModal({
   ];
 
   const PRESET_IMAGES = [
-    { label: 'Sea View Penthouse', url: 'https://images.unsplash.com/photo-1600596542815-ffad4c1539a9?auto=format&fit=crop&w=1200&q=80', video: '/videos/reel_worli_sea_face.mp4' },
+    { label: 'Sea View Residence', url: 'https://images.unsplash.com/photo-1600596542815-ffad4c1539a9?auto=format&fit=crop&w=1200&q=80', video: '/videos/reel_worli_sea_face.mp4' },
     { label: 'Private Pool Villa', url: 'https://images.unsplash.com/photo-1512917774080-9991f1c4c750?auto=format&fit=crop&w=1200&q=80', video: '/videos/reel_goa_beach_villa.mp4' },
     { label: 'Golf Greens Duplex', url: 'https://images.unsplash.com/photo-1600607687939-ce8a6c25118c?auto=format&fit=crop&w=1200&q=80', video: '/videos/reel_dlf_camellias.mp4' },
-    { label: 'Modern Palm Mansion', url: 'https://images.unsplash.com/photo-1580587771525-78b9dba3b914?auto=format&fit=crop&w=1200&q=80', video: '/videos/reel_palm_jumeirah.mp4' }
+    { label: 'Modern Luxury Estate', url: 'https://images.unsplash.com/photo-1580587771525-78b9dba3b914?auto=format&fit=crop&w=1200&q=80', video: '/videos/reel_palm_jumeirah.mp4' }
   ];
 
   const handleToggleAmenity = (item) => {
@@ -85,6 +94,11 @@ export default function ListPropertyModal({
     setErrorMsg('');
 
     const priceNum = Math.round(parseFloat(formData.priceCr) * 10000000);
+    const unitSuffix = formData.areaUnit === 'Sq. Yds.' ? 'sq.yd' : 'sq.ft';
+    const cName = formData.contactName || currentUser?.name || 'Verified Owner';
+    const cPhone = formData.contactPhone || currentUser?.phone || '+91 98200 14820';
+    const cRole = formData.contactRole || currentUser?.role || 'Property Owner';
+    const cWhatsapp = formData.contactWhatsapp || cPhone.replace(/\D/g, '');
 
     const payload = {
       title: formData.title,
@@ -94,22 +108,40 @@ export default function ListPropertyModal({
       baths: Number(formData.baths),
       price: priceNum,
       priceFormatted: `₹${parseFloat(formData.priceCr).toFixed(2)} Cr`,
-      areaSqFt: Number(formData.areaSqFt),
-      carpetAreaSqFt: Math.round(Number(formData.areaSqFt) * 0.85),
+      pricePerSqFt: `₹${Math.round(priceNum / Number(formData.areaSqFt || 2500)).toLocaleString()}/${unitSuffix}`,
+      areaSqFt: Number(formData.areaSqFt) || 2500,
+      areaUnit: formData.areaUnit || 'Sq. Ft.',
+      carpetAreaSqFt: Math.round(Number(formData.areaSqFt || 2500) * 0.85),
+      floor: formData.floor || 'Upper Level',
       location: {
         city: formData.city,
         locality: formData.locality,
-        address: `${formData.locality}, ${formData.city}`
+        address: formData.address || `${formData.locality}, ${formData.city}`
       },
       status: formData.status,
+      possession: formData.possession || 'Immediate',
       furnishing: formData.furnishing,
       amenities: formData.amenities,
       images: [formData.imageUrl],
       reelVideo: formData.reelVideo,
+      contactDetails: {
+        name: cName,
+        phone: cPhone,
+        whatsapp: cWhatsapp,
+        role: cRole,
+        preferredTime: '10 AM - 8 PM',
+      },
+      buyingDetails: {
+        bookingAmount: formData.bookingAmount || '10% Token',
+        possessionDate: formData.possession || 'Immediate',
+        ownershipType: 'Freehold',
+        paymentTerms: 'Bank Loan Available / Flexible Installments',
+        demandNegotiable: true,
+      },
       ownerInfo: {
-        name: currentUser?.name || 'Verified Owner',
-        role: currentUser?.role || 'Property Owner',
-        phone: currentUser?.phone || '+91 98200 12345'
+        name: cName,
+        role: cRole,
+        phone: cPhone
       }
     };
 
@@ -132,15 +164,14 @@ export default function ListPropertyModal({
       const localProp = {
         ...payload,
         id: `prop-user-${Date.now().toString(36)}`,
-        pricePerSqFt: `₹${Math.round(priceNum / Number(formData.areaSqFt)).toLocaleString()}/sq.ft`,
-        builder: { name: currentUser?.name || 'Direct Owner', experience: 'Owner Listed', reraId: 'VERIFIED-OWNER' },
+        builder: { name: cName + ` (${cRole})`, experience: 'Owner Listed', reraId: 'VERIFIED-OWNER' },
         relationshipManager: {
-          name: currentUser?.name || 'Owner',
-          role: currentUser?.role || 'Direct Owner',
-          phone: currentUser?.phone || '+91 98200 12345',
+          name: cName,
+          role: cRole,
+          phone: cPhone,
           rating: 5.0,
           photo: currentUser?.avatar || 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=300&q=80',
-          whatsapp: '919820014820'
+          whatsapp: cWhatsapp
         },
         verified: true,
         isOwnerListing: true,
@@ -324,7 +355,7 @@ export default function ListPropertyModal({
                   <input
                     type="text"
                     required
-                    placeholder="e.g. Imperial Bay Panoramic Penthouse"
+                    placeholder="e.g. Imperial Bay Panoramic 3 BHK"
                     value={formData.title}
                     onChange={e => setFormData({ ...formData, title: e.target.value })}
                     style={{
@@ -359,11 +390,11 @@ export default function ListPropertyModal({
                 </div>
               </div>
 
-              {/* Row 2: Category, City, Locality */}
+              {/* Row 2: Category, BHK, Floor */}
               <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '14px', marginBottom: '14px' }}>
                 <div>
                   <label style={{ display: 'block', fontSize: '12px', fontWeight: 700, color: 'var(--text-secondary)', marginBottom: '4px' }}>
-                    Category
+                    Property Type *
                   </label>
                   <select
                     value={formData.propertyType}
@@ -378,13 +409,66 @@ export default function ListPropertyModal({
                       background: '#ffffff'
                     }}
                   >
+                    <option value="Apartment">Apartment</option>
                     <option value="Penthouse">Penthouse</option>
                     <option value="Luxury Villa">Luxury Villa</option>
-                    <option value="Sea-Facing Residence">Sea-Facing Residence</option>
-                    <option value="Garden Estate">Garden Estate</option>
+                    <option value="Duplex">Duplex</option>
+                    <option value="Row House">Row House</option>
+                    <option value="Studio">Studio</option>
+                    <option value="Commercial Space">Commercial Space</option>
+                    <option value="Plot">Plot</option>
                   </select>
                 </div>
 
+                <div>
+                  <label style={{ display: 'block', fontSize: '12px', fontWeight: 700, color: 'var(--text-secondary)', marginBottom: '4px' }}>
+                    Configuration (BHK)
+                  </label>
+                  <select
+                    value={formData.bhk}
+                    onChange={e => setFormData({ ...formData, bhk: e.target.value })}
+                    style={{
+                      width: '100%',
+                      padding: '10px 12px',
+                      borderRadius: 'var(--radius-md)',
+                      border: '1px solid var(--border-subtle)',
+                      fontSize: '13px',
+                      outline: 'none',
+                      background: '#ffffff'
+                    }}
+                  >
+                    <option value="1">1 BHK</option>
+                    <option value="2">2 BHK</option>
+                    <option value="3">3 BHK</option>
+                    <option value="4">4 BHK</option>
+                    <option value="5">5 BHK</option>
+                    <option value="6">6+ BHK Grand</option>
+                  </select>
+                </div>
+
+                <div>
+                  <label style={{ display: 'block', fontSize: '12px', fontWeight: 700, color: 'var(--text-secondary)', marginBottom: '4px' }}>
+                    Floor Level *
+                  </label>
+                  <input
+                    type="text"
+                    placeholder="e.g. 4th of 14 Floors / Ground"
+                    value={formData.floor}
+                    onChange={e => setFormData({ ...formData, floor: e.target.value })}
+                    style={{
+                      width: '100%',
+                      padding: '10px 14px',
+                      borderRadius: 'var(--radius-md)',
+                      border: '1px solid var(--border-subtle)',
+                      fontSize: '13px',
+                      outline: 'none'
+                    }}
+                  />
+                </div>
+              </div>
+
+              {/* Row 3: City & Locality */}
+              <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '14px', marginBottom: '14px' }}>
                 <div>
                   <label style={{ display: 'block', fontSize: '12px', fontWeight: 700, color: 'var(--text-secondary)', marginBottom: '4px' }}>
                     City *
@@ -408,6 +492,7 @@ export default function ListPropertyModal({
                     <option value="Goa">Goa</option>
                     <option value="Bangalore">Bangalore</option>
                     <option value="Hyderabad">Hyderabad</option>
+                    <option value="London">London</option>
                   </select>
                 </div>
 
@@ -431,21 +516,83 @@ export default function ListPropertyModal({
                     }}
                   />
                 </div>
+
+                <div>
+                  <label style={{ display: 'block', fontSize: '12px', fontWeight: 700, color: 'var(--text-secondary)', marginBottom: '4px' }}>
+                    Street Address (Optional)
+                  </label>
+                  <input
+                    type="text"
+                    placeholder="e.g. 14 Worli Sea Face Road"
+                    value={formData.address}
+                    onChange={e => setFormData({ ...formData, address: e.target.value })}
+                    style={{
+                      width: '100%',
+                      padding: '10px 14px',
+                      borderRadius: 'var(--radius-md)',
+                      border: '1px solid var(--border-subtle)',
+                      fontSize: '13px',
+                      outline: 'none'
+                    }}
+                  />
+                </div>
               </div>
 
-              {/* Row 3: Price in Cr, BHK, Carpet Area */}
+              {/* Row 4: Area, Unit, Asking Price / Demand */}
               <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '14px', marginBottom: '16px' }}>
                 <div>
                   <label style={{ display: 'block', fontSize: '12px', fontWeight: 700, color: 'var(--text-secondary)', marginBottom: '4px' }}>
-                    Asking Price (in ₹ Crores) *
+                    Total Area *
+                  </label>
+                  <input
+                    type="number"
+                    placeholder="2400"
+                    value={formData.areaSqFt}
+                    onChange={e => setFormData({ ...formData, areaSqFt: e.target.value })}
+                    style={{
+                      width: '100%',
+                      padding: '10px 14px',
+                      borderRadius: 'var(--radius-md)',
+                      border: '1px solid var(--border-subtle)',
+                      fontSize: '13px',
+                      outline: 'none'
+                    }}
+                  />
+                </div>
+
+                <div>
+                  <label style={{ display: 'block', fontSize: '12px', fontWeight: 700, color: 'var(--text-secondary)', marginBottom: '4px' }}>
+                    Area Unit *
+                  </label>
+                  <select
+                    value={formData.areaUnit}
+                    onChange={e => setFormData({ ...formData, areaUnit: e.target.value })}
+                    style={{
+                      width: '100%',
+                      padding: '10px 12px',
+                      borderRadius: 'var(--radius-md)',
+                      border: '1px solid var(--border-subtle)',
+                      fontSize: '13px',
+                      outline: 'none',
+                      background: '#ffffff'
+                    }}
+                  >
+                    <option value="Sq. Ft.">Sq. Ft. (Square Feet)</option>
+                    <option value="Sq. Yds.">Sq. Yds. (Square Yards)</option>
+                  </select>
+                </div>
+
+                <div>
+                  <label style={{ display: 'block', fontSize: '12px', fontWeight: 700, color: 'var(--text-secondary)', marginBottom: '4px' }}>
+                    Asking Price / Demand (₹ Cr) *
                   </label>
                   <div style={{ position: 'relative' }}>
                     <span style={{ position: 'absolute', left: '12px', top: '50%', transform: 'translateY(-50%)', fontWeight: 700, color: 'var(--text-muted)' }}>₹</span>
                     <input
                       type="number"
-                      step="0.1"
+                      step="0.01"
                       required
-                      placeholder="12.5"
+                      placeholder="4.50"
                       value={formData.priceCr}
                       onChange={e => setFormData({ ...formData, priceCr: e.target.value })}
                       style={{
@@ -460,59 +607,68 @@ export default function ListPropertyModal({
                     />
                   </div>
                 </div>
+              </div>
 
-                <div>
-                  <label style={{ display: 'block', fontSize: '12px', fontWeight: 700, color: 'var(--text-secondary)', marginBottom: '4px' }}>
-                    Configuration (BHK)
-                  </label>
-                  <select
-                    value={formData.bhk}
-                    onChange={e => setFormData({ ...formData, bhk: e.target.value })}
-                    style={{
-                      width: '100%',
-                      padding: '10px 12px',
-                      borderRadius: 'var(--radius-md)',
-                      border: '1px solid var(--border-subtle)',
-                      fontSize: '13px',
-                      outline: 'none',
-                      background: '#ffffff'
-                    }}
-                  >
-                    <option value="2">2 BHK</option>
-                    <option value="3">3 BHK</option>
-                    <option value="4">4 BHK</option>
-                    <option value="5">5 BHK</option>
-                    <option value="6">6+ BHK Grand</option>
-                  </select>
+              {/* Row 5: Contact & Buying Details */}
+              <div style={{
+                background: 'var(--bg-secondary)',
+                border: '1px solid var(--border-subtle)',
+                borderRadius: 'var(--radius-md)',
+                padding: '14px',
+                marginBottom: '16px'
+              }}>
+                <div style={{ fontSize: '13px', fontWeight: 700, color: 'var(--text-primary)', marginBottom: '10px', display: 'flex', alignItems: 'center', gap: '6px' }}>
+                  <ShieldCheck size={16} color="#E71D2B" />
+                  Contact & Buying Terms
                 </div>
+                <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '10px' }}>
+                  <div>
+                    <label style={{ display: 'block', fontSize: '11px', fontWeight: 600, color: 'var(--text-secondary)', marginBottom: '4px' }}>
+                      Contact Person
+                    </label>
+                    <input
+                      type="text"
+                      placeholder="Name"
+                      value={formData.contactName}
+                      onChange={e => setFormData({ ...formData, contactName: e.target.value })}
+                      style={{ width: '100%', padding: '8px 10px', borderRadius: '6px', border: '1px solid var(--border-subtle)', fontSize: '12px' }}
+                    />
+                  </div>
 
-                <div>
-                  <label style={{ display: 'block', fontSize: '12px', fontWeight: 700, color: 'var(--text-secondary)', marginBottom: '4px' }}>
-                    Carpet Area (Sq.Ft)
-                  </label>
-                  <input
-                    type="number"
-                    placeholder="3500"
-                    value={formData.areaSqFt}
-                    onChange={e => setFormData({ ...formData, areaSqFt: e.target.value })}
-                    style={{
-                      width: '100%',
-                      padding: '10px 14px',
-                      borderRadius: 'var(--radius-md)',
-                      border: '1px solid var(--border-subtle)',
-                      fontSize: '13px',
-                      outline: 'none'
-                    }}
-                  />
+                  <div>
+                    <label style={{ display: 'block', fontSize: '11px', fontWeight: 600, color: 'var(--text-secondary)', marginBottom: '4px' }}>
+                      Phone Number *
+                    </label>
+                    <input
+                      type="text"
+                      placeholder="+91 98200..."
+                      value={formData.contactPhone}
+                      onChange={e => setFormData({ ...formData, contactPhone: e.target.value })}
+                      style={{ width: '100%', padding: '8px 10px', borderRadius: '6px', border: '1px solid var(--border-subtle)', fontSize: '12px' }}
+                    />
+                  </div>
+
+                  <div>
+                    <label style={{ display: 'block', fontSize: '11px', fontWeight: 600, color: 'var(--text-secondary)', marginBottom: '4px' }}>
+                      Possession Date
+                    </label>
+                    <input
+                      type="text"
+                      placeholder="e.g. Immediate / Dec 2026"
+                      value={formData.possession}
+                      onChange={e => setFormData({ ...formData, possession: e.target.value })}
+                      style={{ width: '100%', padding: '8px 10px', borderRadius: '6px', border: '1px solid var(--border-subtle)', fontSize: '12px' }}
+                    />
+                  </div>
                 </div>
               </div>
 
-              {/* Photo & Video Preset Picker */}
+              {/* Photos & Showcase Presets */}
               <div style={{ marginBottom: '16px' }}>
                 <label style={{ display: 'block', fontSize: '12px', fontWeight: 700, color: 'var(--text-secondary)', marginBottom: '6px' }}>
-                  Architecture Style / Showcase Preset
+                  Property Photos & Architecture Preset
                 </label>
-                <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: '8px' }}>
+                <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: '8px', marginBottom: '8px' }}>
                   {PRESET_IMAGES.map((preset, i) => (
                     <div
                       key={i}
@@ -533,12 +689,26 @@ export default function ListPropertyModal({
                     </div>
                   ))}
                 </div>
+                <input
+                  type="text"
+                  placeholder="Or paste custom photo URL..."
+                  value={formData.imageUrl}
+                  onChange={e => setFormData({ ...formData, imageUrl: e.target.value })}
+                  style={{
+                    width: '100%',
+                    padding: '8px 12px',
+                    borderRadius: 'var(--radius-md)',
+                    border: '1px solid var(--border-subtle)',
+                    fontSize: '12px',
+                    outline: 'none'
+                  }}
+                />
               </div>
 
               {/* Amenities Checkbox Pills */}
               <div style={{ marginBottom: '20px' }}>
                 <label style={{ display: 'block', fontSize: '12px', fontWeight: 700, color: 'var(--text-secondary)', marginBottom: '6px' }}>
-                  Key Amenities
+                  Key Amenities & Lifestyle Features
                 </label>
                 <div style={{ display: 'flex', flexWrap: 'wrap', gap: '6px' }}>
                   {AMENITIES_LIST.map(item => {
@@ -579,7 +749,7 @@ export default function ListPropertyModal({
                 className="btn-primary"
                 style={{ width: '100%', justifyContent: 'center', padding: '12px', fontSize: '14px' }}
               >
-                {isSubmitting ? 'Publishing Luxury Listing...' : 'Publish Property to Reel & Inventory'}
+                {isSubmitting ? 'Publishing Luxury Listing...' : 'Publish Property Listing'}
                 <ArrowRight size={16} />
               </button>
             </form>

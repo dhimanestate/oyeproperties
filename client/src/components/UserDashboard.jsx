@@ -551,9 +551,12 @@ function PropertyCard({ prop, onOpenDetail, onOpenCallback, onRemove, showRemove
         <div style={{ fontSize: '13px', fontWeight: 700, color: 'var(--text-primary)', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{prop.title}</div>
         <div style={{ fontSize: '11px', color: 'var(--text-muted)', marginTop: '2px', display: 'flex', alignItems: 'center', gap: '4px' }}>
           <MapPin size={10} />
-          {prop.location?.locality}, {prop.location?.city}
+          {prop.location?.locality || prop.location?.address}, {prop.location?.city}
         </div>
-        <div style={{ fontSize: '13px', fontWeight: 800, color: 'var(--oye-red)', marginTop: '4px' }}>{prop.priceFormatted}</div>
+        <div style={{ fontSize: '10.5px', color: 'var(--text-secondary)', marginTop: '2px' }}>
+          {prop.bhk ? `${prop.bhk} BHK` : prop.propertyType} • {prop.areaSqFt ? `${prop.areaSqFt.toLocaleString()} ${prop.areaUnit || 'Sq. Ft.'}` : ''} • 🏢 {prop.floor || 'Standard Floor'}
+        </div>
+        <div style={{ fontSize: '13px', fontWeight: 800, color: 'var(--oye-red)', marginTop: '3px' }}>{prop.priceFormatted}</div>
       </div>
       <div style={{ display: 'flex', gap: '6px', flexShrink: 0 }}>
         <button

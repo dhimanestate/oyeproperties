@@ -594,6 +594,29 @@ export default function PropertyDetailModal({
             marginBottom: '16px' 
           }}>
             <div>
+              <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '4px' }}>
+                <span style={{
+                  background: 'var(--oye-red)',
+                  color: '#ffffff',
+                  fontSize: '11px',
+                  fontWeight: 700,
+                  padding: '2px 8px',
+                  borderRadius: '6px',
+                  textTransform: 'uppercase',
+                  letterSpacing: '0.05em'
+                }}>
+                  {property.propertyType}
+                </span>
+                {property.bhk && (
+                  <span style={{ fontSize: '12px', fontWeight: 700, color: 'var(--text-secondary)' }}>
+                    {property.bhk} BHK Luxury
+                  </span>
+                )}
+                <span style={{ fontSize: '12px', color: 'var(--text-muted)' }}>
+                  📍 {property.location.city}
+                </span>
+              </div>
+
               <h2 style={{ 
                 fontSize: isMobile ? '18px' : '24px', 
                 fontWeight: 800, 
@@ -605,7 +628,7 @@ export default function PropertyDetailModal({
               </h2>
               <div style={{ display: 'flex', alignItems: 'center', gap: '6px', color: 'var(--text-secondary)', fontSize: '12px' }}>
                 <MapPin size={13} color="#E71D2B" />
-                {property.location.address}
+                {property.location.address || property.location.locality}, {property.location.city}
               </div>
             </div>
 
@@ -624,42 +647,67 @@ export default function PropertyDetailModal({
             </div>
           </div>
 
-          {/* Quick Attribute Pills - Responsive Grid */}
+          {/* Quick 10-Point Attribute Pills - Responsive Grid */}
           <div style={{
             display: 'grid',
-            gridTemplateColumns: isMobile ? 'repeat(2, 1fr)' : 'repeat(auto-fit, minmax(130px, 1fr))',
+            gridTemplateColumns: isMobile ? 'repeat(2, 1fr)' : 'repeat(4, 1fr)',
             gap: isMobile ? '8px' : '12px',
             marginBottom: '20px'
           }}>
             <div style={{ background: 'var(--bg-secondary)', border: '1px solid var(--border-subtle)', borderRadius: '10px', padding: '10px' }}>
-              <div style={{ fontSize: '10.5px', color: 'var(--text-muted)', fontWeight: 600 }}>Bedrooms</div>
-              <div style={{ fontSize: '13px', fontWeight: 800, color: 'var(--text-primary)', marginTop: '2px' }}>{property.bhk} BHK Luxury</div>
+              <div style={{ fontSize: '10.5px', color: 'var(--text-muted)', fontWeight: 600 }}>Super / Total Area</div>
+              <div style={{ fontSize: '13px', fontWeight: 800, color: 'var(--text-primary)', marginTop: '2px' }}>
+                {property.areaSqFt ? `${property.areaSqFt.toLocaleString()} ${property.areaUnit || 'Sq. Ft.'}` : '—'}
+              </div>
             </div>
 
             <div style={{ background: 'var(--bg-secondary)', border: '1px solid var(--border-subtle)', borderRadius: '10px', padding: '10px' }}>
               <div style={{ fontSize: '10.5px', color: 'var(--text-muted)', fontWeight: 600 }}>Carpet Area</div>
-              <div style={{ fontSize: '13px', fontWeight: 800, color: 'var(--text-primary)', marginTop: '2px' }}>{property.carpetAreaSqFt} sq.ft</div>
-            </div>
-
-            <div style={{ background: 'var(--bg-secondary)', border: '1px solid var(--border-subtle)', borderRadius: '10px', padding: '10px' }}>
-              <div style={{ fontSize: '10.5px', color: 'var(--text-muted)', fontWeight: 600 }}>Facing</div>
-              <div style={{ fontSize: '13px', fontWeight: 800, color: 'var(--text-primary)', marginTop: '2px' }}>{property.facing}</div>
+              <div style={{ fontSize: '13px', fontWeight: 800, color: 'var(--text-primary)', marginTop: '2px' }}>
+                {property.carpetAreaSqFt ? `${property.carpetAreaSqFt.toLocaleString()} ${property.areaUnit || 'Sq. Ft.'}` : `${Math.round(property.areaSqFt * 0.85)} sq.ft`}
+              </div>
             </div>
 
             <div style={{ background: 'var(--bg-secondary)', border: '1px solid var(--border-subtle)', borderRadius: '10px', padding: '10px' }}>
               <div style={{ fontSize: '10.5px', color: 'var(--text-muted)', fontWeight: 600 }}>Floor Level</div>
-              <div style={{ fontSize: '13px', fontWeight: 800, color: 'var(--text-primary)', marginTop: '2px' }}>{property.floor}</div>
+              <div style={{ fontSize: '13px', fontWeight: 800, color: 'var(--text-primary)', marginTop: '2px' }}>
+                {property.floor || 'Upper Level'}
+              </div>
             </div>
 
-            <div style={{ 
-              background: 'var(--bg-secondary)', 
-              border: '1px solid var(--border-subtle)', 
-              borderRadius: '10px', 
-              padding: '10px',
-              gridColumn: isMobile ? 'span 2' : 'auto'
-            }}>
+            <div style={{ background: 'var(--bg-secondary)', border: '1px solid var(--border-subtle)', borderRadius: '10px', padding: '10px' }}>
+              <div style={{ fontSize: '10.5px', color: 'var(--text-muted)', fontWeight: 600 }}>Facing Direction</div>
+              <div style={{ fontSize: '13px', fontWeight: 800, color: 'var(--text-primary)', marginTop: '2px' }}>
+                {property.facing || 'North-East'}
+              </div>
+            </div>
+
+            <div style={{ background: 'var(--bg-secondary)', border: '1px solid var(--border-subtle)', borderRadius: '10px', padding: '10px' }}>
               <div style={{ fontSize: '10.5px', color: 'var(--text-muted)', fontWeight: 600 }}>Possession Status</div>
-              <div style={{ fontSize: '13px', fontWeight: 800, color: 'var(--text-primary)', marginTop: '2px' }}>{property.possession}</div>
+              <div style={{ fontSize: '13px', fontWeight: 800, color: 'var(--text-primary)', marginTop: '2px' }}>
+                {property.buyingDetails?.possessionDate || property.possession || 'Ready to Move'}
+              </div>
+            </div>
+
+            <div style={{ background: 'var(--bg-secondary)', border: '1px solid var(--border-subtle)', borderRadius: '10px', padding: '10px' }}>
+              <div style={{ fontSize: '10.5px', color: 'var(--text-muted)', fontWeight: 600 }}>Booking / Token</div>
+              <div style={{ fontSize: '13px', fontWeight: 800, color: 'var(--text-primary)', marginTop: '2px' }}>
+                {property.buyingDetails?.bookingAmount || '10% Token'}
+              </div>
+            </div>
+
+            <div style={{ background: 'var(--bg-secondary)', border: '1px solid var(--border-subtle)', borderRadius: '10px', padding: '10px' }}>
+              <div style={{ fontSize: '10.5px', color: 'var(--text-muted)', fontWeight: 600 }}>Ownership Type</div>
+              <div style={{ fontSize: '13px', fontWeight: 800, color: 'var(--text-primary)', marginTop: '2px' }}>
+                {property.buyingDetails?.ownershipType || 'Freehold'}
+              </div>
+            </div>
+
+            <div style={{ background: 'var(--bg-secondary)', border: '1px solid var(--border-subtle)', borderRadius: '10px', padding: '10px' }}>
+              <div style={{ fontSize: '10.5px', color: 'var(--text-muted)', fontWeight: 600 }}>Furnishing</div>
+              <div style={{ fontSize: '13px', fontWeight: 800, color: 'var(--text-primary)', marginTop: '2px' }}>
+                {property.furnishing || 'Fully Furnished'}
+              </div>
             </div>
           </div>
 
@@ -692,12 +740,12 @@ export default function PropertyDetailModal({
             </div>
           </div>
 
-          {/* Relationship Manager Contact Bar & CTA */}
+          {/* Contact Seller & Buying Details Card */}
           <div style={{
             background: 'var(--bg-secondary)',
             border: '1px solid var(--border-subtle)',
             borderRadius: 'var(--radius-md)',
-            padding: isMobile ? '12px' : '16px 20px',
+            padding: isMobile ? '14px' : '18px 20px',
             display: 'flex',
             flexDirection: isMobile ? 'column' : 'row',
             alignItems: isMobile ? 'stretch' : 'center',
@@ -706,11 +754,11 @@ export default function PropertyDetailModal({
           }}>
             <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
               <img
-                src={property.relationshipManager.photo}
-                alt={property.relationshipManager.name}
+                src={property.relationshipManager?.photo || 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=300&q=80'}
+                alt={property.contactDetails?.name || property.relationshipManager?.name || 'Contact'}
                 style={{
-                  width: '46px',
-                  height: '46px',
+                  width: '48px',
+                  height: '48px',
                   borderRadius: '50%',
                   objectFit: 'cover',
                   border: '2px solid var(--accent-primary)',
@@ -720,7 +768,7 @@ export default function PropertyDetailModal({
               <div>
                 <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
                   <span style={{ fontSize: '14px', fontWeight: 800, color: 'var(--text-primary)' }}>
-                    {property.relationshipManager.name}
+                    {property.contactDetails?.name || property.relationshipManager?.name || property.builder?.name || 'Verified Lister'}
                   </span>
                   <span style={{
                     fontSize: '9.5px',
@@ -730,12 +778,17 @@ export default function PropertyDetailModal({
                     borderRadius: '4px',
                     fontWeight: 700
                   }}>
-                    ★ {property.relationshipManager.rating}
+                    ★ {property.relationshipManager?.rating || '5.0'}
                   </span>
                 </div>
                 <div style={{ fontSize: '11px', color: 'var(--text-muted)' }}>
-                  {property.relationshipManager.role}
+                  {property.contactDetails?.role || property.relationshipManager?.role || 'Direct Property Owner'}
                 </div>
+                {(property.contactDetails?.phone || property.relationshipManager?.phone) && (
+                  <div style={{ fontSize: '11px', color: 'var(--accent-primary)', fontWeight: 600, marginTop: '2px' }}>
+                    📞 {property.contactDetails?.phone || property.relationshipManager?.phone}
+                  </div>
+                )}
               </div>
             </div>
 
@@ -747,7 +800,8 @@ export default function PropertyDetailModal({
                   flex: isMobile ? 1 : 'initial',
                   justifyContent: 'center',
                   fontSize: '11.5px', 
-                  padding: '8px 14px' 
+                  padding: '9px 16px',
+                  borderRadius: '9999px'
                 }}
               >
                 <MessageCircle size={14} />
@@ -765,11 +819,12 @@ export default function PropertyDetailModal({
                   flex: isMobile ? 1 : 'initial',
                   justifyContent: 'center',
                   fontSize: '11.5px', 
-                  padding: '8px 16px' 
+                  padding: '9px 18px',
+                  borderRadius: '9999px'
                 }}
               >
                 <PhoneCall size={14} />
-                Call Back
+                Schedule Callback
               </button>
             </div>
           </div>
