@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import {
   ArrowLeftIcon,
   PlusIcon,
@@ -6,7 +6,10 @@ import {
   CheckIcon,
   StarIcon,
   TrendingIcon,
-  ShieldIcon
+  ShieldIcon,
+  UploadCloudIcon,
+  ImageIcon,
+  VideoIcon
 } from './AdminIcons';
 
 const CITIES = ['Mumbai', 'Delhi NCR', 'Dubai', 'Goa', 'Bangalore', 'Hyderabad', 'London'];
@@ -98,6 +101,12 @@ export default function AdminPropertyEditor({ token, authHeaders, API_BASE, edit
   const set = (field, value) => setForm(prev => ({ ...prev, [field]: value }));
   const setNested = (parent, field, value) => setForm(prev => ({ ...prev, [parent]: { ...prev[parent], [field]: value } }));
 
+  const photoInputRef = useRef(null);
+  const videoInputRef = useRef(null);
+  const [isPhotoDragging, setIsPhotoDragging] = useState(false);
+  const [isVideoDragging, setIsVideoDragging] = useState(false);
+  const [uploadingMedia, setUploadingMedia] = useState(false);
+
   const toggleAmenity = (a) => {
     setForm(prev => ({
       ...prev,
@@ -114,7 +123,88 @@ export default function AdminPropertyEditor({ token, authHeaders, API_BASE, edit
   };
 
   const addImageField = () => setForm(prev => ({ ...prev, images: [...prev.images, ''] }));
-  const removeImage = (i) => setForm(prev => ({ ...prev, images: prev.images.filter((_, idx) => idx !== i) }));
+  const removeImage = (i) => setForm(prev => {
+    const next = prev.images.filter((_, idx) => idx !== i);
+    return { ...prev, images: next.length > 0 ? next : [''] };
+  });
+
+  const moveImage = (i, dir) => {
+    setForm(prev => {
+      const imgs = [...prev.images];
+      const targetIdx = i + dir;
+      if (targetIdx < 0 || targetIdx >= imgs.length) return prev;
+      const temp = imgs[i];
+      imgs[i] = imgs[targetIdx];
+      imgs[targetIdx] = temp;
+      return { ...prev, images: imgs };
+    });
+  };
+
+  const processImageFiles = (files) => {
+    if (!files || files.length === 0) return;
+    setUploadingMedia(true);
+    const validFiles = Array.from(files).filter(f => f.type.startsWith('image/'));
+    if (validFiles.length === 0) {
+      showToast('Please select valid image files (JPG, PNG, WebP, etc.)');
+      setUploadingMedia(false);
+      return;
+    }
+
+    let loadedCount = 0;
+    const newImages = [];
+
+    validFiles.forEach((file) => {
+      const reader = new FileReader();
+      reader.onload = (e) => {
+        newImages.push(e.target.result);
+        loadedCount++;
+        if (loadedCount === validFiles.length) {
+          setForm(prev => {
+            const existing = prev.images.filter(img => img && img.trim());
+            return { ...prev, images: [...existing, ...newImages] };
+          });
+          setUploadingMedia(false);
+          showToast(`Successfully added ${validFiles.length} photo(s) from device`);
+        }
+      };
+      reader.onerror = () => {
+        loadedCount++;
+        if (loadedCount === validFiles.length) setUploadingMedia(false);
+      };
+      reader.readAsDataURL(file);
+    });
+  };
+
+  const handleDevicePhotoChange = (e) => {
+    processImageFiles(e.target.files);
+    e.target.value = '';
+  };
+
+  const processVideoFile = (file) => {
+    if (!file) return;
+    if (!file.type.startsWith('video/')) {
+      return showToast('Please select a valid video file (MP4, WebM, MOV, etc.)');
+    }
+    setUploadingMedia(true);
+    const reader = new FileReader();
+    reader.onload = (e) => {
+      set('reelVideo', e.target.result);
+      setUploadingMedia(false);
+      showToast('Video / Reel successfully uploaded from device');
+    };
+    reader.onerror = () => {
+      setUploadingMedia(false);
+      showToast('Error reading video file from device');
+    };
+    reader.readAsDataURL(file);
+  };
+
+  const handleDeviceVideoChange = (e) => {
+    if (e.target.files && e.target.files[0]) {
+      processVideoFile(e.target.files[0]);
+    }
+    e.target.value = '';
+  };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -340,26 +430,202 @@ export default function AdminPropertyEditor({ token, authHeaders, API_BASE, edit
 
         {/* 4. Photos & Media Gallery */}
         <div className="admin-form-section">
-          <h3 className="admin-form-section-title">4. Photos & Showcase Gallery</h3>
-          <div className="admin-form-group">
-            <label className="admin-label">Video Tour / Reel URL</label>
-            <input className="admin-input" value={form.reelVideo} onChange={e => set('reelVideo', e.target.value)} placeholder="https://..." />
-          </div>
-          <label className="admin-label" style={{ marginTop: '1rem' }}>Property Gallery Photos (URLs)</label>
-          {form.images.map((img, i) => (
-            <div key={i} className="admin-image-row">
-              <input className="admin-input" value={img} onChange={e => updateImage(i, e.target.value)} placeholder={`Photo URL #${i + 1}`} />
-              {form.images.length > 1 && (
-                <button type="button" className="admin-icon-btn danger" onClick={() => removeImage(i)}>
-                  <CloseIcon size={14} />
-                </button>
-              )}
-              {img && <img src={img} alt="" className="admin-img-preview" onError={e => e.target.style.display = 'none'} />}
+          <h3 className="admin-form-section-title">4. Photos & Showcase Video / Reel</h3>
+
+          {/* Photo Upload Section */}
+          <div style={{ marginBottom: '1.5rem' }}>
+            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '0.5rem', flexWrap: 'wrap', gap: '8px' }}>
+              <label className="admin-label" style={{ margin: 0, display: 'flex', alignItems: 'center', gap: '6px' }}>
+                <ImageIcon size={14} color="#E71D2B" />
+                Property Photo Gallery ({form.images.filter(x => x && x.trim()).length} Photos)
+              </label>
+              <button
+                type="button"
+                className="admin-btn admin-btn-primary admin-btn-sm"
+                onClick={() => photoInputRef.current?.click()}
+                disabled={uploadingMedia}
+              >
+                <UploadCloudIcon size={14} /> Upload Photos from Device
+              </button>
             </div>
-          ))}
-          <button type="button" className="admin-btn admin-btn-ghost admin-btn-sm" onClick={addImageField} style={{ marginTop: '0.5rem' }}>
-            <PlusIcon size={14} /> Add Photo Slot
-          </button>
+
+            <input
+              type="file"
+              ref={photoInputRef}
+              onChange={handleDevicePhotoChange}
+              accept="image/*"
+              multiple
+              style={{ display: 'none' }}
+            />
+
+            {/* Photo Dropzone */}
+            <div
+              className={`admin-media-dropzone ${isPhotoDragging ? 'dragging' : ''}`}
+              onDragOver={(e) => { e.preventDefault(); setIsPhotoDragging(true); }}
+              onDragLeave={() => setIsPhotoDragging(false)}
+              onDrop={(e) => {
+                e.preventDefault();
+                setIsPhotoDragging(false);
+                if (e.dataTransfer.files) processImageFiles(e.dataTransfer.files);
+              }}
+              onClick={() => photoInputRef.current?.click()}
+            >
+              <div className="admin-dropzone-icon">
+                <UploadCloudIcon size={24} />
+              </div>
+              <div className="admin-dropzone-text">
+                <strong>Click to browse or drag & drop photos here</strong>
+                <small>Supports High-Res JPG, PNG, WEBP · Select multiple photos at once</small>
+              </div>
+            </div>
+
+            {/* Photo Preview Grid with Reorder/Remove */}
+            {form.images.filter(img => img && img.trim()).length > 0 && (
+              <div className="admin-photos-grid">
+                {form.images.map((img, i) => img && img.trim() ? (
+                  <div key={i} className="admin-photo-card">
+                    <img src={img} alt={`Photo #${i + 1}`} className="admin-photo-card-img" onError={e => e.target.style.display = 'none'} />
+                    <div className="admin-photo-card-badge">
+                      {i === 0 ? '★ Cover Photo' : `#${i + 1}`}
+                    </div>
+                    <div className="admin-photo-card-actions">
+                      <button
+                        type="button"
+                        className="admin-photo-action-btn"
+                        onClick={() => moveImage(i, -1)}
+                        disabled={i === 0}
+                        title="Move Left (Make Earlier/Cover)"
+                      >
+                        ←
+                      </button>
+                      <button
+                        type="button"
+                        className="admin-photo-action-btn"
+                        onClick={() => moveImage(i, 1)}
+                        disabled={i === form.images.length - 1}
+                        title="Move Right"
+                      >
+                        →
+                      </button>
+                      <button
+                        type="button"
+                        className="admin-photo-action-btn danger"
+                        onClick={() => removeImage(i)}
+                        title="Delete Photo"
+                      >
+                        <CloseIcon size={12} />
+                      </button>
+                    </div>
+                  </div>
+                ) : null)}
+              </div>
+            )}
+
+            {/* URL Input Accordion / Fallback */}
+            <div style={{ marginTop: '1rem' }}>
+              <label className="admin-label" style={{ fontSize: '10px' }}>Or Manage Photo URLs Directly</label>
+              {form.images.map((img, i) => (
+                <div key={i} className="admin-image-row">
+                  <input
+                    className="admin-input"
+                    value={img}
+                    onChange={e => updateImage(i, e.target.value)}
+                    placeholder={`Photo URL or Base64 #${i + 1}`}
+                  />
+                  {form.images.length > 1 && (
+                    <button type="button" className="admin-icon-btn danger" onClick={() => removeImage(i)}>
+                      <CloseIcon size={14} />
+                    </button>
+                  )}
+                  {img && <img src={img} alt="" className="admin-img-preview" onError={e => e.target.style.display = 'none'} />}
+                </div>
+              ))}
+              <button type="button" className="admin-btn admin-btn-ghost admin-btn-sm" onClick={addImageField} style={{ marginTop: '0.35rem' }}>
+                <PlusIcon size={14} /> Add URL Slot
+              </button>
+            </div>
+          </div>
+
+          {/* Video / Reel Upload Section */}
+          <div style={{ borderTop: '1px solid var(--admin-border)', paddingTop: '1.25rem' }}>
+            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '0.5rem', flexWrap: 'wrap', gap: '8px' }}>
+              <label className="admin-label" style={{ margin: 0, display: 'flex', alignItems: 'center', gap: '6px' }}>
+                <VideoIcon size={14} color="#E71D2B" />
+                Showcase Video Tour / Reel Feed
+              </label>
+              <button
+                type="button"
+                className="admin-btn admin-btn-primary admin-btn-sm"
+                onClick={() => videoInputRef.current?.click()}
+                disabled={uploadingMedia}
+              >
+                <UploadCloudIcon size={14} /> Upload Video from Device
+              </button>
+            </div>
+
+            <input
+              type="file"
+              ref={videoInputRef}
+              onChange={handleDeviceVideoChange}
+              accept="video/*"
+              style={{ display: 'none' }}
+            />
+
+            {/* Video Dropzone */}
+            <div
+              className={`admin-media-dropzone ${isVideoDragging ? 'dragging' : ''}`}
+              onDragOver={(e) => { e.preventDefault(); setIsVideoDragging(true); }}
+              onDragLeave={() => setIsVideoDragging(false)}
+              onDrop={(e) => {
+                e.preventDefault();
+                setIsVideoDragging(false);
+                if (e.dataTransfer.files && e.dataTransfer.files[0]) processVideoFile(e.dataTransfer.files[0]);
+              }}
+              onClick={() => videoInputRef.current?.click()}
+            >
+              <div className="admin-dropzone-icon">
+                <VideoIcon size={24} />
+              </div>
+              <div className="admin-dropzone-text">
+                <strong>Click to browse or drag & drop video tour here</strong>
+                <small>Supports MP4, WebM, QuickTime MOV · Plays in immersive Vertical Reels feed</small>
+              </div>
+            </div>
+
+            {/* Live Video Preview if present */}
+            {form.reelVideo && (
+              <div className="admin-video-preview-card">
+                <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '8px' }}>
+                  <span style={{ fontSize: '11px', fontWeight: 700, color: 'var(--accent-primary)', display: 'flex', alignItems: 'center', gap: '4px' }}>
+                    <VideoIcon size={13} /> Active Reel Video Preview
+                  </span>
+                  <button
+                    type="button"
+                    className="admin-btn admin-btn-danger admin-btn-sm"
+                    onClick={() => set('reelVideo', '')}
+                  >
+                    <CloseIcon size={12} /> Remove Video
+                  </button>
+                </div>
+                <video
+                  src={form.reelVideo}
+                  controls
+                  className="admin-video-player"
+                  preload="metadata"
+                />
+              </div>
+            )}
+
+            <div style={{ marginTop: '0.75rem' }}>
+              <label className="admin-label" style={{ fontSize: '10px' }}>Or Paste Video URL / Local Path</label>
+              <input
+                className="admin-input"
+                value={form.reelVideo}
+                onChange={e => set('reelVideo', e.target.value)}
+                placeholder="e.g. /videos/reel_worli_sea_face.mp4 or https://..."
+              />
+            </div>
+          </div>
         </div>
 
         {/* 5. Contact & Buying Details */}

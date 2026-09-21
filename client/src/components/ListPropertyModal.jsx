@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useRef } from 'react';
 import { API_BASE } from '../config';
 import { 
   X, 
@@ -11,7 +11,12 @@ import {
   UploadCloud, 
   Sparkles,
   ArrowRight,
-  ShieldCheck
+  ShieldCheck,
+  Camera,
+  Video,
+  Image as ImageIcon,
+  Trash2,
+  Film
 } from 'lucide-react';
 
 export default function ListPropertyModal({
@@ -21,6 +26,12 @@ export default function ListPropertyModal({
   onPropertyCreated
 }) {
   if (!isOpen) return null;
+
+  const photoFileRef = useRef(null);
+  const videoFileRef = useRef(null);
+  const [devicePhotos, setDevicePhotos] = useState([]);
+  const [deviceVideo, setDeviceVideo] = useState(null);
+  const [uploadNotice, setUploadNotice] = useState('');
 
   const [formData, setFormData] = useState({
     title: '',
@@ -47,6 +58,64 @@ export default function ListPropertyModal({
     imageUrl: 'https://images.unsplash.com/photo-1600596542815-ffad4c1539a9?auto=format&fit=crop&w=1200&q=80',
     reelVideo: '/videos/reel_worli_sea_face.mp4'
   });
+
+  const handleDevicePhotoSelect = (e) => {
+    const files = e.target.files;
+    if (!files || files.length === 0) return;
+    const valid = Array.from(files).filter(f => f.type.startsWith('image/'));
+    if (valid.length === 0) return;
+
+    let loaded = 0;
+    const newImgs = [];
+    valid.forEach(file => {
+      const reader = new FileReader();
+      reader.onload = (ev) => {
+        newImgs.push(ev.target.result);
+        loaded++;
+        if (loaded === valid.length) {
+          setDevicePhotos(prev => {
+            const combined = [...prev, ...newImgs];
+            setFormData(f => ({ ...f, imageUrl: combined[0] }));
+            return combined;
+          });
+          setUploadNotice(`Added ${valid.length} photo(s) from device`);
+          setTimeout(() => setUploadNotice(''), 3000);
+        }
+      };
+      reader.readAsDataURL(file);
+    });
+    e.target.value = '';
+  };
+
+  const handleDeviceVideoSelect = (e) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    if (!file.type.startsWith('video/')) {
+      alert('Please choose a valid video file');
+      return;
+    }
+    const reader = new FileReader();
+    reader.onload = (ev) => {
+      setDeviceVideo(ev.target.result);
+      setFormData(f => ({ ...f, reelVideo: ev.target.result }));
+      setUploadNotice('Video / Reel tour uploaded from device');
+      setTimeout(() => setUploadNotice(''), 3000);
+    };
+    reader.readAsDataURL(file);
+    e.target.value = '';
+  };
+
+  const removeDevicePhoto = (idx) => {
+    setDevicePhotos(prev => {
+      const next = prev.filter((_, i) => i !== idx);
+      if (next.length > 0) {
+        setFormData(f => ({ ...f, imageUrl: next[0] }));
+      } else {
+        setFormData(f => ({ ...f, imageUrl: PRESET_IMAGES[0].url }));
+      }
+      return next;
+    });
+  };
 
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [successProperty, setSuccessProperty] = useState(null);
@@ -122,7 +191,7 @@ export default function ListPropertyModal({
       possession: formData.possession || 'Immediate',
       furnishing: formData.furnishing,
       amenities: formData.amenities,
-      images: [formData.imageUrl],
+      images: devicePhotos.length > 0 ? devicePhotos : [formData.imageUrl],
       reelVideo: formData.reelVideo,
       contactDetails: {
         name: cName,
@@ -663,18 +732,92 @@ export default function ListPropertyModal({
                 </div>
               </div>
 
-              {/* Photos & Showcase Presets */}
-              <div style={{ marginBottom: '16px' }}>
-                <label style={{ display: 'block', fontSize: '12px', fontWeight: 700, color: 'var(--text-secondary)', marginBottom: '6px' }}>
-                  Property Photos & Architecture Preset
-                </label>
-                <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: '8px', marginBottom: '8px' }}>
+              {/* Photos & Media Upload Section */}
+              <div style={{ marginBottom: '16px', background: 'var(--bg-secondary)', border: '1px solid var(--border-subtle)', borderRadius: 'var(--radius-md)', padding: '14px' }}>
+                <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '10px', flexWrap: 'wrap', gap: '8px' }}>
+                  <div style={{ fontSize: '13px', fontWeight: 700, color: 'var(--text-primary)', display: 'flex', alignItems: 'center', gap: '6px' }}>
+                    <Camera size={16} color="#E71D2B" />
+                    Property Photos ({devicePhotos.length > 0 ? `${devicePhotos.length} Uploaded` : 'From Device or Preset'})
+                  </div>
+                  <button
+                    type="button"
+                    onClick={() => photoFileRef.current?.click()}
+                    style={{
+                      background: 'var(--accent-primary)',
+                      color: '#ffffff',
+                      border: 'none',
+                      borderRadius: 'var(--radius-full)',
+                      padding: '6px 14px',
+                      fontSize: '11px',
+                      fontWeight: 700,
+                      cursor: 'pointer',
+                      display: 'flex',
+                      alignItems: 'center',
+                      gap: '5px'
+                    }}
+                  >
+                    <UploadCloud size={13} /> Upload Photos
+                  </button>
+                </div>
+
+                <input
+                  type="file"
+                  ref={photoFileRef}
+                  onChange={handleDevicePhotoSelect}
+                  accept="image/*"
+                  multiple
+                  style={{ display: 'none' }}
+                />
+
+                {/* Device Photos Grid */}
+                {devicePhotos.length > 0 && (
+                  <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(80px, 1fr))', gap: '8px', marginBottom: '12px' }}>
+                    {devicePhotos.map((img, i) => (
+                      <div key={i} style={{ position: 'relative', borderRadius: '6px', overflow: 'hidden', height: '64px', border: i === 0 ? '2px solid var(--accent-primary)' : '1px solid var(--border-subtle)' }}>
+                        <img src={img} alt="" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+                        <span style={{ position: 'absolute', top: '2px', left: '2px', background: 'rgba(0,0,0,0.65)', color: '#fff', fontSize: '8px', padding: '1px 3px', borderRadius: '3px', fontWeight: 700 }}>
+                          {i === 0 ? 'Cover' : `#${i + 1}`}
+                        </span>
+                        <button
+                          type="button"
+                          onClick={() => removeDevicePhoto(i)}
+                          style={{
+                            position: 'absolute',
+                            top: '2px',
+                            right: '2px',
+                            background: 'rgba(231,29,43,0.85)',
+                            border: 'none',
+                            borderRadius: '50%',
+                            width: '18px',
+                            height: '18px',
+                            color: '#fff',
+                            display: 'flex',
+                            alignItems: 'center',
+                            justifyContent: 'center',
+                            cursor: 'pointer'
+                          }}
+                        >
+                          <X size={10} />
+                        </button>
+                      </div>
+                    ))}
+                  </div>
+                )}
+
+                {/* Architecture Presets */}
+                <div style={{ fontSize: '11px', fontWeight: 600, color: 'var(--text-muted)', marginBottom: '6px' }}>
+                  Or Choose from Architecture Presets:
+                </div>
+                <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: '8px', marginBottom: '10px' }}>
                   {PRESET_IMAGES.map((preset, i) => (
                     <div
                       key={i}
-                      onClick={() => setFormData({ ...formData, imageUrl: preset.url, reelVideo: preset.video })}
+                      onClick={() => {
+                        setDevicePhotos([]);
+                        setFormData({ ...formData, imageUrl: preset.url, reelVideo: preset.video });
+                      }}
                       style={{
-                        border: formData.imageUrl === preset.url ? '2px solid var(--accent-primary)' : '1px solid var(--border-subtle)',
+                        border: (devicePhotos.length === 0 && formData.imageUrl === preset.url) ? '2px solid var(--accent-primary)' : '1px solid var(--border-subtle)',
                         borderRadius: 'var(--radius-sm)',
                         overflow: 'hidden',
                         cursor: 'pointer',
@@ -682,27 +825,77 @@ export default function ListPropertyModal({
                         position: 'relative'
                       }}
                     >
-                      <img src={preset.url} alt={preset.label} style={{ width: '100%', height: '54px', objectFit: 'cover' }} />
-                      <div style={{ fontSize: '10px', fontWeight: 600, padding: '4px', textAlign: 'center', color: 'var(--text-primary)' }}>
+                      <img src={preset.url} alt={preset.label} style={{ width: '100%', height: '48px', objectFit: 'cover' }} />
+                      <div style={{ fontSize: '9.5px', fontWeight: 600, padding: '3px', textAlign: 'center', color: 'var(--text-primary)', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
                         {preset.label}
                       </div>
                     </div>
                   ))}
                 </div>
-                <input
-                  type="text"
-                  placeholder="Or paste custom photo URL..."
-                  value={formData.imageUrl}
-                  onChange={e => setFormData({ ...formData, imageUrl: e.target.value })}
-                  style={{
-                    width: '100%',
-                    padding: '8px 12px',
-                    borderRadius: 'var(--radius-md)',
-                    border: '1px solid var(--border-subtle)',
-                    fontSize: '12px',
-                    outline: 'none'
-                  }}
-                />
+
+                {/* Video Tour / Reel Upload from Device */}
+                <div style={{ borderTop: '1px solid var(--border-subtle)', paddingTop: '10px', marginTop: '10px' }}>
+                  <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '8px', flexWrap: 'wrap', gap: '8px' }}>
+                    <div style={{ fontSize: '12px', fontWeight: 700, color: 'var(--text-primary)', display: 'flex', alignItems: 'center', gap: '5px' }}>
+                      <Video size={14} color="#E71D2B" />
+                      Showcase Video Tour / Reel
+                    </div>
+                    <button
+                      type="button"
+                      onClick={() => videoFileRef.current?.click()}
+                      style={{
+                        background: '#ffffff',
+                        color: 'var(--text-primary)',
+                        border: '1px solid var(--border-subtle)',
+                        borderRadius: 'var(--radius-full)',
+                        padding: '4px 12px',
+                        fontSize: '11px',
+                        fontWeight: 600,
+                        cursor: 'pointer',
+                        display: 'flex',
+                        alignItems: 'center',
+                        gap: '4px'
+                      }}
+                    >
+                      <Film size={12} color="#E71D2B" /> Choose Video
+                    </button>
+                  </div>
+
+                  <input
+                    type="file"
+                    ref={videoFileRef}
+                    onChange={handleDeviceVideoSelect}
+                    accept="video/*"
+                    style={{ display: 'none' }}
+                  />
+
+                  {formData.reelVideo && (
+                    <div style={{ background: '#ffffff', border: '1px solid var(--border-subtle)', borderRadius: '8px', padding: '8px', display: 'flex', alignItems: 'center', gap: '10px', marginTop: '6px' }}>
+                      <div style={{ width: '42px', height: '42px', borderRadius: '6px', background: 'rgba(231,29,43,0.1)', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#E71D2B', flexShrink: 0 }}>
+                        <Film size={20} />
+                      </div>
+                      <div style={{ flex: 1, minWidth: 0 }}>
+                        <div style={{ fontSize: '11.5px', fontWeight: 700, color: 'var(--text-primary)', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
+                          {deviceVideo ? 'Video uploaded from device' : formData.reelVideo}
+                        </div>
+                        <div style={{ fontSize: '10px', color: 'var(--text-muted)' }}>Ready for Reels Feed</div>
+                      </div>
+                      <button
+                        type="button"
+                        onClick={() => { setDeviceVideo(null); setFormData(f => ({ ...f, reelVideo: '' })); }}
+                        style={{ background: 'none', border: 'none', color: '#E71D2B', cursor: 'pointer', padding: '4px' }}
+                      >
+                        <Trash2 size={14} />
+                      </button>
+                    </div>
+                  )}
+                </div>
+
+                {uploadNotice && (
+                  <div style={{ marginTop: '8px', fontSize: '11px', color: 'var(--accent-emerald)', fontWeight: 600 }}>
+                    ✓ {uploadNotice}
+                  </div>
+                )}
               </div>
 
               {/* Amenities Checkbox Pills */}
