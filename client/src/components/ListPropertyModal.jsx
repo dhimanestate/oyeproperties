@@ -1,4 +1,4 @@
-import React, { useState, useRef } from 'react';
+import React, { useState, useRef, useEffect } from 'react';
 import { API_BASE } from '../config';
 import { 
   X, 
@@ -16,8 +16,19 @@ import {
   Video,
   Image as ImageIcon,
   Trash2,
-  Film
+  Film,
+  Calendar,
+  Layers,
+  IndianRupee
 } from 'lucide-react';
+import {
+  INDIAN_STATES_AND_UTS,
+  ALL_INDIAN_CITIES,
+  FARIDABAD_SECTORS_AND_AREAS,
+  POPULAR_CITY_AREAS,
+  PROPERTY_TYPES_CATALOGUE,
+  BUILDER_FLOOR_LEVELS
+} from '../data/indiaGeographicDirectory';
 
 export default function ListPropertyModal({
   isOpen,
@@ -32,12 +43,24 @@ export default function ListPropertyModal({
   const [devicePhotos, setDevicePhotos] = useState([]);
   const [deviceVideo, setDeviceVideo] = useState(null);
   const [uploadNotice, setUploadNotice] = useState('');
+  const [allCitiesList, setAllCitiesList] = useState(ALL_INDIAN_CITIES);
+
+  // Dynamic Builder Floor prices state: { ground: '2.85', first: '2.70', second: '2.60', third: '2.50', fourth_terrace: '3.10' }
+  const [builderFloorPrices, setBuilderFloorPrices] = useState({
+    ground: '2.85',
+    first: '2.70',
+    second: '2.60',
+    third: '2.50',
+    fourth_terrace: '3.15'
+  });
+  const [selectedBuilderFloorLevel, setSelectedBuilderFloorLevel] = useState('first');
 
   const [formData, setFormData] = useState({
     title: '',
     tagline: '',
     propertyType: 'Apartment',
-    city: 'Mumbai',
+    state: 'Haryana',
+    city: 'Faridabad',
     locality: '',
     address: '',
     priceCr: '4.50',
@@ -48,6 +71,8 @@ export default function ListPropertyModal({
     floor: '4th of 14 Floors',
     status: 'Ready to Move',
     possession: 'Immediate',
+    possessionYear: '2026',
+    possessionMonth: 'December',
     furnishing: 'Fully Furnished',
     contactName: currentUser?.name || '',
     contactPhone: currentUser?.phone || '',
@@ -58,6 +83,19 @@ export default function ListPropertyModal({
     imageUrl: 'https://images.unsplash.com/photo-1600596542815-ffad4c1539a9?auto=format&fit=crop&w=1200&q=80',
     reelVideo: '/videos/reel_worli_sea_face.mp4'
   });
+
+  // Fetch admin CMS configured featured cities & merge with all Indian cities
+  useEffect(() => {
+    fetch(`${API_BASE}/api/config`)
+      .then(r => r.json())
+      .then(data => {
+        if (data?.config?.featuredCities && Array.isArray(data.config.featuredCities)) {
+          const merged = Array.from(new Set([...data.config.featuredCities, ...ALL_INDIAN_CITIES]));
+          setAllCitiesList(merged);
+        }
+      })
+      .catch(() => {});
+  }, []);
 
   const handleDevicePhotoSelect = (e) => {
     const files = e.target.files;
@@ -162,7 +200,36 @@ export default function ListPropertyModal({
     setIsSubmitting(true);
     setErrorMsg('');
 
-    const priceNum = Math.round(parseFloat(formData.priceCr) * 10000000);
+    // Compute final possession text
+    let finalPossession = formData.possession;
+    if (formData.status === 'Under Construction') {
+      finalPossession = `Possession Expected: ${formData.possessionMonth} ${formData.possessionYear}`;
+    }
+
+    // Builder Floor pricing structure if applicable
+    let finalFloor = formData.floor || 'Upper Level';
+    let finalPriceCr = formData.priceCr;
+    let floorPricingArray = [];
+
+    if (formData.propertyType === 'Builder Floor') {
+      const activeLevelObj = BUILDER_FLOOR_LEVELS.find(l => l.id === selectedBuilderFloorLevel) || BUILDER_FLOOR_LEVELS[1];
+      finalFloor = activeLevelObj.label;
+      finalPriceCr = builderFloorPrices[selectedBuilderFloorLevel] || formData.priceCr;
+      
+      floorPricingArray = BUILDER_FLOOR_LEVELS.map(lvl => {
+        const pCr = parseFloat(builderFloorPrices[lvl.id] || '2.50');
+        const numPrice = Math.round(pCr * 10000000);
+        return {
+          floorLevel: lvl.label,
+          price: numPrice,
+          priceFormatted: `₹${pCr.toFixed(2)} Cr`,
+          status: 'Available',
+          description: lvl.id === 'fourth_terrace' ? 'Includes Private Terrace Rights' : (lvl.id === 'ground' ? 'Includes Front/Rear Lawn Rights' : 'Standard Luxury Floor')
+        };
+      });
+    }
+
+    const priceNum = Math.round(parseFloat(finalPriceCr) * 10000000);
     const unitSuffix = formData.areaUnit === 'Sq. Yds.' ? 'sq.yd' : 'sq.ft';
     const cName = formData.contactName || currentUser?.name || 'Verified Owner';
     const cPhone = formData.contactPhone || currentUser?.phone || '+91 98200 14820';
@@ -171,28 +238,31 @@ export default function ListPropertyModal({
 
     const payload = {
       title: formData.title,
-      tagline: formData.tagline || `Exclusive ${formData.bhk} BHK ${formData.propertyType} in ${formData.locality}`,
+      tagline: formData.tagline || `Exclusive ${formData.bhk} BHK ${formData.propertyType} in ${formData.locality}, ${formData.city}`,
       propertyType: formData.propertyType,
       bhk: Number(formData.bhk),
       baths: Number(formData.baths),
       price: priceNum,
-      priceFormatted: `₹${parseFloat(formData.priceCr).toFixed(2)} Cr`,
+      priceFormatted: `₹${parseFloat(finalPriceCr).toFixed(2)} Cr`,
       pricePerSqFt: `₹${Math.round(priceNum / Number(formData.areaSqFt || 2500)).toLocaleString()}/${unitSuffix}`,
       areaSqFt: Number(formData.areaSqFt) || 2500,
       areaUnit: formData.areaUnit || 'Sq. Ft.',
       carpetAreaSqFt: Math.round(Number(formData.areaSqFt || 2500) * 0.85),
-      floor: formData.floor || 'Upper Level',
+      floor: finalFloor,
+      floorPricing: floorPricingArray,
       location: {
+        state: formData.state || 'Haryana',
         city: formData.city,
         locality: formData.locality,
         address: formData.address || `${formData.locality}, ${formData.city}`
       },
       status: formData.status,
-      possession: formData.possession || 'Immediate',
+      possession: finalPossession,
       furnishing: formData.furnishing,
       amenities: formData.amenities,
       images: devicePhotos.length > 0 ? devicePhotos : [formData.imageUrl],
       reelVideo: formData.reelVideo,
+      showInInstants: true,
       contactDetails: {
         name: cName,
         phone: cPhone,
@@ -202,7 +272,7 @@ export default function ListPropertyModal({
       },
       buyingDetails: {
         bookingAmount: formData.bookingAmount || '10% Token',
-        possessionDate: formData.possession || 'Immediate',
+        possessionDate: finalPossession,
         ownershipType: 'Freehold',
         paymentTerms: 'Bank Loan Available / Flexible Installments',
         demandNegotiable: true,
@@ -467,7 +537,15 @@ export default function ListPropertyModal({
                   </label>
                   <select
                     value={formData.propertyType}
-                    onChange={e => setFormData({ ...formData, propertyType: e.target.value })}
+                    onChange={e => {
+                      const nextType = e.target.value;
+                      setFormData(prev => ({
+                        ...prev,
+                        propertyType: nextType,
+                        floor: nextType === 'Builder Floor' ? '1st Floor' : prev.floor,
+                        areaUnit: nextType === 'Builder Floor' || nextType === 'Plot' ? 'Sq. Yds.' : prev.areaUnit
+                      }));
+                    }}
                     style={{
                       width: '100%',
                       padding: '10px 12px',
@@ -475,17 +553,13 @@ export default function ListPropertyModal({
                       border: '1px solid var(--border-subtle)',
                       fontSize: '13px',
                       outline: 'none',
-                      background: '#ffffff'
+                      background: '#ffffff',
+                      fontWeight: 600
                     }}
                   >
-                    <option value="Apartment">Apartment</option>
-                    <option value="Penthouse">Penthouse</option>
-                    <option value="Luxury Villa">Luxury Villa</option>
-                    <option value="Duplex">Duplex</option>
-                    <option value="Row House">Row House</option>
-                    <option value="Studio">Studio</option>
-                    <option value="Commercial Space">Commercial Space</option>
-                    <option value="Plot">Plot</option>
+                    {PROPERTY_TYPES_CATALOGUE.map(t => (
+                      <option key={t} value={t}>{t}</option>
+                    ))}
                   </select>
                 </div>
 
@@ -517,34 +591,157 @@ export default function ListPropertyModal({
 
                 <div>
                   <label style={{ display: 'block', fontSize: '12px', fontWeight: 700, color: 'var(--text-secondary)', marginBottom: '4px' }}>
-                    Floor Level *
+                    {formData.propertyType === 'Builder Floor' ? 'Select Floor Offering *' : 'Floor Level *'}
                   </label>
-                  <input
-                    type="text"
-                    placeholder="e.g. 4th of 14 Floors / Ground"
-                    value={formData.floor}
-                    onChange={e => setFormData({ ...formData, floor: e.target.value })}
-                    style={{
-                      width: '100%',
-                      padding: '10px 14px',
-                      borderRadius: 'var(--radius-md)',
-                      border: '1px solid var(--border-subtle)',
-                      fontSize: '13px',
-                      outline: 'none'
-                    }}
-                  />
+                  {formData.propertyType === 'Builder Floor' ? (
+                    <select
+                      value={selectedBuilderFloorLevel}
+                      onChange={e => {
+                        const levelId = e.target.value;
+                        setSelectedBuilderFloorLevel(levelId);
+                        const lvlObj = BUILDER_FLOOR_LEVELS.find(l => l.id === levelId);
+                        if (lvlObj) {
+                          setFormData(prev => ({
+                            ...prev,
+                            floor: lvlObj.label,
+                            priceCr: builderFloorPrices[levelId] || prev.priceCr
+                          }));
+                        }
+                      }}
+                      style={{
+                        width: '100%',
+                        padding: '10px 12px',
+                        borderRadius: 'var(--radius-md)',
+                        border: '1px solid #E71D2B',
+                        background: '#FFF0F1',
+                        color: '#E71D2B',
+                        fontSize: '12.5px',
+                        fontWeight: 700,
+                        outline: 'none'
+                      }}
+                    >
+                      {BUILDER_FLOOR_LEVELS.map(lvl => (
+                        <option key={lvl.id} value={lvl.id}>{lvl.label}</option>
+                      ))}
+                    </select>
+                  ) : (
+                    <input
+                      type="text"
+                      placeholder="e.g. 4th of 14 Floors / Ground"
+                      value={formData.floor}
+                      onChange={e => setFormData({ ...formData, floor: e.target.value })}
+                      style={{
+                        width: '100%',
+                        padding: '10px 14px',
+                        borderRadius: 'var(--radius-md)',
+                        border: '1px solid var(--border-subtle)',
+                        fontSize: '13px',
+                        outline: 'none'
+                      }}
+                    />
+                  )}
                 </div>
               </div>
 
-              {/* Row 3: City & Locality */}
+              {/* BUILDER FLOOR SPECIFIC INTERFACE: Floor-Wise Prices */}
+              {formData.propertyType === 'Builder Floor' && (
+                <div style={{
+                  background: 'linear-gradient(135deg, #FFF8F8 0%, #FFFFFF 100%)',
+                  border: '1.5px solid rgba(231, 29, 43, 0.25)',
+                  borderRadius: 'var(--radius-md)',
+                  padding: '14px 16px',
+                  marginBottom: '16px',
+                  boxShadow: '0 4px 14px rgba(231, 29, 43, 0.05)'
+                }}>
+                  <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '8px' }}>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: '6px', fontSize: '13px', fontWeight: 800, color: '#E71D2B' }}>
+                      <Layers size={16} />
+                      <span>Builder Floor Level-Wise Pricing & Inventory</span>
+                    </div>
+                    <span style={{ fontSize: '11px', color: '#64748B', fontWeight: 600 }}>
+                      Set prices according to each independent floor
+                    </span>
+                  </div>
+
+                  <p style={{ fontSize: '11.5px', color: '#475569', marginBottom: '12px', lineHeight: 1.4 }}>
+                    Buyers can view individual floors and their unique features (e.g. Ground with lawn, Top with terrace rights). Enter asking price for each available level:
+                  </p>
+
+                  <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(210px, 1fr))', gap: '10px' }}>
+                    {BUILDER_FLOOR_LEVELS.map(lvl => (
+                      <div 
+                        key={lvl.id}
+                        style={{
+                          background: selectedBuilderFloorLevel === lvl.id ? '#FFF0F1' : '#F8FAFC',
+                          border: selectedBuilderFloorLevel === lvl.id ? '1.5px solid #E71D2B' : '1px solid #E2E8F0',
+                          borderRadius: '8px',
+                          padding: '8px 10px',
+                          transition: 'all 0.2s ease'
+                        }}
+                      >
+                        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '4px' }}>
+                          <span style={{ fontSize: '11px', fontWeight: 700, color: selectedBuilderFloorLevel === lvl.id ? '#E71D2B' : '#1E293B' }}>
+                            {lvl.label}
+                          </span>
+                          {selectedBuilderFloorLevel === lvl.id && (
+                            <span style={{ fontSize: '9px', background: '#E71D2B', color: '#fff', padding: '1px 5px', borderRadius: '4px', fontWeight: 700 }}>
+                              Current
+                            </span>
+                          )}
+                        </div>
+                        <div style={{ display: 'flex', alignItems: 'center', gap: '4px' }}>
+                          <span style={{ fontSize: '12px', fontWeight: 700, color: '#64748B' }}>₹</span>
+                          <input
+                            type="number"
+                            step="0.01"
+                            value={builderFloorPrices[lvl.id] || ''}
+                            onChange={e => {
+                              const val = e.target.value;
+                              setBuilderFloorPrices(prev => ({ ...prev, [lvl.id]: val }));
+                              if (selectedBuilderFloorLevel === lvl.id) {
+                                setFormData(prev => ({ ...prev, priceCr: val }));
+                              }
+                            }}
+                            placeholder="2.50"
+                            style={{
+                              width: '100%',
+                              padding: '5px 8px',
+                              borderRadius: '6px',
+                              border: '1px solid #CBD5E1',
+                              fontSize: '12px',
+                              fontWeight: 700,
+                              outline: 'none',
+                              background: '#ffffff'
+                            }}
+                          />
+                          <span style={{ fontSize: '11px', fontWeight: 600, color: '#64748B' }}>Cr</span>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              )}
+
+              {/* Row 3: State, City, & Locality (All India + Faridabad Sectors) */}
               <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '14px', marginBottom: '14px' }}>
                 <div>
                   <label style={{ display: 'block', fontSize: '12px', fontWeight: 700, color: 'var(--text-secondary)', marginBottom: '4px' }}>
-                    City *
+                    State / UT *
                   </label>
                   <select
-                    value={formData.city}
-                    onChange={e => setFormData({ ...formData, city: e.target.value })}
+                    value={formData.state || 'Haryana'}
+                    onChange={e => {
+                      const newState = e.target.value;
+                      let defaultCity = 'Faridabad';
+                      if (newState === 'Maharashtra') defaultCity = 'Mumbai';
+                      else if (newState === 'Delhi NCR') defaultCity = 'Delhi NCR';
+                      else if (newState === 'Karnataka') defaultCity = 'Bangalore (Bengaluru)';
+                      else if (newState === 'Telangana') defaultCity = 'Hyderabad';
+                      else if (newState === 'Goa') defaultCity = 'Goa';
+                      else if (newState === 'Uttar Pradesh') defaultCity = 'Noida';
+                      else if (newState === 'Rajasthan') defaultCity = 'Jaipur';
+                      setFormData(prev => ({ ...prev, state: newState, city: defaultCity }));
+                    }}
                     style={{
                       width: '100%',
                       padding: '10px 12px',
@@ -555,24 +752,65 @@ export default function ListPropertyModal({
                       background: '#ffffff'
                     }}
                   >
-                    <option value="Mumbai">Mumbai</option>
-                    <option value="Delhi NCR">Delhi NCR</option>
-                    <option value="Dubai">Dubai</option>
-                    <option value="Goa">Goa</option>
-                    <option value="Bangalore">Bangalore</option>
-                    <option value="Hyderabad">Hyderabad</option>
-                    <option value="London">London</option>
+                    {INDIAN_STATES_AND_UTS.map(st => (
+                      <option key={st} value={st}>{st}</option>
+                    ))}
                   </select>
                 </div>
 
                 <div>
                   <label style={{ display: 'block', fontSize: '12px', fontWeight: 700, color: 'var(--text-secondary)', marginBottom: '4px' }}>
-                    Locality / Area *
+                    City / Market *
+                  </label>
+                  <select
+                    value={formData.city}
+                    onChange={e => {
+                      const newCity = e.target.value;
+                      let newState = formData.state;
+                      if (newCity === 'Faridabad' || newCity === 'Gurgaon (Gurugram)' || newCity === 'Panipat' || newCity === 'Karnal' || newCity === 'Sonipat' || newCity === 'Panchkula' || newCity === 'Rohtak') newState = 'Haryana';
+                      else if (newCity === 'Noida' || newCity === 'Greater Noida' || newCity === 'Ghaziabad' || newCity === 'Lucknow' || newCity === 'Agra') newState = 'Uttar Pradesh';
+                      else if (newCity === 'Mumbai' || newCity === 'Navi Mumbai' || newCity === 'Thane' || newCity === 'Pune') newState = 'Maharashtra';
+                      else if (newCity === 'Delhi NCR') newState = 'Delhi NCR';
+                      else if (newCity === 'Bangalore (Bengaluru)') newState = 'Karnataka';
+                      else if (newCity === 'Hyderabad') newState = 'Telangana';
+                      else if (newCity === 'Jaipur' || newCity === 'Udaipur') newState = 'Rajasthan';
+                      else if (newCity === 'Goa') newState = 'Goa';
+
+                      // Pre-fill first popular locality for ease
+                      const cityAreas = POPULAR_CITY_AREAS[newCity] || [];
+                      setFormData(prev => ({
+                        ...prev,
+                        city: newCity,
+                        state: newState,
+                        locality: cityAreas.length > 0 ? cityAreas[0] : prev.locality
+                      }));
+                    }}
+                    style={{
+                      width: '100%',
+                      padding: '10px 12px',
+                      borderRadius: 'var(--radius-md)',
+                      border: '1px solid var(--border-subtle)',
+                      fontSize: '13px',
+                      outline: 'none',
+                      background: '#ffffff',
+                      fontWeight: 600
+                    }}
+                  >
+                    {allCitiesList.map(c => (
+                      <option key={c} value={c}>{c}</option>
+                    ))}
+                  </select>
+                </div>
+
+                <div>
+                  <label style={{ display: 'block', fontSize: '12px', fontWeight: 700, color: 'var(--text-secondary)', marginBottom: '4px' }}>
+                    Locality / Sector *
                   </label>
                   <input
                     type="text"
                     required
-                    placeholder="e.g. Worli Sea Face"
+                    list="localities-datalist"
+                    placeholder={formData.city === 'Faridabad' ? 'e.g. Sector 14, Sector 15A, Neharpar' : 'e.g. Sector / Locality Name'}
                     value={formData.locality}
                     onChange={e => setFormData({ ...formData, locality: e.target.value })}
                     style={{
@@ -584,27 +822,33 @@ export default function ListPropertyModal({
                       outline: 'none'
                     }}
                   />
+                  <datalist id="localities-datalist">
+                    {(POPULAR_CITY_AREAS[formData.city] || (formData.city === 'Faridabad' ? FARIDABAD_SECTORS_AND_AREAS : [])).map((sec, idx) => (
+                      <option key={idx} value={sec} />
+                    ))}
+                  </datalist>
                 </div>
+              </div>
 
-                <div>
-                  <label style={{ display: 'block', fontSize: '12px', fontWeight: 700, color: 'var(--text-secondary)', marginBottom: '4px' }}>
-                    Street Address (Optional)
-                  </label>
-                  <input
-                    type="text"
-                    placeholder="e.g. 14 Worli Sea Face Road"
-                    value={formData.address}
-                    onChange={e => setFormData({ ...formData, address: e.target.value })}
-                    style={{
-                      width: '100%',
-                      padding: '10px 14px',
-                      borderRadius: 'var(--radius-md)',
-                      border: '1px solid var(--border-subtle)',
-                      fontSize: '13px',
-                      outline: 'none'
-                    }}
-                  />
-                </div>
+              {/* Street Address Row */}
+              <div style={{ marginBottom: '14px' }}>
+                <label style={{ display: 'block', fontSize: '12px', fontWeight: 700, color: 'var(--text-secondary)', marginBottom: '4px' }}>
+                  Street Address / Plot / Tower Number (Optional)
+                </label>
+                <input
+                  type="text"
+                  placeholder={formData.propertyType === 'Builder Floor' ? 'e.g. Plot 42, Sector 15A, Faridabad' : 'e.g. Tower 4, Flat 1202, Road 14'}
+                  value={formData.address}
+                  onChange={e => setFormData({ ...formData, address: e.target.value })}
+                  style={{
+                    width: '100%',
+                    padding: '10px 14px',
+                    borderRadius: 'var(--radius-md)',
+                    border: '1px solid var(--border-subtle)',
+                    fontSize: '13px',
+                    outline: 'none'
+                  }}
+                />
               </div>
 
               {/* Row 4: Area, Unit, Asking Price / Demand */}
@@ -615,7 +859,7 @@ export default function ListPropertyModal({
                   </label>
                   <input
                     type="number"
-                    placeholder="2400"
+                    placeholder={formData.areaUnit === 'Sq. Yds.' ? '300' : '2400'}
                     value={formData.areaSqFt}
                     onChange={e => setFormData({ ...formData, areaSqFt: e.target.value })}
                     style={{
@@ -647,13 +891,13 @@ export default function ListPropertyModal({
                     }}
                   >
                     <option value="Sq. Ft.">Sq. Ft. (Square Feet)</option>
-                    <option value="Sq. Yds.">Sq. Yds. (Square Yards)</option>
+                    <option value="Sq. Yds.">Sq. Yds. (Square Yards / Gaj)</option>
                   </select>
                 </div>
 
                 <div>
                   <label style={{ display: 'block', fontSize: '12px', fontWeight: 700, color: 'var(--text-secondary)', marginBottom: '4px' }}>
-                    Asking Price / Demand (₹ Cr) *
+                    {formData.propertyType === 'Builder Floor' ? 'Price for Selected Floor (₹ Cr) *' : 'Asking Price / Demand (₹ Cr) *'}
                   </label>
                   <div style={{ position: 'relative' }}>
                     <span style={{ position: 'absolute', left: '12px', top: '50%', transform: 'translateY(-50%)', fontWeight: 700, color: 'var(--text-muted)' }}>₹</span>
@@ -663,7 +907,13 @@ export default function ListPropertyModal({
                       required
                       placeholder="4.50"
                       value={formData.priceCr}
-                      onChange={e => setFormData({ ...formData, priceCr: e.target.value })}
+                      onChange={e => {
+                        const val = e.target.value;
+                        setFormData(prev => ({ ...prev, priceCr: val }));
+                        if (formData.propertyType === 'Builder Floor') {
+                          setBuilderFloorPrices(prev => ({ ...prev, [selectedBuilderFloorLevel]: val }));
+                        }
+                      }}
                       style={{
                         width: '100%',
                         padding: '10px 14px 10px 28px',
@@ -678,6 +928,120 @@ export default function ListPropertyModal({
                 </div>
               </div>
 
+              {/* Construction Status & Expected Possession Section */}
+              <div style={{
+                background: 'var(--bg-secondary)',
+                border: '1px solid var(--border-subtle)',
+                borderRadius: 'var(--radius-md)',
+                padding: '14px',
+                marginBottom: '16px'
+              }}>
+                <div style={{ fontSize: '13px', fontWeight: 700, color: 'var(--text-primary)', marginBottom: '10px', display: 'flex', alignItems: 'center', gap: '6px' }}>
+                  <Calendar size={16} color="#E71D2B" />
+                  Construction Status &amp; Possession Timeline
+                </div>
+
+                <div style={{ display: 'grid', gridTemplateColumns: formData.status === 'Under Construction' ? '1fr 1fr 1fr' : '1fr 2fr', gap: '12px' }}>
+                  <div>
+                    <label style={{ display: 'block', fontSize: '11px', fontWeight: 600, color: 'var(--text-secondary)', marginBottom: '4px' }}>
+                      Status *
+                    </label>
+                    <select
+                      value={formData.status}
+                      onChange={e => {
+                        const nextStatus = e.target.value;
+                        setFormData(prev => ({
+                          ...prev,
+                          status: nextStatus,
+                          possession: nextStatus === 'Ready to Move' ? 'Immediate' : prev.possession
+                        }));
+                      }}
+                      style={{
+                        width: '100%',
+                        padding: '8px 10px',
+                        borderRadius: '6px',
+                        border: '1px solid var(--border-subtle)',
+                        fontSize: '12.5px',
+                        background: '#ffffff',
+                        fontWeight: 600
+                      }}
+                    >
+                      <option value="Ready to Move">Ready to Move</option>
+                      <option value="Under Construction">Under Construction</option>
+                      <option value="New Launch">New Launch / Upcoming</option>
+                      <option value="Resale">Resale</option>
+                    </select>
+                  </div>
+
+                  {formData.status === 'Under Construction' ? (
+                    <>
+                      <div>
+                        <label style={{ display: 'block', fontSize: '11px', fontWeight: 700, color: '#E71D2B', marginBottom: '4px' }}>
+                          Expected Possession Month *
+                        </label>
+                        <select
+                          value={formData.possessionMonth}
+                          onChange={e => setFormData({ ...formData, possessionMonth: e.target.value })}
+                          style={{
+                            width: '100%',
+                            padding: '8px 10px',
+                            borderRadius: '6px',
+                            border: '1px solid #E71D2B',
+                            background: '#FFF0F1',
+                            color: '#E71D2B',
+                            fontSize: '12px',
+                            fontWeight: 700,
+                            outline: 'none'
+                          }}
+                        >
+                          {['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'].map(m => (
+                            <option key={m} value={m}>{m}</option>
+                          ))}
+                        </select>
+                      </div>
+
+                      <div>
+                        <label style={{ display: 'block', fontSize: '11px', fontWeight: 700, color: '#E71D2B', marginBottom: '4px' }}>
+                          Expected Possession Year *
+                        </label>
+                        <select
+                          value={formData.possessionYear}
+                          onChange={e => setFormData({ ...formData, possessionYear: e.target.value })}
+                          style={{
+                            width: '100%',
+                            padding: '8px 10px',
+                            borderRadius: '6px',
+                            border: '1px solid #E71D2B',
+                            background: '#FFF0F1',
+                            color: '#E71D2B',
+                            fontSize: '12px',
+                            fontWeight: 700,
+                            outline: 'none'
+                          }}
+                        >
+                          {['2026', '2027', '2028', '2029', '2030'].map(yr => (
+                            <option key={yr} value={yr}>{yr}</option>
+                          ))}
+                        </select>
+                      </div>
+                    </>
+                  ) : (
+                    <div>
+                      <label style={{ display: 'block', fontSize: '11px', fontWeight: 600, color: 'var(--text-secondary)', marginBottom: '4px' }}>
+                        Possession Timeline
+                      </label>
+                      <input
+                        type="text"
+                        placeholder="e.g. Immediate / 30 Days"
+                        value={formData.possession}
+                        onChange={e => setFormData({ ...formData, possession: e.target.value })}
+                        style={{ width: '100%', padding: '8px 10px', borderRadius: '6px', border: '1px solid var(--border-subtle)', fontSize: '12px', background: '#ffffff' }}
+                      />
+                    </div>
+                  )}
+                </div>
+              </div>
+
               {/* Row 5: Contact & Buying Details */}
               <div style={{
                 background: 'var(--bg-secondary)',
@@ -688,7 +1052,7 @@ export default function ListPropertyModal({
               }}>
                 <div style={{ fontSize: '13px', fontWeight: 700, color: 'var(--text-primary)', marginBottom: '10px', display: 'flex', alignItems: 'center', gap: '6px' }}>
                   <ShieldCheck size={16} color="#E71D2B" />
-                  Contact & Buying Terms
+                  Contact &amp; Buying Terms
                 </div>
                 <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '10px' }}>
                   <div>
@@ -719,13 +1083,13 @@ export default function ListPropertyModal({
 
                   <div>
                     <label style={{ display: 'block', fontSize: '11px', fontWeight: 600, color: 'var(--text-secondary)', marginBottom: '4px' }}>
-                      Possession Date
+                      Booking Token
                     </label>
                     <input
                       type="text"
-                      placeholder="e.g. Immediate / Dec 2026"
-                      value={formData.possession}
-                      onChange={e => setFormData({ ...formData, possession: e.target.value })}
+                      placeholder="e.g. 10% Token / ₹5 Lakhs"
+                      value={formData.bookingAmount}
+                      onChange={e => setFormData({ ...formData, bookingAmount: e.target.value })}
                       style={{ width: '100%', padding: '8px 10px', borderRadius: '6px', border: '1px solid var(--border-subtle)', fontSize: '12px' }}
                     />
                   </div>

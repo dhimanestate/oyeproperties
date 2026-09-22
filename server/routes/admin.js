@@ -295,6 +295,28 @@ router.patch('/properties/:id/trending', async (req, res) => {
   }
 });
 
+// PATCH /api/admin/properties/:id/instants — toggle show in instants
+router.patch('/properties/:id/instants', async (req, res) => {
+  try {
+    const { id } = req.params;
+    const prop = await Property.findById(id);
+    if (!prop) return res.status(404).json({ error: 'Property not found.' });
+
+    // Toggle showInInstants flag (defaults to true if undefined)
+    const current = prop.showInInstants !== false;
+    prop.showInInstants = !current;
+    await prop.save();
+
+    res.json({
+      success: true,
+      showInInstants: prop.showInInstants,
+      message: `Property ${prop.showInInstants ? 'added to' : 'removed from'} Instants.`
+    });
+  } catch (err) {
+    res.status(500).json({ error: 'Failed to toggle Instants visibility.' });
+  }
+});
+
 // POST /api/admin/properties — create an Oye-branded listing
 router.post('/properties', async (req, res) => {
   try {
@@ -374,7 +396,7 @@ router.post('/properties/bulk-action', async (req, res) => {
       return res.status(400).json({ error: 'ids and action are required.' });
     }
 
-    const allowedActions = ['approve', 'reject', 'delete', 'set-top-pick', 'unset-top-pick'];
+    const allowedActions = ['approve', 'reject', 'delete', 'set-top-pick', 'unset-top-pick', 'show-instants', 'hide-instants'];
     if (!allowedActions.includes(action)) {
       return res.status(400).json({ error: 'Invalid action.' });
     }
@@ -390,6 +412,10 @@ router.post('/properties/bulk-action', async (req, res) => {
       result = await Property.updateMany({ _id: { $in: ids } }, { topPick: true });
     } else if (action === 'unset-top-pick') {
       result = await Property.updateMany({ _id: { $in: ids } }, { topPick: false });
+    } else if (action === 'show-instants') {
+      result = await Property.updateMany({ _id: { $in: ids } }, { showInInstants: true });
+    } else if (action === 'hide-instants') {
+      result = await Property.updateMany({ _id: { $in: ids } }, { showInInstants: false });
     }
 
     res.json({ success: true, message: `Bulk ${action} completed.`, affected: result?.modifiedCount || result?.deletedCount || 0 });

@@ -77,7 +77,7 @@ export default function Navbar({
   const [profileMenuOpen, setProfileMenuOpen] = useState(false);
   const [notifOpen, setNotifOpen] = useState(false);
 
-  const cities = ['All Cities', 'Mumbai', 'Delhi NCR', 'Dubai', 'Goa', 'Bangalore', 'Hyderabad'];
+  const cities = ['All Cities', 'Faridabad', 'Delhi NCR', 'Mumbai', 'Dubai', 'Goa', 'Bangalore', 'Hyderabad'];
 
   return (
     <header className="navbar-header">

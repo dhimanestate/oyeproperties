@@ -11,9 +11,16 @@ import {
   ImageIcon,
   VideoIcon
 } from './AdminIcons';
+import {
+  ALL_INDIAN_CITIES,
+  FARIDABAD_SECTORS_AND_AREAS,
+  POPULAR_CITY_AREAS,
+  PROPERTY_TYPES_CATALOGUE,
+  BUILDER_FLOOR_LEVELS
+} from '../../data/indiaGeographicDirectory';
 
-const CITIES = ['Mumbai', 'Delhi NCR', 'Dubai', 'Goa', 'Bangalore', 'Hyderabad', 'London'];
-const PROPERTY_TYPES = ['Apartment', 'Penthouse', 'Luxury Villa', 'Duplex', 'Studio', 'Commercial Space', 'Plot', 'Row House'];
+const CITIES = ALL_INDIAN_CITIES;
+const PROPERTY_TYPES = PROPERTY_TYPES_CATALOGUE;
 const AMENITIES_LIST = [
   'Smart Home', '24/7 Security', 'Covered Parking', 'Infinity Pool', 'Club House',
   'Gym', 'Spa', 'Concierge', 'Helipad', 'Private Elevator', 'Sea View', 'Golf Course',
@@ -42,7 +49,8 @@ export default function AdminPropertyEditor({ token, authHeaders, API_BASE, edit
     facing: 'North-East',
     floor: '4th of 14 Floors',
     purpose: 'buy',
-    location: { city: 'Mumbai', locality: '', address: '' },
+    location: { state: 'Maharashtra', city: 'Mumbai', locality: '', address: '' },
+    floorPricing: [],
     builder: { name: '', experience: '', reraId: '' },
     contactDetails: { name: '', phone: '', email: '', whatsapp: '', role: 'Property Owner', preferredTime: '10 AM - 7 PM' },
     buyingDetails: { bookingAmount: '10% Token', possessionDate: 'Immediate', ownershipType: 'Freehold', paymentTerms: 'Flexible / Bank Approved', demandNegotiable: true },
@@ -51,6 +59,7 @@ export default function AdminPropertyEditor({ token, authHeaders, API_BASE, edit
     reelVideo: '',
     topPick: false,
     trending: false,
+    showInInstants: true,
     isOyeListing: true,
     approvalStatus: 'approved',
     pinnedInCities: [],
@@ -88,6 +97,8 @@ export default function AdminPropertyEditor({ token, authHeaders, API_BASE, edit
           demandNegotiable: editingProperty.buyingDetails?.demandNegotiable ?? true,
         },
         amenities: editingProperty.amenities || [],
+        floorPricing: editingProperty.floorPricing || [],
+        showInInstants: editingProperty.showInInstants !== false,
         images: editingProperty.images?.length ? editingProperty.images : [''],
         financials: editingProperty.financials || prev.financials,
         neighborhoodRadar: editingProperty.neighborhoodRadar || prev.neighborhoodRadar,
@@ -352,6 +363,49 @@ export default function AdminPropertyEditor({ token, authHeaders, API_BASE, edit
                 {['Ready to Move', 'Under Construction', 'Upcoming / Launch', 'New Resale'].map(s => <option key={s} value={s}>{s}</option>)}
               </select>
             </div>
+            {form.status === 'Under Construction' && (
+              <div className="admin-form-group" style={{ background: '#FEF2F2', padding: '10px 14px', borderRadius: '10px', border: '1px solid #FECACA' }}>
+                <label className="admin-label" style={{ color: '#B91C1C', fontWeight: 700 }}>Expected Possession Date *</label>
+                <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '8px' }}>
+                  <select
+                    className="admin-select"
+                    value={form.possessionMonth || 'December'}
+                    onChange={e => {
+                      const m = e.target.value;
+                      const y = form.possessionYear || '2026';
+                      setForm(prev => ({
+                        ...prev,
+                        possessionMonth: m,
+                        possession: `${m} ${y}`,
+                        buyingDetails: { ...prev.buyingDetails, possessionDate: `${m} ${y}` }
+                      }));
+                    }}
+                  >
+                    {['Immediate', 'March', 'June', 'September', 'October', 'November', 'December'].map(m => (
+                      <option key={m} value={m}>{m}</option>
+                    ))}
+                  </select>
+                  <select
+                    className="admin-select"
+                    value={form.possessionYear || '2026'}
+                    onChange={e => {
+                      const y = e.target.value;
+                      const m = form.possessionMonth || 'December';
+                      setForm(prev => ({
+                        ...prev,
+                        possessionYear: y,
+                        possession: `${m} ${y}`,
+                        buyingDetails: { ...prev.buyingDetails, possessionDate: `${m} ${y}` }
+                      }));
+                    }}
+                  >
+                    {['2025', '2026', '2027', '2028', '2029', '2030'].map(y => (
+                      <option key={y} value={y}>{y}</option>
+                    ))}
+                  </select>
+                </div>
+              </div>
+            )}
             <div className="admin-form-group">
               <label className="admin-label">Furnishing Status</label>
               <select className="admin-select" value={form.furnishing} onChange={e => set('furnishing', e.target.value)}>
@@ -373,7 +427,22 @@ export default function AdminPropertyEditor({ token, authHeaders, API_BASE, edit
             </div>
             <div className="admin-form-group">
               <label className="admin-label">Locality / Sector / Neighborhood *</label>
-              <input className="admin-input" value={form.location.locality} onChange={e => setNested('location', 'locality', e.target.value)} placeholder="e.g. Bandra West, Worli, DLF Phase 5" required />
+              <input
+                className="admin-input"
+                list="admin-localities-datalist"
+                value={form.location.locality}
+                onChange={e => setNested('location', 'locality', e.target.value)}
+                placeholder="Type or select sector (e.g. Sector 14, Neharpar, Bandra West)"
+                required
+              />
+              <datalist id="admin-localities-datalist">
+                {form.location.city === 'Faridabad' && FARIDABAD_SECTORS_AND_AREAS.map(sec => (
+                  <option key={sec} value={sec} />
+                ))}
+                {POPULAR_CITY_AREAS[form.location.city]?.map(area => (
+                  <option key={area} value={area} />
+                ))}
+              </datalist>
             </div>
             <div className="admin-form-group admin-span-2">
               <label className="admin-label">Complete Street Address</label>
@@ -402,7 +471,7 @@ export default function AdminPropertyEditor({ token, authHeaders, API_BASE, edit
               <input className="admin-input" type="number" value={form.carpetAreaSqFt} onChange={e => set('carpetAreaSqFt', e.target.value)} placeholder="Auto: 85% of area" />
             </div>
             <div className="admin-form-group">
-              <label className="admin-label">Asking Price / Demand (INR Numeric) *</label>
+              <label className="admin-label">Base / Starting Price (INR Numeric) *</label>
               <input
                 className="admin-input"
                 type="number"
@@ -426,6 +495,140 @@ export default function AdminPropertyEditor({ token, authHeaders, API_BASE, edit
               <input className="admin-input" value={form.financials.estimatedMonthlyRent} onChange={e => setNested('financials', 'estimatedMonthlyRent', e.target.value)} placeholder="e.g. ₹1,20,000 /mo" />
             </div>
           </div>
+
+          {/* Builder Floor Floor-Wise Pricing Grid */}
+          {form.propertyType === 'Builder Floor' && (
+            <div style={{ marginTop: '20px', background: '#F8FAFC', border: '1.5px solid #CBD5E1', borderRadius: '12px', padding: '16px' }}>
+              <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '12px' }}>
+                <div>
+                  <h4 style={{ margin: 0, fontSize: '15px', fontWeight: 800, color: '#0F172A' }}>
+                    🏢 Builder Floor: Floor-Wise Pricing & Inventory
+                  </h4>
+                  <p style={{ margin: '2px 0 0', fontSize: '12px', color: '#64748B' }}>
+                    Set customized asking price and availability for each floor level
+                  </p>
+                </div>
+                <button
+                  type="button"
+                  onClick={() => {
+                    const defaultLevels = BUILDER_FLOOR_LEVELS.map(fl => ({
+                      floorLevel: fl.id,
+                      label: fl.label,
+                      price: form.price ? Number(form.price) : '',
+                      priceFormatted: form.priceFormatted || '',
+                      status: 'Available',
+                      description: fl.desc
+                    }));
+                    set('floorPricing', defaultLevels);
+                  }}
+                  style={{
+                    background: '#E71D2B',
+                    color: '#fff',
+                    border: 'none',
+                    borderRadius: '8px',
+                    padding: '6px 12px',
+                    fontSize: '12px',
+                    fontWeight: 700,
+                    cursor: 'pointer'
+                  }}
+                >
+                  ⚡ Populate All 5 Standard Floors
+                </button>
+              </div>
+
+              {(!form.floorPricing || form.floorPricing.length === 0) ? (
+                <div style={{ textAlign: 'center', padding: '16px', background: '#FFFFFF', borderRadius: '8px', border: '1px dashed #CBD5E1' }}>
+                  <p style={{ margin: '0 0 10px', fontSize: '13px', color: '#64748B' }}>
+                    Click button above or add individual floor pricing below.
+                  </p>
+                </div>
+              ) : (
+                <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
+                  {form.floorPricing.map((item, idx) => (
+                    <div
+                      key={idx}
+                      style={{
+                        display: 'grid',
+                        gridTemplateColumns: 'minmax(180px, 1.2fr) minmax(130px, 1fr) minmax(130px, 1fr) 100px 32px',
+                        gap: '8px',
+                        alignItems: 'center',
+                        background: '#FFFFFF',
+                        padding: '10px 12px',
+                        borderRadius: '8px',
+                        border: '1px solid #E2E8F0'
+                      }}
+                    >
+                      <div>
+                        <div style={{ fontSize: '12px', fontWeight: 800, color: '#0F172A' }}>{item.label || item.floorLevel}</div>
+                        <div style={{ fontSize: '10.5px', color: '#64748B' }}>{item.description}</div>
+                      </div>
+                      <div>
+                        <input
+                          type="number"
+                          className="admin-input"
+                          style={{ padding: '6px 8px', fontSize: '12px' }}
+                          placeholder="Numeric INR (e.g. 18500000)"
+                          value={item.price || ''}
+                          onChange={e => {
+                            const val = e.target.value;
+                            const updated = [...form.floorPricing];
+                            const num = Number(val);
+                            updated[idx] = {
+                              ...updated[idx],
+                              price: num,
+                              priceFormatted: num ? (num >= 10000000 ? `₹${(num / 10000000).toFixed(2)} Cr` : `₹${(num / 100000).toFixed(2)} Lakh`) : ''
+                            };
+                            set('floorPricing', updated);
+                          }}
+                        />
+                      </div>
+                      <div>
+                        <input
+                          type="text"
+                          className="admin-input"
+                          style={{ padding: '6px 8px', fontSize: '12px' }}
+                          placeholder="₹1.85 Cr"
+                          value={item.priceFormatted || ''}
+                          onChange={e => {
+                            const updated = [...form.floorPricing];
+                            updated[idx] = { ...updated[idx], priceFormatted: e.target.value };
+                            set('floorPricing', updated);
+                          }}
+                        />
+                      </div>
+                      <div>
+                        <select
+                          className="admin-select"
+                          style={{ padding: '6px 8px', fontSize: '11px' }}
+                          value={item.status || 'Available'}
+                          onChange={e => {
+                            const updated = [...form.floorPricing];
+                            updated[idx] = { ...updated[idx], status: e.target.value };
+                            set('floorPricing', updated);
+                          }}
+                        >
+                          <option value="Available">Available</option>
+                          <option value="Booked">Booked</option>
+                          <option value="Sold Out">Sold Out</option>
+                        </select>
+                      </div>
+                      <button
+                        type="button"
+                        onClick={() => {
+                          const updated = form.floorPricing.filter((_, i) => i !== idx);
+                          set('floorPricing', updated);
+                        }}
+                        style={{ background: 'none', border: 'none', color: '#EF4444', cursor: 'pointer', fontSize: '16px' }}
+                        title="Remove floor"
+                      >
+                        ✕
+                      </button>
+                    </div>
+                  ))}
+                </div>
+              )}
+            </div>
+          )}
         </div>
 
         {/* 4. Photos & Media Gallery */}
@@ -783,6 +986,13 @@ export default function AdminPropertyEditor({ token, authHeaders, API_BASE, edit
               </div>
             </div>
             <div className="admin-form-group admin-toggles-row">
+              <label className="admin-toggle-label">
+                <input type="checkbox" checked={form.showInInstants} onChange={e => set('showInInstants', e.target.checked)} />
+                <span className="admin-toggle-switch" />
+                <span style={{ fontWeight: 700, color: form.showInInstants ? '#E71D2B' : 'inherit', display: 'flex', alignItems: 'center', gap: '4px' }}>
+                  ⚡ Show on Instants (Reels)
+                </span>
+              </label>
               <label className="admin-toggle-label">
                 <input type="checkbox" checked={form.isOyeListing} onChange={e => set('isOyeListing', e.target.checked)} />
                 <span className="admin-toggle-switch" />

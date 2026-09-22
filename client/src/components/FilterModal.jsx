@@ -44,6 +44,8 @@ export default function FilterModal({
 
   const PROPERTY_TYPES = [
     { value: 'all', label: 'All Categories' },
+    { value: 'builder floor', label: 'Builder Floors' },
+    { value: 'apartment', label: 'Apartments' },
     { value: 'penthouse', label: 'Penthouses' },
     { value: 'sky-villa', label: 'Sky-Villas' },
     { value: 'luxury villa', label: 'Luxury Villas' },
@@ -54,12 +56,23 @@ export default function FilterModal({
 
   const CITIES = [
     { value: 'all', label: 'All Cities' },
-    { value: 'Mumbai', label: 'Mumbai' },
+    { value: 'Faridabad', label: 'Faridabad (All Sectors)' },
     { value: 'Delhi NCR', label: 'Delhi NCR' },
-    { value: 'Dubai', label: 'Dubai' },
+    { value: 'Gurgaon (Gurugram)', label: 'Gurgaon (Gurugram)' },
+    { value: 'Noida', label: 'Noida' },
+    { value: 'Greater Noida', label: 'Greater Noida' },
+    { value: 'Ghaziabad', label: 'Ghaziabad' },
+    { value: 'Mumbai', label: 'Mumbai' },
+    { value: 'Navi Mumbai', label: 'Navi Mumbai' },
+    { value: 'Thane', label: 'Thane' },
+    { value: 'Pune', label: 'Pune' },
+    { value: 'Bangalore (Bengaluru)', label: 'Bangalore (Bengaluru)' },
+    { value: 'Hyderabad', label: 'Hyderabad' },
+    { value: 'Chandigarh', label: 'Chandigarh' },
+    { value: 'Jaipur', label: 'Jaipur' },
     { value: 'Goa', label: 'Goa' },
-    { value: 'Bangalore', label: 'Bangalore' },
-    { value: 'Hyderabad', label: 'Hyderabad' }
+    { value: 'Dubai', label: 'Dubai' },
+    { value: 'London', label: 'London' }
   ];
 
   const BHK_OPTIONS = [
@@ -246,20 +259,56 @@ export default function FilterModal({
               </span>
             </div>
 
-            <div style={{ padding: '8px 0 12px 0' }}>
-              <input
-                type="range"
-                min="30000000"
-                max="650000000"
-                step="20000000"
-                value={draft.maxPrice}
-                onChange={(e) => setDraft(prev => ({ ...prev, maxPrice: parseInt(e.target.value, 10) }))}
-                style={{
-                  width: '100%',
-                  accentColor: 'var(--accent-primary)',
-                  cursor: 'pointer'
-                }}
-              />
+            {/* Direct Price Input Option */}
+            <div style={{ padding: '8px 0 14px 0', display: 'flex', alignItems: 'center', gap: '10px' }}>
+              <div style={{ position: 'relative', flex: 1 }}>
+                <span style={{ position: 'absolute', left: '12px', top: '50%', transform: 'translateY(-50%)', fontWeight: 700, color: '#E71D2B', fontSize: '14px' }}>₹</span>
+                <input
+                  type="number"
+                  step="0.1"
+                  min="0.5"
+                  max="100"
+                  placeholder="Enter max price in Cr (e.g. 4.5)"
+                  value={draft.maxPrice >= 650000000 ? '' : (draft.maxPrice / 10000000).toString()}
+                  onChange={(e) => {
+                    const val = parseFloat(e.target.value);
+                    if (isNaN(val) || val <= 0) {
+                      setDraft(prev => ({ ...prev, maxPrice: 650000000 }));
+                    } else {
+                      setDraft(prev => ({ ...prev, maxPrice: Math.round(val * 10000000) }));
+                    }
+                  }}
+                  style={{
+                    width: '100%',
+                    padding: '10px 45px 10px 28px',
+                    borderRadius: 'var(--radius-md)',
+                    border: '1.5px solid var(--border-subtle)',
+                    fontSize: '13px',
+                    fontWeight: 700,
+                    outline: 'none',
+                    background: '#F8FAFC'
+                  }}
+                />
+                <span style={{ position: 'absolute', right: '12px', top: '50%', transform: 'translateY(-50%)', fontSize: '12px', fontWeight: 700, color: 'var(--text-muted)' }}>Cr</span>
+              </div>
+              {draft.maxPrice < 650000000 && (
+                <button
+                  type="button"
+                  onClick={() => setDraft(prev => ({ ...prev, maxPrice: 650000000 }))}
+                  style={{
+                    background: 'transparent',
+                    border: '1px solid var(--border-subtle)',
+                    borderRadius: 'var(--radius-md)',
+                    padding: '9px 12px',
+                    fontSize: '12px',
+                    fontWeight: 600,
+                    color: '#E71D2B',
+                    cursor: 'pointer'
+                  }}
+                >
+                  Reset Price
+                </button>
+              )}
             </div>
 
             <div className="filter-chips-grid">

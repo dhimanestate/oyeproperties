@@ -327,6 +327,25 @@ export default function PropertyCard({
             <CheckCircle2 size={10} /> {property.status}
           </span>
 
+          {/* Builder Floor Floor-wise indicator */}
+          {property.floorPricing?.length > 0 && (
+            <span style={{
+              background: '#FFF1F2',
+              border: '1px solid #FECDD3',
+              color: '#E71D2B',
+              padding: '3px 8px',
+              borderRadius: '9999px',
+              fontSize: '10.5px',
+              fontWeight: 600,
+              fontFamily: "'Poppins', sans-serif",
+              display: 'inline-flex',
+              alignItems: 'center',
+              gap: '4px'
+            }}>
+              🏢 {property.floorPricing.length} Floors Available
+            </span>
+          )}
+
           {/* Direction Facing */}
           {property.facing && (
             <span style={{

@@ -12,8 +12,11 @@ export default function FilterBar({
   const BHK_OPTIONS = ['all', '3', '4', '5'];
   const TYPE_OPTIONS = [
     { value: 'all', label: 'All Types' },
+    { value: 'builder floor', label: 'Builder Floors' },
+    { value: 'apartment', label: 'Apartments' },
     { value: 'penthouse', label: 'Penthouses' },
     { value: 'luxury villa', label: 'Luxury Villas' },
+    { value: 'duplex', label: 'Duplex Suites' },
     { value: 'garden estate', label: 'Garden Estates' }
   ];
 
@@ -161,11 +164,11 @@ export default function FilterBar({
 
           {/* Type + Budget Row */}
           <div style={{ display: 'flex', flexWrap: 'wrap', gap: '14px', alignItems: 'center' }}>
-            {/* Property Type */}
-            <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-              <span style={{ fontSize: '12px', fontWeight: 700, color: 'var(--text-secondary)' }}>Type:</span>
+            {/* Property Type Dropdown */}
+            <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
+              <span style={{ fontSize: '12px', fontWeight: 700, color: 'var(--text-muted)' }}>Type:</span>
               <select
-                id="select-type"
+                id="select-property-type"
                 value={filters.propertyType}
                 onChange={(e) => onFilterChange('propertyType', e.target.value)}
                 style={{
@@ -173,7 +176,7 @@ export default function FilterBar({
                   border: '1px solid var(--border-subtle)',
                   borderRadius: 'var(--radius-full)',
                   color: 'var(--text-primary)',
-                  padding: '6px 10px',
+                  padding: '6px 12px',
                   fontSize: '12px',
                   fontWeight: 600,
                   outline: 'none',
@@ -186,22 +189,59 @@ export default function FilterBar({
               </select>
             </div>
 
-            {/* Budget Slider */}
-            <div style={{ display: 'flex', alignItems: 'center', gap: '8px', flex: 1, minWidth: '180px' }}>
-              <span style={{ fontSize: '12px', fontWeight: 700, color: 'var(--text-secondary)', flexShrink: 0 }}>Budget:</span>
-              <input
-                id="slider-max-price"
-                type="range"
-                min="50000000"
-                max="650000000"
-                step="10000000"
-                value={filters.maxPrice}
-                onChange={(e) => onFilterChange('maxPrice', e.target.value)}
-                style={{ accentColor: 'var(--accent-primary)', cursor: 'pointer', flex: 1 }}
-              />
-              <span style={{ fontSize: '12px', fontWeight: 800, color: 'var(--accent-primary)', minWidth: '52px', flexShrink: 0 }}>
-                {filters.maxPrice >= 650000000 ? 'Any' : `₹${(filters.maxPrice / 10000000).toFixed(0)} Cr`}
-              </span>
+            {/* Direct Price Input Option (Replacing Range Scroller) */}
+            <div style={{ display: 'flex', alignItems: 'center', gap: '8px', flex: 1, minWidth: '240px', flexWrap: 'wrap' }}>
+              <span style={{ fontSize: '12px', fontWeight: 700, color: 'var(--text-secondary)', flexShrink: 0 }}>Max Budget:</span>
+              <div style={{ position: 'relative', display: 'flex', alignItems: 'center', flex: 1, minWidth: '120px' }}>
+                <span style={{ position: 'absolute', left: '10px', fontSize: '12px', fontWeight: 700, color: '#E71D2B' }}>₹</span>
+                <input
+                  id="input-max-price-number"
+                  type="number"
+                  step="0.1"
+                  min="0.5"
+                  max="100"
+                  placeholder="e.g. 5.5"
+                  value={filters.maxPrice >= 650000000 ? '' : (filters.maxPrice / 10000000).toString()}
+                  onChange={(e) => {
+                    const val = parseFloat(e.target.value);
+                    if (isNaN(val) || val <= 0) {
+                      onFilterChange('maxPrice', 650000000);
+                    } else {
+                      onFilterChange('maxPrice', Math.round(val * 10000000));
+                    }
+                  }}
+                  style={{
+                    width: '100%',
+                    padding: '6px 36px 6px 24px',
+                    borderRadius: 'var(--radius-full)',
+                    border: '1.5px solid var(--border-subtle)',
+                    fontSize: '12.5px',
+                    fontWeight: 700,
+                    outline: 'none',
+                    background: '#F8FAFC',
+                    color: '#0F172A'
+                  }}
+                />
+                <span style={{ position: 'absolute', right: '10px', fontSize: '11px', fontWeight: 700, color: 'var(--text-muted)' }}>Cr</span>
+              </div>
+              {filters.maxPrice < 650000000 && (
+                <button
+                  type="button"
+                  onClick={() => onFilterChange('maxPrice', 650000000)}
+                  style={{
+                    background: 'transparent',
+                    border: 'none',
+                    color: '#E71D2B',
+                    fontSize: '11px',
+                    fontWeight: 700,
+                    cursor: 'pointer',
+                    padding: '2px 4px'
+                  }}
+                  title="Clear price filter"
+                >
+                  Clear
+                </button>
+              )}
             </div>
           </div>
 

@@ -56,6 +56,12 @@ export default function LocationDetectorModal({
       image: 'https://images.unsplash.com/photo-1600566753376-12c8ab7fb75b?auto=format&fit=crop&w=400&q=80'
     },
     {
+      name: 'Faridabad',
+      subtitle: 'Sectors 1-144, Neharpar & Surajkund',
+      count: 'Prime NCR Hub',
+      image: 'https://images.unsplash.com/photo-1545324418-cc1a3fa10c00?auto=format&fit=crop&w=400&q=80'
+    },
+    {
       name: 'London',
       subtitle: 'Knightsbridge & Hyde Park',
       count: '1 Property',

@@ -8,7 +8,8 @@ import {
   EditIcon,
   TrashIcon,
   EyeIcon,
-  ShieldIcon
+  ShieldIcon,
+  ZapIcon
 } from './AdminIcons';
 
 export default function AdminPropertyQueue({ token, authHeaders, API_BASE, onRefresh, onEditProperty, mode = 'pending' }) {
@@ -126,6 +127,20 @@ export default function AdminPropertyQueue({ token, authHeaders, API_BASE, onRef
     }
   };
 
+  const handleToggleInstants = async (id) => {
+    try {
+      const r = await fetch(`${API_BASE}/api/admin/properties/${id}/instants`, { method: 'PATCH', headers: authHeaders });
+      const data = await r.json();
+      if (data.success) {
+        showToast(data.message || `Instants visibility updated`);
+        fetchProperties();
+        if (onRefresh) onRefresh();
+      }
+    } catch {
+      showToast('Failed to toggle Instants visibility');
+    }
+  };
+
   const handleDelete = async (id, title) => {
     if (!window.confirm(`Are you sure you want to delete "${title}"? This cannot be undone.`)) return;
     try {
@@ -220,6 +235,9 @@ export default function AdminPropertyQueue({ token, authHeaders, API_BASE, onRef
             )}
             <button className="admin-btn admin-btn-outline admin-btn-sm" onClick={() => handleBulkAction('set-top-pick')}>
               <StarIcon size={14} /> Set Top Pick
+            </button>
+            <button className="admin-btn admin-btn-outline admin-btn-sm" style={{ color: '#E71D2B', borderColor: '#FECDD3' }} onClick={() => handleBulkAction('show-instants')}>
+              <ZapIcon size={14} /> Show in Instants
             </button>
             <button className="admin-btn admin-btn-danger admin-btn-sm" onClick={() => handleBulkAction('delete')}>
               <TrashIcon size={14} /> Delete
@@ -334,6 +352,11 @@ export default function AdminPropertyQueue({ token, authHeaders, API_BASE, onRef
                     <td>
                       <div className="admin-flags">
                         {prop.isOyeListing && <span className="admin-flag oye">Oye Verified</span>}
+                        {prop.showInInstants !== false && (
+                          <span className="admin-flag" style={{ background: '#FFF0F1', color: '#E71D2B', border: '1px solid #FECDD3' }}>
+                            ⚡ In Instants
+                          </span>
+                        )}
                         {prop.topPick && <span className="admin-flag top">Top Pick</span>}
                         {prop.trending && <span className="admin-flag trend">Trending</span>}
                         {prop.listingStatus === 'sold' && <span className="admin-flag sold">Sold</span>}
@@ -350,6 +373,16 @@ export default function AdminPropertyQueue({ token, authHeaders, API_BASE, onRef
                           title="Quick Preview"
                         >
                           <EyeIcon size={15} />
+                        </button>
+
+                        {/* Instants Toggle Button */}
+                        <button
+                          className={`admin-icon-btn ${prop.showInInstants !== false ? 'active-trend' : ''}`}
+                          style={prop.showInInstants !== false ? { background: '#FFF0F1', color: '#E71D2B', borderColor: '#FECDD3' } : {}}
+                          onClick={() => handleToggleInstants(prop._id)}
+                          title={prop.showInInstants !== false ? "Visible in Instants (Click to remove)" : "Not in Instants (Click to show in Instants)"}
+                        >
+                          <ZapIcon size={15} filled={prop.showInInstants !== false} />
                         </button>
 
                         {prop.approvalStatus === 'pending' && (

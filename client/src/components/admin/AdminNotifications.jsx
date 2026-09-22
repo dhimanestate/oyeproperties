@@ -11,8 +11,9 @@ import {
   MapPinIcon,
   BuildingIcon
 } from './AdminIcons';
+import { ALL_INDIAN_CITIES } from '../../data/indiaGeographicDirectory';
 
-const CITIES = ['Mumbai', 'Delhi NCR', 'Dubai', 'Goa', 'Bangalore', 'Hyderabad', 'London'];
+const CITIES = ALL_INDIAN_CITIES;
 
 const NOTIF_TYPES = [
   { value: 'general', label: 'General', desc: 'Platform announcements & updates', icon: BellIcon },

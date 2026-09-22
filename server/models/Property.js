@@ -88,6 +88,13 @@ const propertySchema = new mongoose.Schema({
   furnishing: String,
   facing: String,
   floor: String,
+  floorPricing: [{
+    floorLevel: String,
+    price: Number,
+    priceFormatted: String,
+    status: { type: String, default: 'Available' },
+    description: String,
+  }],
 
   builder: builderSchema,
   relationshipManager: rmSchema,
@@ -136,6 +143,9 @@ const propertySchema = new mongoose.Schema({
 
   // Manually curated by admin as a Top Pick
   topPick: { type: Boolean, default: false, index: true },
+
+  // Instants Reel Showcase: If true, property is featured in Instants feed (Default: true)
+  showInInstants: { type: Boolean, default: true, index: true },
 
   // Cities where this property is pinned/promoted
   pinnedInCities: [{ type: String }],

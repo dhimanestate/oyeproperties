@@ -35,15 +35,28 @@ router.get('/reels', async (req, res) => {
     const { city } = req.query;
 
     if (mongoose.connection.readyState === 1) {
-      const query = { reelVideo: { $exists: true, $ne: '' } };
+      // Include approved properties that have showInInstants = true (or not false) OR have a reelVideo
+      const query = {
+        approvalStatus: { $ne: 'rejected' },
+        showInInstants: { $ne: false },
+        $or: [
+          { reelVideo: { $exists: true, $ne: '' } },
+          { 'images.0': { $exists: true, $ne: '' } }
+        ]
+      };
       if (city && city !== 'all' && city !== 'All Cities') {
         query['location.city'] = { $regex: new RegExp(`^${city}$`, 'i') };
       }
-      const reels = await Property.find(query).limit(50).lean();
-      const mapped = reels.map(p => ({ ...p, id: p.legacyId || p._id.toString() }));
+      const reels = await Property.find(query).sort({ createdAt: -1 }).limit(50).lean();
+      const mapped = reels.map(p => ({
+        ...p,
+        id: p.legacyId || p._id.toString(),
+        // Ensure a reelVideo fallback from first image if no video was uploaded so it plays/renders seamlessly
+        reelVideo: p.reelVideo || ''
+      }));
       return res.json({ total: mapped.length, reels: mapped });
     } else {
-      let list = getFallbackProperties().filter(p => p.reelVideo);
+      let list = getFallbackProperties().filter(p => p.showInInstants !== false && (p.reelVideo || (p.images && p.images.length > 0)));
       if (city && city !== 'all' && city !== 'All Cities') {
         list = list.filter(p => p.location?.city?.toLowerCase() === city.toLowerCase());
       }
@@ -251,7 +264,7 @@ router.post('/', requireAuth, async (req, res) => {
     const {
       title, tagline, propertyType, bhk, baths, price, priceFormatted,
       areaSqFt, areaUnit = 'Sq. Ft.', carpetAreaSqFt, location, status, possession, furnishing,
-      facing, floor, amenities, images, reelVideo, ownerInfo,
+      facing, floor, floorPricing, amenities, images, reelVideo, ownerInfo,
       contactDetails, buyingDetails,
     } = req.body;
 
@@ -292,6 +305,7 @@ router.post('/', requireAuth, async (req, res) => {
       furnishing: furnishing || 'Fully Furnished',
       facing: facing || 'North-East',
       floor: floor || 'Upper Level',
+      floorPricing: Array.isArray(floorPricing) ? floorPricing : [],
       builder: {
         name: contactName + ` (${contactRole})`,
         experience: 'Verified Listing',

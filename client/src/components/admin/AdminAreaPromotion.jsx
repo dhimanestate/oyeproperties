@@ -9,8 +9,9 @@ import {
   CloseIcon,
   CheckIcon
 } from './AdminIcons';
+import { ALL_INDIAN_CITIES } from '../../data/indiaGeographicDirectory';
 
-const CITIES = ['Mumbai', 'Delhi NCR', 'Dubai', 'Goa', 'Bangalore', 'Hyderabad', 'London'];
+const CITIES = ALL_INDIAN_CITIES;
 
 export default function AdminAreaPromotion({ token, authHeaders, API_BASE }) {
   const [selectedCity, setSelectedCity] = useState('Mumbai');

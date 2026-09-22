@@ -647,6 +647,86 @@ export default function PropertyDetailModal({
             </div>
           </div>
 
+          {/* Builder Floor Level-Wise Demand / Pricing Card */}
+          {property.floorPricing && property.floorPricing.length > 0 && (
+            <div style={{
+              marginBottom: '20px',
+              background: '#FFF5F5',
+              border: '1.5px solid #FCA5A5',
+              borderRadius: '12px',
+              padding: isMobile ? '12px' : '16px'
+            }}>
+              <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '10px' }}>
+                <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                  <span style={{ fontSize: '16px' }}>🏢</span>
+                  <div>
+                    <h4 style={{ margin: 0, fontSize: isMobile ? '13px' : '14px', fontWeight: 800, color: '#991B1B' }}>
+                      Floor-Wise Pricing & Availability
+                    </h4>
+                    <p style={{ margin: 0, fontSize: '11px', color: '#7F1D1D' }}>
+                      Individual floor rates, terrace rights, and booking status
+                    </p>
+                  </div>
+                </div>
+                <span style={{
+                  fontSize: '11px',
+                  fontWeight: 700,
+                  background: '#E71D2B',
+                  color: '#fff',
+                  padding: '2px 8px',
+                  borderRadius: '6px'
+                }}>
+                  Builder Floor
+                </span>
+              </div>
+
+              <div style={{
+                display: 'grid',
+                gridTemplateColumns: isMobile ? '1fr' : 'repeat(auto-fit, minmax(200px, 1fr))',
+                gap: '8px'
+              }}>
+                {property.floorPricing.map((fl, idx) => (
+                  <div
+                    key={idx}
+                    style={{
+                      background: '#ffffff',
+                      border: '1px solid #FECACA',
+                      borderRadius: '8px',
+                      padding: '10px 12px',
+                      display: 'flex',
+                      flexDirection: 'column',
+                      justifyContent: 'space-between'
+                    }}
+                  >
+                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '4px' }}>
+                      <span style={{ fontWeight: 800, fontSize: '12px', color: '#1E293B' }}>
+                        {fl.label || fl.floorLevel}
+                      </span>
+                      <span style={{
+                        fontSize: '10px',
+                        fontWeight: 700,
+                        padding: '1px 6px',
+                        borderRadius: '4px',
+                        background: fl.status === 'Available' ? '#DCFCE7' : fl.status === 'Booked' ? '#FEF9C3' : '#F1F5F9',
+                        color: fl.status === 'Available' ? '#166534' : fl.status === 'Booked' ? '#854D0E' : '#475569'
+                      }}>
+                        {fl.status || 'Available'}
+                      </span>
+                    </div>
+                    {fl.description && (
+                      <div style={{ fontSize: '10.5px', color: '#64748B', marginBottom: '6px', lineHeight: 1.25 }}>
+                        {fl.description}
+                      </div>
+                    )}
+                    <div style={{ fontSize: '14px', fontWeight: 800, color: '#E71D2B' }}>
+                      {fl.priceFormatted || (fl.price ? `₹${(fl.price / 10000000).toFixed(2)} Cr` : 'Price on Request')}
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </div>
+          )}
+
           {/* Quick 10-Point Attribute Pills - Responsive Grid */}
           <div style={{
             display: 'grid',
