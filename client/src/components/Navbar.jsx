@@ -218,7 +218,7 @@ export default function Navbar({
         >
           <MapPin size={11} color="#E71D2B" />
           <span style={{ maxWidth: '65px', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
-            {currentCity === 'all' ? 'All' : currentCity || 'Mumbai'}
+            {currentCity === 'all' ? 'All' : currentCity || 'Faridabad'}
           </span>
         </button>
 
@@ -338,7 +338,7 @@ export default function Navbar({
           onKeyDown={e => { if (e.key === 'Enter' || e.key === ' ') onOpenLocationModal(); }}
         >
           <MapPin size={12} color="#E71D2B" />
-          <span>{currentCity === 'all' ? 'All Cities' : currentCity || 'Mumbai'}</span>
+          <span>{currentCity === 'all' ? 'All Cities' : currentCity || 'Faridabad'}</span>
           <button
             type="button"
             onClick={e => { e.stopPropagation(); onDetectGPS(); }}

@@ -654,7 +654,7 @@ export default function ListPropertyModal({
                   marginBottom: '16px',
                   boxShadow: '0 4px 14px rgba(231, 29, 43, 0.05)'
                 }}>
-                  <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '8px' }}>
+                  <div style={{ display: 'flex', flexDirection: 'column', gap: '2px', marginBottom: '8px' }}>
                     <div style={{ display: 'flex', alignItems: 'center', gap: '6px', fontSize: '13px', fontWeight: 800, color: '#E71D2B' }}>
                       <Layers size={16} />
                       <span>Builder Floor Level-Wise Pricing & Inventory</span>
@@ -668,7 +668,7 @@ export default function ListPropertyModal({
                     Buyers can view individual floors and their unique features (e.g. Ground with lawn, Top with terrace rights). Enter asking price for each available level:
                   </p>
 
-                  <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(210px, 1fr))', gap: '10px' }}>
+                  <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(135px, 1fr))', gap: '8px' }}>
                     {BUILDER_FLOOR_LEVELS.map(lvl => (
                       <div 
                         key={lvl.id}
@@ -690,8 +690,8 @@ export default function ListPropertyModal({
                             </span>
                           )}
                         </div>
-                        <div style={{ display: 'flex', alignItems: 'center', gap: '4px' }}>
-                          <span style={{ fontSize: '12px', fontWeight: 700, color: '#64748B' }}>₹</span>
+                        <div style={{ display: 'flex', alignItems: 'center', gap: '4px', width: '100%' }}>
+                          <span style={{ fontSize: '12px', fontWeight: 700, color: '#64748B', flexShrink: 0 }}>₹</span>
                           <input
                             type="number"
                             step="0.01"
@@ -705,6 +705,8 @@ export default function ListPropertyModal({
                             }}
                             placeholder="2.50"
                             style={{
+                              flex: 1,
+                              minWidth: 0,
                               width: '100%',
                               padding: '5px 8px',
                               borderRadius: '6px',
@@ -715,7 +717,7 @@ export default function ListPropertyModal({
                               background: '#ffffff'
                             }}
                           />
-                          <span style={{ fontSize: '11px', fontWeight: 600, color: '#64748B' }}>Cr</span>
+                          <span style={{ fontSize: '11px', fontWeight: 600, color: '#64748B', flexShrink: 0 }}>Cr</span>
                         </div>
                       </div>
                     ))}
@@ -1005,9 +1007,12 @@ export default function ListPropertyModal({
                         <label style={{ display: 'block', fontSize: '11px', fontWeight: 700, color: '#E71D2B', marginBottom: '4px' }}>
                           Expected Possession Year *
                         </label>
-                        <select
+                        <input
+                          type="number"
+                          min={new Date().getFullYear()}
                           value={formData.possessionYear}
                           onChange={e => setFormData({ ...formData, possessionYear: e.target.value })}
+                          placeholder={`e.g. ${new Date().getFullYear() + 2}`}
                           style={{
                             width: '100%',
                             padding: '8px 10px',
@@ -1019,11 +1024,7 @@ export default function ListPropertyModal({
                             fontWeight: 700,
                             outline: 'none'
                           }}
-                        >
-                          {['2026', '2027', '2028', '2029', '2030'].map(yr => (
-                            <option key={yr} value={yr}>{yr}</option>
-                          ))}
-                        </select>
+                        />
                       </div>
                     </>
                   ) : (

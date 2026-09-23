@@ -245,7 +245,8 @@ export default function AdminPropertyEditor({ token, authHeaders, API_BASE, edit
 
       let url, method;
       if (isEdit) {
-        url = `${API_BASE}/api/admin/properties/${editingProperty._id}`;
+        const propId = editingProperty._id || editingProperty.id;
+        url = `${API_BASE}/api/admin/properties/${propId}`;
         method = 'PUT';
       } else {
         url = `${API_BASE}/api/admin/properties`;
@@ -539,8 +540,8 @@ export default function AdminPropertyEditor({ token, authHeaders, API_BASE, edit
                     <div
                       key={idx}
                       style={{
-                        display: 'grid',
-                        gridTemplateColumns: 'minmax(180px, 1.2fr) minmax(130px, 1fr) minmax(130px, 1fr) 100px 32px',
+                        display: 'flex',
+                        flexWrap: 'wrap',
                         gap: '8px',
                         alignItems: 'center',
                         background: '#FFFFFF',
@@ -549,15 +550,15 @@ export default function AdminPropertyEditor({ token, authHeaders, API_BASE, edit
                         border: '1px solid #E2E8F0'
                       }}
                     >
-                      <div>
+                      <div style={{ flex: '1 1 180px', minWidth: 0 }}>
                         <div style={{ fontSize: '12px', fontWeight: 800, color: '#0F172A' }}>{item.label || item.floorLevel}</div>
                         <div style={{ fontSize: '10.5px', color: '#64748B' }}>{item.description}</div>
                       </div>
-                      <div>
+                      <div style={{ flex: '1 1 120px', minWidth: 0 }}>
                         <input
                           type="number"
                           className="admin-input"
-                          style={{ padding: '6px 8px', fontSize: '12px' }}
+                          style={{ padding: '6px 8px', fontSize: '12px', width: '100%' }}
                           placeholder="Numeric INR (e.g. 18500000)"
                           value={item.price || ''}
                           onChange={e => {
@@ -573,11 +574,11 @@ export default function AdminPropertyEditor({ token, authHeaders, API_BASE, edit
                           }}
                         />
                       </div>
-                      <div>
+                      <div style={{ flex: '1 1 110px', minWidth: 0 }}>
                         <input
                           type="text"
                           className="admin-input"
-                          style={{ padding: '6px 8px', fontSize: '12px' }}
+                          style={{ padding: '6px 8px', fontSize: '12px', width: '100%' }}
                           placeholder="₹1.85 Cr"
                           value={item.priceFormatted || ''}
                           onChange={e => {
@@ -587,10 +588,10 @@ export default function AdminPropertyEditor({ token, authHeaders, API_BASE, edit
                           }}
                         />
                       </div>
-                      <div>
+                      <div style={{ flex: '0 0 90px' }}>
                         <select
                           className="admin-select"
-                          style={{ padding: '6px 8px', fontSize: '11px' }}
+                          style={{ padding: '6px 8px', fontSize: '11px', width: '100%' }}
                           value={item.status || 'Available'}
                           onChange={e => {
                             const updated = [...form.floorPricing];
@@ -609,10 +610,11 @@ export default function AdminPropertyEditor({ token, authHeaders, API_BASE, edit
                           const updated = form.floorPricing.filter((_, i) => i !== idx);
                           set('floorPricing', updated);
                         }}
-                        style={{ background: 'none', border: 'none', color: '#EF4444', cursor: 'pointer', fontSize: '16px' }}
+                        style={{ background: 'none', border: 'none', color: '#EF4444', cursor: 'pointer', fontSize: '16px', marginLeft: 'auto', padding: '4px' }}
                         title="Remove floor"
                       >
                         ✕
+                      </button>
                       </button>
                     </div>
                   ))}

@@ -152,7 +152,7 @@ export default function LocationDetectorModal({
                 {detectedLocation?.mode === 'gps' ? 'Live GPS Location Locked' : 'Auto Location Detector'}
               </div>
               <div style={{ fontSize: '15px', fontWeight: 800, color: 'var(--text-primary)' }}>
-                {detectedLocation?.city || 'Mumbai'}, {detectedLocation?.locality || 'Worli Sea Face'}
+                {detectedLocation?.city || 'Faridabad'}, {detectedLocation?.locality || 'Sector 15A'}
               </div>
             </div>
           </div>

@@ -215,6 +215,15 @@ router.get('/properties', async (req, res) => {
   }
 });
 
+// Helper to resolve property by either ObjectId (_id) or legacy String ID
+const getPropertyFilter = (id) => {
+  if (!id) return { _id: null };
+  if (mongoose.Types.ObjectId.isValid(id)) {
+    return { $or: [{ _id: id }, { legacyId: id }] };
+  }
+  return { legacyId: id };
+};
+
 // PATCH /api/admin/properties/:id/approve
 router.patch('/properties/:id/approve', async (req, res) => {
   try {
@@ -401,10 +410,11 @@ router.post('/properties', async (req, res) => {
 router.put('/properties/:id', async (req, res) => {
   try {
     const { id } = req.params;
-    const updates = req.body;
+    const updates = { ...req.body };
 
-    // Don't allow changing _id or listedBy via this route
+    // Don't allow changing _id, id, or listedBy via this route
     delete updates._id;
+    delete updates.id;
     delete updates.__v;
 
     if (Array.isArray(updates.images)) {
@@ -414,10 +424,10 @@ router.put('/properties/:id', async (req, res) => {
       updates.reelVideo = saveBase64Media(updates.reelVideo, 'adm_edit_vid');
     }
 
-    const prop = await Property.findByIdAndUpdate(id, updates, { new: true, runValidators: true });
+    const prop = await Property.findOneAndUpdate(getPropertyFilter(id), updates, { new: true, runValidators: true });
     if (!prop) return res.status(404).json({ error: 'Property not found.' });
 
-    res.json({ success: true, message: 'Property updated.', property: { ...prop.toObject(), id: prop._id.toString() } });
+    res.json({ success: true, message: 'Property updated.', property: { ...prop.toObject(), id: prop.legacyId || prop._id.toString() } });
   } catch (err) {
     console.error('Admin update property error:', err);
     res.status(500).json({ error: 'Failed to update property.' });
@@ -428,7 +438,7 @@ router.put('/properties/:id', async (req, res) => {
 router.delete('/properties/:id', async (req, res) => {
   try {
     const { id } = req.params;
-    const prop = await Property.findByIdAndDelete(id);
+    const prop = await Property.findOneAndDelete(getPropertyFilter(id));
     if (!prop) return res.status(404).json({ error: 'Property not found.' });
 
     res.json({ success: true, message: `Property "${prop.title}" deleted.` });
