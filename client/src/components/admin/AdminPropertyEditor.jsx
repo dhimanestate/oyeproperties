@@ -615,7 +615,6 @@ export default function AdminPropertyEditor({ token, authHeaders, API_BASE, edit
                       >
                         ✕
                       </button>
-                      </button>
                     </div>
                   ))}
                 </div>
