@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { getMediaUrl } from '../config';
 import { 
   X, 
   Heart, 
@@ -331,10 +332,11 @@ export default function PropertyDetailModal({
                 )}
 
                 <img
-                  src={property.images[selectedPhotoIndex] || property.images[0]}
+                  src={getMediaUrl(property.images?.[selectedPhotoIndex] || property.images?.[0])}
                   alt={property.title}
                   loading="eager"
                   onLoad={() => setModalImageLoaded(true)}
+                  onError={() => setModalImageLoaded(true)}
                   style={{
                     width: '100%',
                     height: '100%',
@@ -386,7 +388,7 @@ export default function PropertyDetailModal({
                 {property.images.map((img, i) => (
                   <img
                     key={i}
-                    src={img}
+                    src={getMediaUrl(img)}
                     alt="Thumbnail"
                     onClick={() => {
                       setSelectedPhotoIndex(i);
@@ -424,7 +426,7 @@ export default function PropertyDetailModal({
                 overflow: 'hidden'
               }}>
                 <img
-                  src={property.virtualTour360.preview}
+                  src={getMediaUrl(property.virtualTour360?.preview || property.images?.[0])}
                   alt="360 preview"
                   style={{
                     width: '100%',
@@ -1074,7 +1076,7 @@ export default function PropertyDetailModal({
             }}
           >
             <img
-              src={property.images[selectedPhotoIndex] || property.images[0]}
+              src={getMediaUrl(property.images?.[selectedPhotoIndex] || property.images?.[0])}
               alt={property.title}
               style={{
                 maxWidth: '92vw',
@@ -1140,7 +1142,7 @@ export default function PropertyDetailModal({
               {property.images.map((img, i) => (
                 <img
                   key={i}
-                  src={img}
+                  src={getMediaUrl(img)}
                   alt={`Thumbnail ${i}`}
                   onClick={() => setSelectedPhotoIndex(i)}
                   style={{

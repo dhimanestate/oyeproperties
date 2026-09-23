@@ -1,5 +1,5 @@
 import React, { useState, useRef, useEffect } from 'react';
-import { API_BASE } from '../config';
+import { API_BASE, getMediaUrl } from '../config';
 import { 
   X, 
   Building2, 
@@ -414,7 +414,7 @@ export default function ListPropertyModal({
               marginBottom: '24px'
             }}>
               <img
-                src={successProperty.images[0]}
+                src={getMediaUrl(successProperty.images?.[0])}
                 alt={successProperty.title}
                 style={{ width: '100px', height: '100px', borderRadius: '8px', objectFit: 'cover' }}
               />

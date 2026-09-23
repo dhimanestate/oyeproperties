@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { getMediaUrl } from '../config';
 import { 
   Heart, 
   Zap, 
@@ -77,10 +78,11 @@ export default function PropertyCard({
         )}
 
         <img
-          src={property.images[0]}
+          src={getMediaUrl(property.images?.[0])}
           alt={property.title}
           loading="lazy"
           onLoad={() => setImageLoaded(true)}
+          onError={() => setImageLoaded(true)}
           style={{
             width: '100%',
             height: '100%',

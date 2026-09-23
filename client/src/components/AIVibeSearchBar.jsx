@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { API_BASE } from '../config';
+import { API_BASE, getMediaUrl } from '../config';
 import { Sparkles, Search, X, Zap } from 'lucide-react';
 
 export default function AIVibeSearchBar({
@@ -245,7 +245,7 @@ export default function AIVibeSearchBar({
                     }}
                   >
                     <img
-                      src={res.images[0]}
+                      src={getMediaUrl(res.images?.[0])}
                       alt={res.title}
                       style={{ width: '74px', height: '74px', borderRadius: '10px', objectFit: 'cover', flexShrink: 0 }}
                     />

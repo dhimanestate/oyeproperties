@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { getMediaUrl } from '../config';
 import { Layers, X, PhoneCall } from 'lucide-react';
 
 export default function CompareDrawer({
@@ -54,7 +55,7 @@ export default function CompareDrawer({
           {comparedProperties.map(p => (
             <div key={p.id} style={{ position: 'relative' }}>
               <img
-                src={p.images[0]}
+                src={getMediaUrl(p.images?.[0])}
                 alt={p.title}
                 style={{ width: isMobile ? '28px' : '32px', height: isMobile ? '28px' : '32px', borderRadius: '6px', objectFit: 'cover' }}
               />
@@ -222,7 +223,7 @@ export default function CompareDrawer({
                     <div>
                       <div style={{ position: 'relative', width: '100%', height: isMobile ? '100px' : '130px', borderRadius: '8px', overflow: 'hidden', marginBottom: '8px' }}>
                         <img
-                          src={p.images[0]}
+                          src={getMediaUrl(p.images?.[0])}
                           alt={p.title}
                           style={{ width: '100%', height: '100%', objectFit: 'cover' }}
                         />

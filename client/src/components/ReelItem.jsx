@@ -1,4 +1,5 @@
 import React, { useState, useRef, useEffect, useMemo } from 'react';
+import { getMediaUrl } from '../config';
 import { 
   Heart, 
   Info, 
@@ -45,16 +46,17 @@ export default function ReelItem({
   const [showHeartBurst, setShowHeartBurst] = useState(false);
   const [isPlaying, setIsPlaying] = useState(true);
   const [showPlayOverlay, setShowPlayOverlay] = useState(false);
+  const [videoHasError, setVideoHasError] = useState(false);
 
   // Full media list for sideways carousel: video first, then all high-res photos
   const mediaItems = useMemo(() => {
     const list = [];
-    if (property.reelVideo) {
+    if (property.reelVideo && !videoHasError) {
       list.push({
         id: `${property.id}-media-video`,
         type: 'video',
-        src: property.reelVideo,
-        poster: property.images?.[0],
+        src: getMediaUrl(property.reelVideo),
+        poster: getMediaUrl(property.images?.[0]),
         title: 'Cinematic Reel Tour'
       });
     }
@@ -63,13 +65,14 @@ export default function ReelItem({
         list.push({
           id: `${property.id}-media-img-${idx}`,
           type: 'image',
-          src: img,
+          src: getMediaUrl(img),
           title: idx === 0 ? 'Exterior Elevation' : `Interior View ${idx + 1}`
         });
       });
     }
-    return list.length > 0 ? list : [{ id: `${property.id}-media-fallback`, type: 'image', src: property.images?.[0] }];
-  }, [property]);
+    return list.length > 0 ? list : [{ id: `${property.id}-media-fallback`, type: 'image', src: getMediaUrl(property.images?.[0]) }];
+  }, [property, videoHasError]);
+
 
   // Auto-play / pause video when slide enters / leaves active viewport or changes media slide
   useEffect(() => {
@@ -204,7 +207,7 @@ export default function ReelItem({
   // ==========================================
   if (!isMobile) {
     return (
-      <div className="reel-slide reel-card" id={`reel-slide-${property.id}`}>
+      <div className="reel-slide reel-card reel-desktop-slide" id={`reel-slide-${property.id}`}>
         {/* Left Side: Pure White Master Estate Card */}
         <div className="reel-desktop-info-panel">
           <div>
@@ -506,13 +509,14 @@ export default function ReelItem({
                       }}
                     >
                       <img 
-                        src={img} 
+                        src={getMediaUrl(img)} 
                         alt="Property Preview" 
                         style={{ width: '100%', height: '100%', objectFit: 'cover' }}
                       />
                     </div>
                   ))}
                 </div>
+
               </div>
             )}
           </div>
@@ -607,6 +611,13 @@ export default function ReelItem({
                     loop
                     muted={isMuted}
                     playsInline
+                    webkit-playsinline="true"
+                    x5-playsinline="true"
+                    preload="auto"
+                    onError={() => {
+                      console.warn('Desktop video playback failed, falling back to photos:', item.src);
+                      setVideoHasError(true);
+                    }}
                   />
                 ) : (
                   <img
@@ -823,7 +834,7 @@ export default function ReelItem({
   // MOBILE VERTICAL REEL FORMAT (9:16 Viewport)
   // ==========================================
   return (
-    <div className="reel-slide reel-card" id={`reel-slide-${property.id}`}>
+    <div className="reel-slide reel-card reel-mobile-slide" id={`reel-slide-${property.id}`}>
       <div className="reel-mobile-view">
         {/* Horizontal Carousel Container (Sideways swipe to check property images) */}
         <div 
@@ -842,6 +853,13 @@ export default function ReelItem({
                   loop
                   muted={isMuted}
                   playsInline
+                  webkit-playsinline="true"
+                  x5-playsinline="true"
+                  preload="auto"
+                  onError={() => {
+                    console.warn('Mobile video playback failed, falling back to photos:', item.src);
+                    setVideoHasError(true);
+                  }}
                   onClick={handleTogglePlay}
                 />
               ) : (

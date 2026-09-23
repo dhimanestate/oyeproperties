@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { getMediaUrl } from '../config';
 import { Heart, X, Trash2, PhoneCall, Share2, Check, MessageSquare } from 'lucide-react';
 
 export default function WishlistDrawer({
@@ -185,7 +186,7 @@ export default function WishlistDrawer({
                 }}
               >
                 <img
-                  src={item.images[0]}
+                  src={getMediaUrl(item.images?.[0])}
                   alt={item.title}
                   style={{ width: '84px', height: '84px', borderRadius: '8px', objectFit: 'cover' }}
                 />
