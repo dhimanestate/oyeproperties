@@ -14,6 +14,7 @@ import ReelItem from './ReelItem';
 
 export default function ReelCatalogue({
   reels,
+  loading = false,
   currentCity,
   onSelectCity,
   wishlist,
@@ -226,7 +227,71 @@ export default function ReelCatalogue({
         onTouchStart={handleTouchStart}
         onTouchEnd={handleTouchEnd}
       >
-        {filteredReels.length === 0 ? (
+        {loading ? (
+          <div className="reel-slide" style={{
+            height: '100%',
+            width: '100%',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            position: 'relative',
+            background: isMobile ? '#0a0a0a' : '#f8f9fa'
+          }}>
+            {/* Shimmer Preloader Canvas */}
+            <div style={{
+              width: isMobile ? '100%' : '90%',
+              maxWidth: '1200px',
+              height: isMobile ? '100%' : '85%',
+              borderRadius: isMobile ? '0' : '20px',
+              overflow: 'hidden',
+              position: 'relative',
+              boxShadow: isMobile ? 'none' : '0 20px 50px rgba(0,0,0,0.15)',
+              display: 'flex',
+              flexDirection: isMobile ? 'column' : 'row',
+              background: '#1a1a1a'
+            }}>
+              {!isMobile && (
+                <div style={{
+                  width: '38%',
+                  background: '#ffffff',
+                  padding: '36px',
+                  display: 'flex',
+                  flexDirection: 'column',
+                  gap: '16px',
+                  justifyContent: 'space-between'
+                }}>
+                  <div style={{ display: 'flex', flexDirection: 'column', gap: '14px' }}>
+                    <div style={{ width: '120px', height: '26px', background: '#F1F3F5', borderRadius: '999px' }} className="media-preloader" />
+                    <div style={{ width: '90%', height: '32px', background: '#F1F3F5', borderRadius: '8px' }} className="media-preloader" />
+                    <div style={{ width: '60%', height: '24px', background: '#F1F3F5', borderRadius: '8px' }} className="media-preloader" />
+                    <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '12px', marginTop: '16px' }}>
+                      <div style={{ height: '56px', background: '#F8F9FA', borderRadius: '10px' }} className="media-preloader" />
+                      <div style={{ height: '56px', background: '#F8F9FA', borderRadius: '10px' }} className="media-preloader" />
+                    </div>
+                  </div>
+                  <div style={{ height: '48px', width: '100%', background: '#FFF0F1', borderRadius: '999px' }} className="media-preloader" />
+                </div>
+              )}
+              <div style={{
+                flex: 1,
+                position: 'relative',
+                background: '#111827',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center'
+              }}>
+                <div className="media-preloader" style={{ background: 'linear-gradient(90deg, #18181b 25%, #27272a 50%, #18181b 75%)' }}>
+                  <div style={{ textAlign: 'center', zIndex: 3, display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '12px' }}>
+                    <div className="media-preloader-spinner" style={{ width: '38px', height: '38px', borderWidth: '3px' }} />
+                    <div style={{ color: '#fff', fontSize: '13px', fontWeight: 600, letterSpacing: '0.02em', textShadow: '0 2px 8px rgba(0,0,0,0.8)' }}>
+                      Loading Instants Reel Showcase...
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        ) : filteredReels.length === 0 ? (
           <div style={{
             height: '100%',
             width: '100%',

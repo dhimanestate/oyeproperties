@@ -5,6 +5,7 @@ import { Building2 } from 'lucide-react';
 
 export default function PropertyGrid({
   properties,
+  loading = false,
   filters,
   onFilterChange,
   onResetFilters,
@@ -42,8 +43,35 @@ export default function PropertyGrid({
         totalResults={properties.length}
       />
 
-      {/* Properties Grid */}
-      {properties.length === 0 ? (
+      {/* Properties Grid with Loading Skeletons */}
+      {loading ? (
+        <div style={{
+          display: 'grid',
+          gridTemplateColumns: 'repeat(auto-fill, minmax(min(100%, 340px), 1fr))',
+          gap: 'clamp(14px, 3vw, 24px)'
+        }}>
+          {[1, 2, 3, 4, 5, 6].map(i => (
+            <div key={i} style={{
+              background: '#ffffff',
+              border: '1px solid #EDEDED',
+              borderRadius: 'var(--radius-lg)',
+              overflow: 'hidden',
+              display: 'flex',
+              flexDirection: 'column',
+              boxShadow: '0 1px 4px rgba(0,0,0,0.05)'
+            }}>
+              <div style={{ height: '220px', position: 'relative', background: '#F1F3F5' }}>
+                <div className="media-preloader" />
+              </div>
+              <div style={{ padding: '18px', display: 'flex', flexDirection: 'column', gap: '10px' }}>
+                <div style={{ height: '20px', width: '80%', background: '#F1F3F5', borderRadius: '4px' }} className="media-preloader" />
+                <div style={{ height: '14px', width: '50%', background: '#F1F3F5', borderRadius: '4px' }} className="media-preloader" />
+                <div style={{ height: '24px', width: '40%', background: '#FFF0F1', borderRadius: '4px', marginTop: '6px' }} className="media-preloader" />
+              </div>
+            </div>
+          ))}
+        </div>
+      ) : properties.length === 0 ? (
         <div style={{
           background: 'var(--bg-secondary)',
           border: '1px solid var(--border-subtle)',

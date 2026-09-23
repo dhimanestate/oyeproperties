@@ -21,7 +21,7 @@ const TOKEN_KEY = 'oye_auth_token';
 
 export default function App() {
   const [viewMode, setViewMode] = useState('reels'); // 'reels' or 'catalogue'
-  const [currentCity, setCurrentCity] = useState('Mumbai');
+  const [currentCity, setCurrentCity] = useState('Faridabad');
   const [detectedLocation, setDetectedLocation] = useState(null);
   const [isDetectingGPS, setIsDetectingGPS] = useState(false);
 
@@ -48,6 +48,7 @@ export default function App() {
   const [properties, setProperties] = useState([]);
   const [reels, setReels] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [loadingReels, setLoadingReels] = useState(true);
 
   // Filters State
   const [filters, setFilters] = useState({
@@ -310,12 +311,15 @@ export default function App() {
   };
 
   const fetchReels = async () => {
+    setLoadingReels(true);
     try {
       const res = await fetch(`${API_BASE}/api/properties/reels`);
       const data = await res.json();
       setReels(data.reels || []);
     } catch (err) {
       console.error('Fetch reels error:', err);
+    } finally {
+      setLoadingReels(false);
     }
   };
 
@@ -554,6 +558,7 @@ export default function App() {
         {viewMode === 'reels' ? (
           <ReelCatalogue
             reels={reels}
+            loading={loadingReels}
             currentCity={currentCity}
             onSelectCity={(city) => setCurrentCity(city)}
             wishlist={wishlist}
@@ -568,6 +573,7 @@ export default function App() {
           <div className="catalogue-page-wrapper">
             <PropertyGrid
               properties={properties}
+              loading={loading}
               filters={filters}
               onFilterChange={(key, val) => setFilters(prev => ({ ...prev, [key]: val }))}
               onResetFilters={() => setFilters({

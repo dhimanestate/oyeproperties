@@ -1,10 +1,45 @@
 import express from 'express';
 import mongoose from 'mongoose';
+import fs from 'fs';
+import path from 'path';
+import { fileURLToPath } from 'url';
 import Property from '../models/Property.js';
 import User from '../models/User.js';
 import Lead from '../models/Lead.js';
 import SiteConfig from '../models/SiteConfig.js';
 import { requireAdmin } from '../middleware/requireAdmin.js';
+
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
+
+function saveBase64Media(item, prefix = 'media') {
+  if (!item || typeof item !== 'string' || !item.startsWith('data:')) {
+    return item;
+  }
+  try {
+    const uploadDir = path.join(__dirname, '..', 'public', 'uploads');
+    if (!fs.existsSync(uploadDir)) {
+      fs.mkdirSync(uploadDir, { recursive: true });
+    }
+    const match = item.match(/^data:([a-zA-Z0-9]+\/[a-zA-Z0-9-+.]+);base64,(.+)$/);
+    if (!match) return item;
+    const mime = match[1];
+    const base64Data = match[2];
+    let ext = 'jpg';
+    if (mime.includes('png')) ext = 'png';
+    else if (mime.includes('webp')) ext = 'webp';
+    else if (mime.includes('mp4')) ext = 'mp4';
+    else if (mime.includes('quicktime')) ext = 'mov';
+    else if (mime.includes('webm')) ext = 'webm';
+
+    const filename = `${prefix}_${Date.now()}_${Math.random().toString(36).substring(2, 8)}.${ext}`;
+    fs.writeFileSync(path.join(uploadDir, filename), Buffer.from(base64Data, 'base64'));
+    return `/uploads/${filename}`;
+  } catch (err) {
+    console.error('Failed to save base64 media to disk:', err);
+    return item;
+  }
+}
 
 const router = express.Router();
 
@@ -330,8 +365,15 @@ router.post('/properties', async (req, res) => {
     const areaNum = Number(body.areaSqFt) || 2500;
     const unitSuffix = body.areaUnit === 'Sq. Yds.' ? 'sq.yd' : 'sq.ft';
 
+    const processedImages = Array.isArray(body.images)
+      ? body.images.map((img, i) => saveBase64Media(img, `adm_img_${i}`))
+      : body.images;
+    const processedReel = body.reelVideo ? saveBase64Media(body.reelVideo, 'adm_vid') : body.reelVideo;
+
     const propertyPayload = {
       ...body,
+      images: processedImages,
+      reelVideo: processedReel,
       price: priceNum,
       priceFormatted: body.priceFormatted || `₹${(priceNum / 10000000).toFixed(2)} Cr`,
       pricePerSqFt: body.pricePerSqFt || `₹${Math.round(priceNum / areaNum).toLocaleString()}/${unitSuffix}`,
@@ -364,6 +406,13 @@ router.put('/properties/:id', async (req, res) => {
     // Don't allow changing _id or listedBy via this route
     delete updates._id;
     delete updates.__v;
+
+    if (Array.isArray(updates.images)) {
+      updates.images = updates.images.map((img, i) => saveBase64Media(img, `adm_edit_${i}`));
+    }
+    if (updates.reelVideo) {
+      updates.reelVideo = saveBase64Media(updates.reelVideo, 'adm_edit_vid');
+    }
 
     const prop = await Property.findByIdAndUpdate(id, updates, { new: true, runValidators: true });
     if (!prop) return res.status(404).json({ error: 'Property not found.' });

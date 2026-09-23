@@ -29,6 +29,36 @@ function saveFallbackProperties(props) {
   }
 }
 
+// Helper to save base64 images/videos to public/uploads directory for lightning-fast delivery
+function saveBase64Media(item, prefix = 'media') {
+  if (!item || typeof item !== 'string' || !item.startsWith('data:')) {
+    return item;
+  }
+  try {
+    const uploadDir = path.join(__dirname, '..', 'public', 'uploads');
+    if (!fs.existsSync(uploadDir)) {
+      fs.mkdirSync(uploadDir, { recursive: true });
+    }
+    const match = item.match(/^data:([a-zA-Z0-9]+\/[a-zA-Z0-9-+.]+);base64,(.+)$/);
+    if (!match) return item;
+    const mime = match[1];
+    const base64Data = match[2];
+    let ext = 'jpg';
+    if (mime.includes('png')) ext = 'png';
+    else if (mime.includes('webp')) ext = 'webp';
+    else if (mime.includes('mp4')) ext = 'mp4';
+    else if (mime.includes('quicktime')) ext = 'mov';
+    else if (mime.includes('webm')) ext = 'webm';
+
+    const filename = `${prefix}_${Date.now()}_${Math.random().toString(36).substring(2, 8)}.${ext}`;
+    fs.writeFileSync(path.join(uploadDir, filename), Buffer.from(base64Data, 'base64'));
+    return `/uploads/${filename}`;
+  } catch (err) {
+    console.error('Failed to save base64 media to disk:', err);
+    return item;
+  }
+}
+
 // ─── GET /api/properties/reels ────────────────────────────────────────────────
 router.get('/reels', async (req, res) => {
   try {
@@ -334,14 +364,16 @@ router.post('/', requireAuth, async (req, res) => {
         paymentTerms: buyingDetails?.paymentTerms || 'Bank Loan Available / Flexible Installments',
         demandNegotiable: buyingDetails?.demandNegotiable ?? true,
       },
-      reelVideo: reelVideo || '',
-      images: (images && images.length > 0) ? images : [
-        'https://images.unsplash.com/photo-1600596542815-ffad4c1539a9?auto=format&fit=crop&w=1200&q=80',
-        'https://images.unsplash.com/photo-1600607687939-ce8a6c25118c?auto=format&fit=crop&w=1200&q=80',
-      ],
+      reelVideo: reelVideo ? saveBase64Media(reelVideo, 'video') : '',
+      images: (images && images.length > 0)
+        ? images.map((img, i) => saveBase64Media(img, `img_${i}`))
+        : [
+            'https://images.unsplash.com/photo-1600596542815-ffad4c1539a9?auto=format&fit=crop&w=1200&q=80',
+            'https://images.unsplash.com/photo-1600607687939-ce8a6c25118c?auto=format&fit=crop&w=1200&q=80',
+          ],
       virtualTour360: {
         enabled: true,
-        preview: images?.[0] || 'https://images.unsplash.com/photo-1600596542815-ffad4c1539a9?auto=format&fit=crop&w=1600&q=80',
+        preview: images?.[0] ? saveBase64Media(images[0], 'tour') : 'https://images.unsplash.com/photo-1600596542815-ffad4c1539a9?auto=format&fit=crop&w=1600&q=80',
         rooms: ['Living Room', 'Balcony Deck', 'Master Suite', 'Dining Area'],
       },
       floorPlanUrl: 'https://images.unsplash.com/photo-1598928506311-c55ded91a20c?auto=format&fit=crop&w=800&q=80',

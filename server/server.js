@@ -73,6 +73,10 @@ app.use(cors({
 
 app.use(express.json({ limit: '100mb' }));
 app.use(express.urlencoded({ extended: true, limit: '100mb' }));
+app.use('/uploads', express.static(path.join(__dirname, 'public', 'uploads'), {
+  maxAge: '7d',
+  immutable: true
+}));
 app.use(morgan('dev', { skip: req => req.path === '/api/ping' }));
 
 // ─── Sessions (for Passport) ─────────────────────────────────────────────────
@@ -107,8 +111,9 @@ let mongoConnected = false;
 // Cities data (static, no DB needed)
 const CITIES_DATA = [
   { name: 'All Cities', code: 'all' },
-  { name: 'Mumbai', code: 'mumbai', coordinates: { lat: 19.0760, lng: 72.8777 } },
+  { name: 'Faridabad', code: 'faridabad', coordinates: { lat: 28.4089, lng: 77.3178 } },
   { name: 'Delhi NCR', code: 'delhi-ncr', coordinates: { lat: 28.6139, lng: 77.2090 } },
+  { name: 'Mumbai', code: 'mumbai', coordinates: { lat: 19.0760, lng: 72.8777 } },
   { name: 'Dubai', code: 'dubai', coordinates: { lat: 25.2048, lng: 55.2708 } },
   { name: 'Goa', code: 'goa', coordinates: { lat: 15.2993, lng: 74.1240 } },
   { name: 'Bangalore', code: 'bangalore', coordinates: { lat: 12.9716, lng: 77.5946 } },
@@ -141,12 +146,12 @@ app.get('/api/location/detect', (req, res) => {
     return res.json({
       detected: true, mode: 'gps',
       city: closest.name,
-      locality: closest.name === 'Mumbai' ? 'Worli / Bandra West' : `${closest.name} Prime Zone`,
+      locality: closest.name === 'Faridabad' ? 'Sector 15 / Green Field Colony' : closest.name === 'Mumbai' ? 'Worli / Bandra West' : `${closest.name} Prime Zone`,
       coordinates: { lat: uLat, lng: uLng },
       distanceKm: Math.round(minDist),
     });
   }
-  return res.json({ detected: true, mode: 'ip_fallback', city: 'Mumbai', locality: 'Worli Sea Face & Bandra' });
+  return res.json({ detected: true, mode: 'ip_fallback', city: 'Faridabad', locality: 'Sector 14 & 15, Faridabad' });
 });
 
 // Cities endpoint
