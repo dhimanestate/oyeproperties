@@ -178,10 +178,11 @@ export default function ReelItem({
 
   const handleShareWhatsApp = (e) => {
     e?.stopPropagation();
+    const adminPhone = '918930318532';
     const text = encodeURIComponent(
-      `Check out this property on Oye Properties:\n${property.title}\n${property.location.locality}, ${property.location.city}\nAsking: ${property.priceFormatted} (${property.pricePerSqFt})\nSpecs: ${property.bhk} BHK, ${property.areaSqFt} sq.ft\nView: ${window.location.origin}?prop=${property.id}`
+      `Hi, I am interested in ${property.title} located at ${property.location?.locality || ''}, ${property.location?.city || ''}.\nPrice: ${property.priceFormatted || ''} (${property.pricePerSqFt || ''})\nConfiguration: ${property.bhk ? `${property.bhk} BHK` : property.propertyType}\nLink: ${window.location.origin}?prop=${property.id}`
     );
-    window.open(`https://wa.me/?text=${text}`, '_blank');
+    window.open(`https://wa.me/${adminPhone}?text=${text}`, '_blank');
   };
 
   const handleFullscreenVideo = (e) => {

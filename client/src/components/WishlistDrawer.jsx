@@ -30,11 +30,12 @@ export default function WishlistDrawer({
   };
 
   const handleShareWhatsApp = () => {
-    const listNames = wishlist.map(w => `• ${w.title} (${w.priceFormatted}) in ${w.location.city}`).join('\n');
+    const adminPhone = '918930318532';
+    const listNames = wishlist.map(w => `• ${w.title} (${w.priceFormatted}) in ${w.location?.locality || ''}, ${w.location?.city || ''}`).join('\n');
     const text = encodeURIComponent(
-      `🏡 My Curated Real Estate Portfolio on Oye Properties:\nTotal Value: ${totalFormatted}\n\n${listNames}\n\nExplore live: ${window.location.origin}`
+      `Hi, I am interested in these properties from my saved portfolio on Oye Properties:\nTotal Value: ${totalFormatted}\n\n${listNames}\n\nExplore live: ${window.location.origin}`
     );
-    window.open(`https://wa.me/?text=${text}`, '_blank');
+    window.open(`https://wa.me/${adminPhone}?text=${text}`, '_blank');
   };
 
   const [isMobile, setIsMobile] = useState(() =>

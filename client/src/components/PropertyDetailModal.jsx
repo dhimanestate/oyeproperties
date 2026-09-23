@@ -10,7 +10,10 @@ import {
   Share2,
   MessageCircle,
   CheckCircle2,
-  Zap
+  Zap,
+  Maximize2,
+  ChevronLeft,
+  ChevronRight
 } from 'lucide-react';
 
 export default function PropertyDetailModal({
@@ -60,11 +63,15 @@ export default function PropertyDetailModal({
     return `₹${val.toLocaleString()}`;
   };
 
+  const [isLightboxOpen, setIsLightboxOpen] = useState(false);
+  const [modalImageLoaded, setModalImageLoaded] = useState(false);
+
   const handleShareWhatsApp = () => {
+    const adminPhone = '918930318532';
     const text = encodeURIComponent(
-      `🏡 Check out this luxury residence on Oye Properties:\n*${property.title}*\n📍 ${property.location.address}\n💰 Asking: ${property.priceFormatted} (${property.pricePerSqFt})\n✨ Specs: ${property.bhk} BHK • ${property.areaSqFt} sq.ft\n🔗 Explore here: ${window.location.origin}?prop=${property.id}`
+      `Hi, I am interested in ${property.title} located at ${property.location?.locality || ''}, ${property.location?.city || ''}.\nPrice: ${property.priceFormatted || ''} (${property.pricePerSqFt || ''})\nConfiguration: ${property.bhk ? `${property.bhk} BHK` : property.propertyType}\nLink: ${window.location.origin}?prop=${property.id}`
     );
-    window.open(`https://wa.me/?text=${text}`, '_blank');
+    window.open(`https://wa.me/${adminPhone}?text=${text}`, '_blank');
   };
 
   return (
@@ -303,18 +310,61 @@ export default function PropertyDetailModal({
           {/* TAB 1: Gallery & Overview */}
           {activeTab === 'overview' && (
             <div>
-              <div style={{
-                position: 'relative',
-                height: isMobile ? '230px' : '360px',
-                borderRadius: 'var(--radius-md)',
-                overflow: 'hidden',
-                marginBottom: '10px'
-              }}>
+              <div 
+                onClick={() => setIsLightboxOpen(true)}
+                title="Click to view full screen high-resolution image"
+                style={{
+                  position: 'relative',
+                  height: isMobile ? '230px' : '360px',
+                  borderRadius: 'var(--radius-md)',
+                  overflow: 'hidden',
+                  marginBottom: '10px',
+                  cursor: 'pointer',
+                  background: '#f1f5f9'
+                }}
+              >
+                {/* Image Preloader */}
+                {!modalImageLoaded && (
+                  <div className="media-preloader">
+                    <div className="media-preloader-spinner" />
+                  </div>
+                )}
+
                 <img
                   src={property.images[selectedPhotoIndex] || property.images[0]}
                   alt={property.title}
-                  style={{ width: '100%', height: '100%', objectFit: 'cover' }}
+                  loading="eager"
+                  onLoad={() => setModalImageLoaded(true)}
+                  style={{
+                    width: '100%',
+                    height: '100%',
+                    objectFit: 'cover',
+                    opacity: modalImageLoaded ? 1 : 0,
+                    transition: 'opacity 0.3s ease'
+                  }}
                 />
+
+                {/* Click to Enlarge Badge */}
+                <div style={{
+                  position: 'absolute',
+                  top: '12px',
+                  right: '12px',
+                  background: 'rgba(0, 0, 0, 0.65)',
+                  backdropFilter: 'blur(6px)',
+                  padding: '5px 10px',
+                  borderRadius: '9999px',
+                  fontSize: '11px',
+                  color: '#fff',
+                  fontWeight: 600,
+                  display: 'flex',
+                  alignItems: 'center',
+                  gap: '5px',
+                  boxShadow: '0 2px 8px rgba(0,0,0,0.2)'
+                }}>
+                  <Maximize2 size={12} />
+                  <span>Click for Full Size</span>
+                </div>
+
                 <div style={{
                   position: 'absolute',
                   bottom: '10px',
@@ -338,7 +388,10 @@ export default function PropertyDetailModal({
                     key={i}
                     src={img}
                     alt="Thumbnail"
-                    onClick={() => setSelectedPhotoIndex(i)}
+                    onClick={() => {
+                      setSelectedPhotoIndex(i);
+                      setModalImageLoaded(false);
+                    }}
                     style={{
                       width: isMobile ? '62px' : '72px',
                       height: isMobile ? '46px' : '52px',
@@ -910,6 +963,203 @@ export default function PropertyDetailModal({
           </div>
         </div>
       </div>
+
+      {/* FULLSCREEN IMAGE LIGHTBOX MODAL WITH SCROLLING BUTTONS */}
+      {isLightboxOpen && (
+        <div 
+          onClick={() => setIsLightboxOpen(false)}
+          style={{
+            position: 'fixed',
+            inset: 0,
+            zIndex: 99999,
+            background: 'rgba(0, 0, 0, 0.95)',
+            backdropFilter: 'blur(10px)',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            flexDirection: 'column',
+            padding: '20px'
+          }}
+        >
+          {/* Top Bar with counter & close button */}
+          <div 
+            onClick={e => e.stopPropagation()}
+            style={{
+              position: 'absolute',
+              top: '20px',
+              left: '20px',
+              right: '20px',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'space-between',
+              zIndex: 100000
+            }}
+          >
+            <div style={{
+              background: 'rgba(255, 255, 255, 0.15)',
+              backdropFilter: 'blur(8px)',
+              padding: '6px 14px',
+              borderRadius: '9999px',
+              color: '#ffffff',
+              fontSize: '13px',
+              fontWeight: 600,
+              fontFamily: "'Poppins', sans-serif"
+            }}>
+              {property.title} • {selectedPhotoIndex + 1} / {property.images.length}
+            </div>
+
+            <button
+              onClick={() => setIsLightboxOpen(false)}
+              style={{
+                background: 'rgba(255, 255, 255, 0.2)',
+                border: 'none',
+                color: '#ffffff',
+                width: '42px',
+                height: '42px',
+                borderRadius: '50%',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                cursor: 'pointer',
+                transition: 'all 0.2s ease'
+              }}
+              title="Close Fullscreen (Esc)"
+            >
+              <X size={22} />
+            </button>
+          </div>
+
+          {/* Previous Image Scrolling Button */}
+          {property.images.length > 1 && (
+            <button
+              onClick={(e) => {
+                e.stopPropagation();
+                setSelectedPhotoIndex(prev => (prev === 0 ? property.images.length - 1 : prev - 1));
+              }}
+              style={{
+                position: 'absolute',
+                left: '20px',
+                top: '50%',
+                transform: 'translateY(-50%)',
+                background: 'rgba(255, 255, 255, 0.25)',
+                border: '1.5px solid rgba(255, 255, 255, 0.4)',
+                color: '#ffffff',
+                width: '48px',
+                height: '48px',
+                borderRadius: '50%',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                cursor: 'pointer',
+                zIndex: 100000,
+                boxShadow: '0 4px 15px rgba(0,0,0,0.4)',
+                transition: 'all 0.2s ease'
+              }}
+              title="Previous Photo"
+            >
+              <ChevronLeft size={28} />
+            </button>
+          )}
+
+          {/* Main Full-Size Image Container */}
+          <div 
+            onClick={e => e.stopPropagation()}
+            style={{
+              maxWidth: '92vw',
+              maxHeight: '84vh',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              position: 'relative'
+            }}
+          >
+            <img
+              src={property.images[selectedPhotoIndex] || property.images[0]}
+              alt={property.title}
+              style={{
+                maxWidth: '92vw',
+                maxHeight: '84vh',
+                objectFit: 'contain',
+                borderRadius: '10px',
+                boxShadow: '0 10px 40px rgba(0, 0, 0, 0.8)'
+              }}
+            />
+          </div>
+
+          {/* Next Image Scrolling Button */}
+          {property.images.length > 1 && (
+            <button
+              onClick={(e) => {
+                e.stopPropagation();
+                setSelectedPhotoIndex(prev => (prev === property.images.length - 1 ? 0 : prev + 1));
+              }}
+              style={{
+                position: 'absolute',
+                right: '20px',
+                top: '50%',
+                transform: 'translateY(-50%)',
+                background: 'rgba(255, 255, 255, 0.25)',
+                border: '1.5px solid rgba(255, 255, 255, 0.4)',
+                color: '#ffffff',
+                width: '48px',
+                height: '48px',
+                borderRadius: '50%',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                cursor: 'pointer',
+                zIndex: 100000,
+                boxShadow: '0 4px 15px rgba(0,0,0,0.4)',
+                transition: 'all 0.2s ease'
+              }}
+              title="Next Photo"
+            >
+              <ChevronRight size={28} />
+            </button>
+          )}
+
+          {/* Bottom Thumbnails Scroller */}
+          {property.images.length > 1 && (
+            <div 
+              onClick={e => e.stopPropagation()}
+              style={{
+                position: 'absolute',
+                bottom: '16px',
+                display: 'flex',
+                gap: '8px',
+                overflowX: 'auto',
+                maxWidth: '90vw',
+                padding: '8px 14px',
+                background: 'rgba(0, 0, 0, 0.6)',
+                backdropFilter: 'blur(10px)',
+                borderRadius: '9999px',
+                scrollbarWidth: 'none',
+                zIndex: 100000
+              }}
+            >
+              {property.images.map((img, i) => (
+                <img
+                  key={i}
+                  src={img}
+                  alt={`Thumbnail ${i}`}
+                  onClick={() => setSelectedPhotoIndex(i)}
+                  style={{
+                    width: '48px',
+                    height: '36px',
+                    borderRadius: '6px',
+                    objectFit: 'cover',
+                    cursor: 'pointer',
+                    border: selectedPhotoIndex === i ? '2px solid #E71D2B' : '1px solid rgba(255,255,255,0.3)',
+                    opacity: selectedPhotoIndex === i ? 1 : 0.55,
+                    transform: selectedPhotoIndex === i ? 'scale(1.08)' : 'none',
+                    transition: 'all 0.15s ease'
+                  }}
+                />
+              ))}
+            </div>
+          )}
+        </div>
+      )}
     </div>
   );
 }

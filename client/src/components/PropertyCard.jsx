@@ -25,18 +25,31 @@ export default function PropertyCard({
   onToggleCompare
 }) {
   const [isHovered, setIsHovered] = useState(false);
+  const [imageLoaded, setImageLoaded] = useState(false);
 
   const handleShareWhatsApp = (e) => {
     e.stopPropagation();
+    const adminPhone = '918930318532';
     const text = encodeURIComponent(
-      `Check out this property on Oye Properties:\n${property.title}\n${property.location.locality}, ${property.location.city}\nAsking: ${property.priceFormatted} (${property.pricePerSqFt})\nSpecs: ${property.bhk} BHK, ${property.areaSqFt} sq.ft\nView: ${window.location.origin}?prop=${property.id}`
+      `Hi, I am interested in ${property.title} located at ${property.location?.locality || ''}, ${property.location?.city || ''}.\nPrice: ${property.priceFormatted || ''} (${property.pricePerSqFt || ''})\nConfiguration: ${property.bhk ? `${property.bhk} BHK` : property.propertyType}\nLink: ${window.location.origin}?prop=${property.id}`
     );
-    window.open(`https://wa.me/?text=${text}`, '_blank');
+    window.open(`https://wa.me/${adminPhone}?text=${text}`, '_blank');
+  };
+
+  const handleCardClick = (e) => {
+    // Avoid double triggering if clicking interactive child elements (buttons, inputs, labels)
+    if (e.target.closest('button') || e.target.closest('input') || e.target.closest('label') || e.target.closest('a')) {
+      return;
+    }
+    if (onOpenDetail) {
+      onOpenDetail(property);
+    }
   };
 
   return (
     <div
       id={`property-card-${property.id}`}
+      onClick={handleCardClick}
       style={{
         background: '#ffffff',
         border: isHovered ? '1.5px solid #E71D2B' : '1px solid #EDEDED',
@@ -49,20 +62,31 @@ export default function PropertyCard({
         boxShadow: isHovered ? '0 16px 40px rgba(0,0,0,0.10)' : '0 1px 4px rgba(0,0,0,0.05)',
         position: 'relative',
         fontFamily: "'Poppins', sans-serif",
+        cursor: 'pointer'
       }}
       onMouseEnter={() => setIsHovered(true)}
       onMouseLeave={() => setIsHovered(false)}
     >
       {/* Cover Image with Badges */}
-      <div style={{ position: 'relative', width: '100%', height: 'clamp(180px, 45vw, 240px)', overflow: 'hidden' }}>
+      <div style={{ position: 'relative', width: '100%', height: 'clamp(180px, 45vw, 240px)', overflow: 'hidden', background: '#f5f5f5' }}>
+        {/* Shimmer Image Preloader */}
+        {!imageLoaded && (
+          <div className="media-preloader">
+            <div className="media-preloader-spinner" />
+          </div>
+        )}
+
         <img
           src={property.images[0]}
           alt={property.title}
+          loading="lazy"
+          onLoad={() => setImageLoaded(true)}
           style={{
             width: '100%',
             height: '100%',
             objectFit: 'cover',
-            transform: 'none'
+            opacity: imageLoaded ? 1 : 0,
+            transition: 'opacity 0.35s ease'
           }}
         />
 

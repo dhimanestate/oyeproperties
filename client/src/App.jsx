@@ -99,14 +99,14 @@ export default function App() {
           return r.json();
         })
         .then(data => {
-          if (data && data.wishlist && Array.isArray(data.wishlist) && data.wishlist.length > 0) {
-            setWishlist(prev => {
-              const merged = [...data.wishlist];
-              prev.forEach(p => {
-                if (!merged.some(m => m.id === p.id)) merged.push(p);
-              });
-              return merged;
-            });
+          if (data && data.wishlist && Array.isArray(data.wishlist)) {
+            // Respect the authenticated backend wishlist as source of truth
+            setWishlist(data.wishlist);
+            try {
+              localStorage.setItem('lumiere_guest_wishlist', JSON.stringify(data.wishlist));
+            } catch (e) {
+              console.error(e);
+            }
           }
         })
         .catch(() => { /* silent */ });
@@ -321,12 +321,13 @@ export default function App() {
 
   // Wishlist actions (Local + Backend sync)
   const handleToggleWishlist = async (property) => {
-    const exists = wishlist.some(item => item.id === property.id);
+    const propId = property.id || property._id;
+    const exists = wishlist.some(item => (item.id === propId || item._id === propId));
     const token = localStorage.getItem(TOKEN_KEY);
 
     setWishlist(prev => {
       const next = exists
-        ? prev.filter(item => item.id !== property.id)
+        ? prev.filter(item => item.id !== propId && item._id !== propId)
         : [...prev, property];
       try {
         localStorage.setItem('lumiere_guest_wishlist', JSON.stringify(next));
@@ -339,7 +340,7 @@ export default function App() {
     // If authenticated, sync with MongoDB / backend user profile
     if (token) {
       try {
-        await fetch(`${API_BASE}/api/users/wishlist/${property.id}`, {
+        await fetch(`${API_BASE}/api/users/wishlist/${propId}`, {
           method: exists ? 'DELETE' : 'POST',
           headers: {
             'Authorization': `Bearer ${token}`,
@@ -348,6 +349,33 @@ export default function App() {
         });
       } catch (err) {
         console.error('Wishlist sync error:', err);
+      }
+    }
+  };
+
+  const handleRemoveWishlist = async (propertyId) => {
+    const token = localStorage.getItem(TOKEN_KEY);
+    setWishlist(prev => {
+      const next = prev.filter(item => item.id !== propertyId && item._id !== propertyId);
+      try {
+        localStorage.setItem('lumiere_guest_wishlist', JSON.stringify(next));
+      } catch (e) {
+        console.error(e);
+      }
+      return next;
+    });
+
+    if (token) {
+      try {
+        await fetch(`${API_BASE}/api/users/wishlist/${propertyId}`, {
+          method: 'DELETE',
+          headers: {
+            'Authorization': `Bearer ${token}`,
+            'Content-Type': 'application/json'
+          }
+        });
+      } catch (err) {
+        console.error('Wishlist remove error:', err);
       }
     }
   };
@@ -609,8 +637,15 @@ export default function App() {
         isOpen={isWishlistOpen}
         onClose={() => setIsWishlistOpen(false)}
         wishlist={wishlist}
-        onRemoveItem={(id) => setWishlist(prev => prev.filter(item => item.id !== id))}
-        onClearWishlist={() => setWishlist([])}
+        onRemoveItem={handleRemoveWishlist}
+        onClearWishlist={() => {
+          setWishlist([]);
+          try {
+            localStorage.removeItem('lumiere_guest_wishlist');
+          } catch (e) {
+            console.error(e);
+          }
+        }}
         onOpenDetail={(prop) => setActiveDetailProperty(prop)}
         onOpenCallback={(prop) => setActiveCallbackProperty(prop)}
       />
@@ -620,7 +655,7 @@ export default function App() {
         <PropertyDetailModal
           property={activeDetailProperty}
           onClose={() => setActiveDetailProperty(null)}
-          isWishlisted={wishlist.some(item => item.id === activeDetailProperty.id)}
+          isWishlisted={wishlist.some(item => (item.id === activeDetailProperty.id || item._id === activeDetailProperty.id || item.id === activeDetailProperty._id))}
           onToggleWishlist={handleToggleWishlist}
           onOpenCallback={(prop) => {
             setActiveDetailProperty(null);
@@ -690,7 +725,7 @@ export default function App() {
           setIsListModalOpen(true);
         }}
         wishlist={wishlist}
-        onRemoveWishlistItem={(id) => handleToggleWishlist({ id })}
+        onRemoveWishlistItem={handleRemoveWishlist}
         onOpenAdminPanel={() => {
           setIsDashboardOpen(false);
           setIsAdminPanelOpen(true);

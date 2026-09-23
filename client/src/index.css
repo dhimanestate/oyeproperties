@@ -150,6 +150,42 @@ html, body {
   transform: translateY(-1px);
 }
 
+/* Image & Video Skeleton Shimmer Preloader */
+@keyframes shimmerWave {
+  0% {
+    background-position: -200% 0;
+  }
+  100% {
+    background-position: 200% 0;
+  }
+}
+
+.media-preloader {
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(90deg, #f0f0f0 25%, #f8f8f8 50%, #f0f0f0 75%);
+  background-size: 200% 100%;
+  animation: shimmerWave 1.6s infinite ease-in-out;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 2;
+  transition: opacity 0.3s ease;
+}
+
+.media-preloader-spinner {
+  width: 26px;
+  height: 26px;
+  border: 2.5px solid rgba(231, 29, 43, 0.2);
+  border-top-color: var(--oye-red);
+  border-radius: 50%;
+  animation: spin 0.8s linear infinite;
+}
+
+@keyframes spin {
+  to { transform: rotate(360deg); }
+}
+
 /* WhatsApp Accent Button */
 .btn-whatsapp {
   background: #25d366;

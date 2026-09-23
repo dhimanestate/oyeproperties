@@ -29,6 +29,7 @@ import {
   PROPERTY_TYPES_CATALOGUE,
   BUILDER_FLOOR_LEVELS
 } from '../data/indiaGeographicDirectory';
+import { compressImageFiles, processVideoFileStrict } from '../utils/mediaCompressor';
 
 export default function ListPropertyModal({
   isOpen,
@@ -97,49 +98,49 @@ export default function ListPropertyModal({
       .catch(() => {});
   }, []);
 
-  const handleDevicePhotoSelect = (e) => {
+  const handleDevicePhotoSelect = async (e) => {
     const files = e.target.files;
     if (!files || files.length === 0) return;
-    const valid = Array.from(files).filter(f => f.type.startsWith('image/'));
-    if (valid.length === 0) return;
-
-    let loaded = 0;
-    const newImgs = [];
-    valid.forEach(file => {
-      const reader = new FileReader();
-      reader.onload = (ev) => {
-        newImgs.push(ev.target.result);
-        loaded++;
-        if (loaded === valid.length) {
-          setDevicePhotos(prev => {
-            const combined = [...prev, ...newImgs];
-            setFormData(f => ({ ...f, imageUrl: combined[0] }));
-            return combined;
-          });
-          setUploadNotice(`Added ${valid.length} photo(s) from device`);
-          setTimeout(() => setUploadNotice(''), 3000);
-        }
-      };
-      reader.readAsDataURL(file);
-    });
+    setUploadNotice('Compressing photos client-side for fastest loading...');
+    try {
+      const compressedImgs = await compressImageFiles(files, (curr, total) => {
+        setUploadNotice(`Optimizing photo ${curr}/${total}...`);
+      });
+      if (compressedImgs.length > 0) {
+        setDevicePhotos(prev => {
+          const combined = [...prev, ...compressedImgs];
+          setFormData(f => ({ ...f, imageUrl: combined[0] }));
+          return combined;
+        });
+        setUploadNotice(`Added ${compressedImgs.length} compressed photo(s)`);
+        setTimeout(() => setUploadNotice(''), 3000);
+      }
+    } catch (err) {
+      setUploadNotice('Failed to compress photos');
+      setTimeout(() => setUploadNotice(''), 3000);
+    }
     e.target.value = '';
   };
 
-  const handleDeviceVideoSelect = (e) => {
+  const handleDeviceVideoSelect = async (e) => {
     const file = e.target.files?.[0];
     if (!file) return;
     if (!file.type.startsWith('video/')) {
       alert('Please choose a valid video file');
       return;
     }
-    const reader = new FileReader();
-    reader.onload = (ev) => {
-      setDeviceVideo(ev.target.result);
-      setFormData(f => ({ ...f, reelVideo: ev.target.result }));
-      setUploadNotice('Video / Reel tour uploaded from device');
+    setUploadNotice('Processing video client-side...');
+    try {
+      const videoResult = await processVideoFileStrict(file, (percent) => {
+        if (percent % 25 === 0) setUploadNotice(`Reading video: ${percent}%...`);
+      });
+      setDeviceVideo(videoResult);
+      setFormData(f => ({ ...f, reelVideo: videoResult }));
+      setUploadNotice('Video / Reel tour uploaded and ready');
       setTimeout(() => setUploadNotice(''), 3000);
-    };
-    reader.readAsDataURL(file);
+    } catch {
+      alert('Error reading video file');
+    }
     e.target.value = '';
   };
 

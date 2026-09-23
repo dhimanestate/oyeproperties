@@ -18,6 +18,7 @@ import {
   PROPERTY_TYPES_CATALOGUE,
   BUILDER_FLOOR_LEVELS
 } from '../../data/indiaGeographicDirectory';
+import { compressImageFiles, processVideoFileStrict } from '../../utils/mediaCompressor';
 
 const CITIES = ALL_INDIAN_CITIES;
 const PROPERTY_TYPES = PROPERTY_TYPES_CATALOGUE;
@@ -151,39 +152,28 @@ export default function AdminPropertyEditor({ token, authHeaders, API_BASE, edit
     });
   };
 
-  const processImageFiles = (files) => {
+  const processImageFiles = async (files) => {
     if (!files || files.length === 0) return;
     setUploadingMedia(true);
-    const validFiles = Array.from(files).filter(f => f.type.startsWith('image/'));
-    if (validFiles.length === 0) {
-      showToast('Please select valid image files (JPG, PNG, WebP, etc.)');
+    showToast('Compressing photos client-side for fastest loading...');
+    try {
+      const compressedImages = await compressImageFiles(files, (curr, total) => {
+        showToast(`Optimized ${curr}/${total} photos...`);
+      });
+      if (compressedImages.length === 0) {
+        showToast('Please select valid image files (JPG, PNG, WebP, etc.)');
+      } else {
+        setForm(prev => {
+          const existing = prev.images.filter(img => img && img.trim());
+          return { ...prev, images: [...existing, ...compressedImages] };
+        });
+        showToast(`Successfully compressed & added ${compressedImages.length} photo(s)`);
+      }
+    } catch (e) {
+      showToast('Error optimizing image files');
+    } finally {
       setUploadingMedia(false);
-      return;
     }
-
-    let loadedCount = 0;
-    const newImages = [];
-
-    validFiles.forEach((file) => {
-      const reader = new FileReader();
-      reader.onload = (e) => {
-        newImages.push(e.target.result);
-        loadedCount++;
-        if (loadedCount === validFiles.length) {
-          setForm(prev => {
-            const existing = prev.images.filter(img => img && img.trim());
-            return { ...prev, images: [...existing, ...newImages] };
-          });
-          setUploadingMedia(false);
-          showToast(`Successfully added ${validFiles.length} photo(s) from device`);
-        }
-      };
-      reader.onerror = () => {
-        loadedCount++;
-        if (loadedCount === validFiles.length) setUploadingMedia(false);
-      };
-      reader.readAsDataURL(file);
-    });
   };
 
   const handleDevicePhotoChange = (e) => {
@@ -191,23 +181,24 @@ export default function AdminPropertyEditor({ token, authHeaders, API_BASE, edit
     e.target.value = '';
   };
 
-  const processVideoFile = (file) => {
+  const processVideoFile = async (file) => {
     if (!file) return;
     if (!file.type.startsWith('video/')) {
       return showToast('Please select a valid video file (MP4, WebM, MOV, etc.)');
     }
     setUploadingMedia(true);
-    const reader = new FileReader();
-    reader.onload = (e) => {
-      set('reelVideo', e.target.result);
-      setUploadingMedia(false);
-      showToast('Video / Reel successfully uploaded from device');
-    };
-    reader.onerror = () => {
-      setUploadingMedia(false);
+    showToast('Processing video client-side...');
+    try {
+      const videoResult = await processVideoFileStrict(file, (percent) => {
+        if (percent % 25 === 0) showToast(`Reading video: ${percent}%...`);
+      });
+      set('reelVideo', videoResult);
+      showToast('Video / Reel successfully uploaded and optimized');
+    } catch (err) {
       showToast('Error reading video file from device');
-    };
-    reader.readAsDataURL(file);
+    } finally {
+      setUploadingMedia(false);
+    }
   };
 
   const handleDeviceVideoChange = (e) => {
