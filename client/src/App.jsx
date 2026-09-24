@@ -82,6 +82,76 @@ export default function App() {
   const [isAISearchOpen, setIsAISearchOpen] = useState(false);
   const [activeDetailProperty, setActiveDetailProperty] = useState(null);
   const [activeCallbackProperty, setActiveCallbackProperty] = useState(null);
+  const [isExitConfirmOpen, setIsExitConfirmOpen] = useState(false);
+
+  // Step-by-step Hardware / Browser Back Button History Stack & Home Exit Guard
+  const isAnyModalOpen = Boolean(
+    activeDetailProperty || 
+    activeCallbackProperty || 
+    isListModalOpen || 
+    isFilterModalOpen || 
+    isWishlistOpen || 
+    isAISearchOpen || 
+    isAuthModalOpen || 
+    isDashboardOpen || 
+    isAdminPanelOpen || 
+    isLocationModalOpen
+  );
+
+  useEffect(() => {
+    if (isAnyModalOpen) {
+      window.history.pushState({ modalState: true }, '');
+    }
+  }, [isAnyModalOpen]);
+
+  useEffect(() => {
+    const handlePopState = () => {
+      if (isExitConfirmOpen) {
+        setIsExitConfirmOpen(false);
+        return;
+      }
+
+      if (activeDetailProperty) {
+        setActiveDetailProperty(null);
+      } else if (activeCallbackProperty) {
+        setActiveCallbackProperty(null);
+      } else if (isListModalOpen) {
+        setIsListModalOpen(false);
+      } else if (isFilterModalOpen) {
+        setIsFilterModalOpen(false);
+      } else if (isWishlistOpen) {
+        setIsWishlistOpen(false);
+      } else if (isAISearchOpen) {
+        setIsAISearchOpen(false);
+      } else if (isAuthModalOpen) {
+        setIsAuthModalOpen(false);
+      } else if (isDashboardOpen) {
+        setIsDashboardOpen(false);
+      } else if (isAdminPanelOpen) {
+        setIsAdminPanelOpen(false);
+      } else if (isLocationModalOpen) {
+        setIsLocationModalOpen(false);
+      } else {
+        setIsExitConfirmOpen(true);
+        window.history.pushState({ homeExitGuard: true }, '');
+      }
+    };
+
+    window.addEventListener('popstate', handlePopState);
+    return () => window.removeEventListener('popstate', handlePopState);
+  }, [
+    isExitConfirmOpen,
+    activeDetailProperty,
+    activeCallbackProperty,
+    isListModalOpen,
+    isFilterModalOpen,
+    isWishlistOpen,
+    isAISearchOpen,
+    isAuthModalOpen,
+    isDashboardOpen,
+    isAdminPanelOpen,
+    isLocationModalOpen
+  ]);
 
   // Sync wishlist from backend when authenticated
   useEffect(() => {
@@ -760,6 +830,94 @@ export default function App() {
           token={localStorage.getItem(TOKEN_KEY)}
           onClose={() => setIsAdminPanelOpen(false)}
         />
+      )}
+
+      {/* Home Screen Hardware / Browser Back Exit Confirmation Prompt */}
+      {isExitConfirmOpen && (
+        <div style={{
+          position: 'fixed',
+          top: 0,
+          left: 0,
+          right: 0,
+          bottom: 0,
+          background: 'rgba(15, 23, 42, 0.75)',
+          backdropFilter: 'blur(6px)',
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'center',
+          zIndex: 999999,
+          padding: '20px'
+        }}>
+          <div style={{
+            background: '#ffffff',
+            borderRadius: '16px',
+            padding: '24px 20px',
+            maxWidth: '360px',
+            width: '100%',
+            boxShadow: '0 20px 40px rgba(0,0,0,0.25)',
+            textAlign: 'center'
+          }}>
+            <div style={{
+              width: '48px',
+              height: '48px',
+              borderRadius: '50%',
+              background: '#FFF0F1',
+              color: '#E71D2B',
+              display: 'flex',
+              alignItems: 'center',
+              justify: 'center',
+              margin: '0 auto 12px',
+              fontSize: '20px',
+              fontWeight: 800
+            }}>
+              !
+            </div>
+            <h3 style={{ margin: '0 0 6px', fontSize: '18px', fontWeight: 800, color: '#0F172A' }}>
+              Exit Oye Properties?
+            </h3>
+            <p style={{ margin: '0 0 20px', fontSize: '13px', color: '#64748B', lineHeight: 1.4 }}>
+              Are you sure you want to exit the portal? You can continue browsing prime properties in Faridabad and across India.
+            </p>
+            <div style={{ display: 'flex', gap: '10px' }}>
+              <button
+                onClick={() => setIsExitConfirmOpen(false)}
+                style={{
+                  flex: 1,
+                  padding: '10px 14px',
+                  borderRadius: '8px',
+                  border: '1px solid #CBD5E1',
+                  background: '#ffffff',
+                  color: '#334155',
+                  fontWeight: 700,
+                  fontSize: '13px',
+                  cursor: 'pointer'
+                }}
+              >
+                Stay Here
+              </button>
+              <button
+                onClick={() => {
+                  setIsExitConfirmOpen(false);
+                  window.history.back();
+                }}
+                style={{
+                  flex: 1,
+                  padding: '10px 14px',
+                  borderRadius: '8px',
+                  border: 'none',
+                  background: '#E71D2B',
+                  color: '#ffffff',
+                  fontWeight: 700,
+                  fontSize: '13px',
+                  cursor: 'pointer',
+                  boxShadow: '0 4px 12px rgba(231, 29, 43, 0.25)'
+                }}
+              >
+                Exit Portal
+              </button>
+            </div>
+          </div>
+        </div>
       )}
     </div>
   );

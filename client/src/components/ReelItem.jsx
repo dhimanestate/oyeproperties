@@ -24,7 +24,8 @@ import {
   Award,
   ChevronRight,
   ChevronLeft,
-  Maximize
+  Maximize,
+  Building2
 } from 'lucide-react';
 
 export default function ReelItem({
@@ -403,7 +404,7 @@ export default function ReelItem({
                   flexShrink: 0,
                   fontSize: '15px'
                 }}>
-                  🏢
+                  <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#E71D2B" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><rect x="3" y="3" width="18" height="18" rx="2"/><path d="M9 3v18M15 3v18M3 9h18M3 15h18"/></svg>
                 </div>
                 <div>
                   <div style={{ fontSize: '10px', color: '#64748B', textTransform: 'uppercase', fontWeight: 600, letterSpacing: '0.04em' }}>Floor Level</div>
@@ -1228,7 +1229,7 @@ export default function ReelItem({
           {/* Minimal Spec Line */}
           <div style={{ display: 'flex', alignItems: 'center', gap: '6px', marginBottom: '10px', flexWrap: 'wrap' }}>
             <span style={{ fontSize: '11px', color: 'rgba(255,255,255,0.85)', fontFamily: "'Poppins', sans-serif", fontWeight: 400 }}>
-              {property.bhk ? `${property.bhk} BHK` : property.propertyType} &nbsp;·&nbsp; {property.areaSqFt ? `${property.areaSqFt.toLocaleString()} ${property.areaUnit || 'Sq. Ft.'}` : ''} &nbsp;·&nbsp; 🏢 {property.floor || 'Upper Floor'}
+              {property.bhk ? `${property.bhk} BHK` : property.propertyType} &nbsp;·&nbsp; {property.areaSqFt ? `${property.areaSqFt.toLocaleString()} ${property.areaUnit || 'Sq. Ft.'}` : ''} &nbsp;·&nbsp; {property.floor || 'Upper Floor'}
             </span>
           </div>
 

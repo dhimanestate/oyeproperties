@@ -54,6 +54,13 @@ export default function ListPropertyModal({
     third: '2.50',
     fourth_terrace: '3.15'
   });
+  const [builderFloorStatuses, setBuilderFloorStatuses] = useState({
+    ground: 'Available',
+    first: 'Available',
+    second: 'Available',
+    third: 'Available',
+    fourth_terrace: 'Available'
+  });
   const [selectedBuilderFloorLevel, setSelectedBuilderFloorLevel] = useState('first');
 
   const [formData, setFormData] = useState({
@@ -224,7 +231,7 @@ export default function ListPropertyModal({
           floorLevel: lvl.label,
           price: numPrice,
           priceFormatted: `₹${pCr.toFixed(2)} Cr`,
-          status: 'Available',
+          status: builderFloorStatuses[lvl.id] || 'Available',
           description: lvl.id === 'fourth_terrace' ? 'Includes Private Terrace Rights' : (lvl.id === 'ground' ? 'Includes Front/Rear Lawn Rights' : 'Standard Luxury Floor')
         };
       });
@@ -718,6 +725,28 @@ export default function ListPropertyModal({
                             }}
                           />
                           <span style={{ fontSize: '11px', fontWeight: 600, color: '#64748B', flexShrink: 0 }}>Cr</span>
+                        </div>
+                        <div style={{ marginTop: '4px' }}>
+                          <select
+                            value={builderFloorStatuses[lvl.id] || 'Available'}
+                            onChange={e => setBuilderFloorStatuses(prev => ({ ...prev, [lvl.id]: e.target.value }))}
+                            style={{
+                              width: '100%',
+                              padding: '4px 6px',
+                              borderRadius: '4px',
+                              border: '1px solid #CBD5E1',
+                              fontSize: '10px',
+                              fontWeight: 600,
+                              background: '#ffffff',
+                              color: builderFloorStatuses[lvl.id] === 'Available' ? '#166534' : (builderFloorStatuses[lvl.id] === 'Sold Out' || builderFloorStatuses[lvl.id] === 'Not Available' ? '#991B1B' : '#854D0E')
+                            }}
+                          >
+                            <option value="Available">Available</option>
+                            <option value="Sold Out">Sold Out</option>
+                            <option value="Not Available">Not Available</option>
+                            <option value="Booked">Booked</option>
+                            <option value="Reserved / Hold">Reserved / Hold</option>
+                          </select>
                         </div>
                       </div>
                     ))}

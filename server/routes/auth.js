@@ -382,10 +382,10 @@ router.get('/me', requireAuth, (req, res) => {
 // Complete server-side logout & session clear
 router.post('/logout', (req, res) => {
   try {
-    if (typeof req.logout === 'function') {
+    if (typeof req.logout === 'function' && req.session) {
       req.logout(() => {});
     }
-    if (req.session) {
+    if (req.session && typeof req.session.destroy === 'function') {
       req.session.destroy(() => {});
     }
     res.clearCookie('connect.sid', { path: '/' });

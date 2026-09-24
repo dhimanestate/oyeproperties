@@ -314,7 +314,7 @@ export default function CompareDrawer({
                 </div>
                 {comparedProperties.map(p => (
                   <div key={p.id} style={{ fontSize: isMobile ? '11.5px' : '13px', fontWeight: 700, color: 'var(--text-primary)', borderTop: '1px solid var(--border-subtle)', paddingTop: '10px' }}>
-                    🏢 {p.floor || 'Standard Level'}
+                    {p.floor || 'Standard Level'}
                   </div>
                 ))}
 

@@ -14,7 +14,10 @@ import {
   Zap,
   Maximize2,
   ChevronLeft,
-  ChevronRight
+  ChevronRight,
+  Building2,
+  Phone,
+  Star
 } from 'lucide-react';
 
 export default function PropertyDetailModal({
@@ -485,7 +488,7 @@ export default function PropertyDetailModal({
                         cursor: 'pointer'
                       }}
                     >
-                      📍 {room}
+                      <MapPin size={10} style={{ display: 'inline', marginRight: '3px' }} /> {room}
                     </button>
                   ))}
                 </div>
@@ -667,8 +670,8 @@ export default function PropertyDetailModal({
                     {property.bhk} BHK Luxury
                   </span>
                 )}
-                <span style={{ fontSize: '12px', color: 'var(--text-muted)' }}>
-                  📍 {property.location.city}
+                <span style={{ fontSize: '12px', color: 'var(--text-muted)', display: 'inline-flex', alignItems: 'center', gap: '3px' }}>
+                  <MapPin size={11} color="#E71D2B" /> {property.location.city}
                 </span>
               </div>
 
@@ -713,7 +716,7 @@ export default function PropertyDetailModal({
             }}>
               <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '10px' }}>
                 <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-                  <span style={{ fontSize: '16px' }}>🏢</span>
+                  <Building2 size={18} color="#991B1B" />
                   <div>
                     <h4 style={{ margin: 0, fontSize: isMobile ? '13px' : '14px', fontWeight: 800, color: '#991B1B' }}>
                       Floor-Wise Pricing & Availability
@@ -911,17 +914,20 @@ export default function PropertyDetailModal({
                     color: '#3730a3',
                     padding: '1px 5px',
                     borderRadius: '4px',
-                    fontWeight: 700
+                    fontWeight: 700,
+                    display: 'inline-flex',
+                    alignItems: 'center',
+                    gap: '2px'
                   }}>
-                    ★ {property.relationshipManager?.rating || '5.0'}
+                    <Star size={9} fill="#3730a3" color="#3730a3" /> {property.relationshipManager?.rating || '5.0'}
                   </span>
                 </div>
                 <div style={{ fontSize: '11px', color: 'var(--text-muted)' }}>
                   {property.contactDetails?.role || property.relationshipManager?.role || 'Direct Property Owner'}
                 </div>
                 {(property.contactDetails?.phone || property.relationshipManager?.phone) && (
-                  <div style={{ fontSize: '11px', color: 'var(--accent-primary)', fontWeight: 600, marginTop: '2px' }}>
-                    📞 {property.contactDetails?.phone || property.relationshipManager?.phone}
+                  <div style={{ fontSize: '11px', color: 'var(--accent-primary)', fontWeight: 600, marginTop: '2px', display: 'flex', alignItems: 'center', gap: '4px' }}>
+                    <Phone size={11} color="var(--accent-primary)" /> {property.contactDetails?.phone || property.relationshipManager?.phone}
                   </div>
                 )}
               </div>

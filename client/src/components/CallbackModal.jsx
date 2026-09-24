@@ -40,9 +40,9 @@ export default function CallbackModal({
   const [errorMsg, setErrorMsg] = useState('');
 
   const TIME_SLOTS = [
-    { id: 'instant', label: '⚡ Instant Callback', detail: 'Within next 5 minutes' },
-    { id: 'evening', label: '🌇 Today Evening', detail: '5:00 PM – 8:00 PM' },
-    { id: 'tomorrow', label: '☀️ Tomorrow Morning', detail: '10:00 AM – 1:00 PM' }
+    { id: 'instant', label: 'Instant Callback', detail: 'Within next 5 minutes' },
+    { id: 'evening', label: 'Today Evening', detail: '5:00 PM – 8:00 PM' },
+    { id: 'tomorrow', label: 'Tomorrow Morning', detail: '10:00 AM – 1:00 PM' }
   ];
 
   const handleSubmit = async (e) => {

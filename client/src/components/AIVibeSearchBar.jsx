@@ -210,7 +210,7 @@ export default function AIVibeSearchBar({
                   e.currentTarget.style.background = 'var(--bg-secondary)';
                 }}
               >
-                ✨ {ex}
+                {ex}
               </button>
             ))}
           </div>

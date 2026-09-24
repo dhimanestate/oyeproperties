@@ -12,7 +12,10 @@ import {
   CheckCircle2,
   MessageCircle,
   Share2,
-  Compass
+  Compass,
+  Building2,
+  Camera,
+  Calendar
 } from 'lucide-react';
 
 export default function PropertyCard({
@@ -233,9 +236,12 @@ export default function PropertyCard({
                 borderRadius: '999px',
                 fontSize: '10px',
                 fontWeight: 600,
-                backdropFilter: 'blur(4px)'
+                backdropFilter: 'blur(4px)',
+                display: 'inline-flex',
+                alignItems: 'center',
+                gap: '4px'
               }}>
-                📷 {property.images.length} Photos
+                <Camera size={10} /> {property.images.length} Photos
               </span>
             )}
             <div style={{
@@ -322,7 +328,7 @@ export default function PropertyCard({
           </div>
 
           <div style={{ display: 'flex', alignItems: 'center', gap: '5px', fontSize: '11px', color: 'var(--text-secondary)' }}>
-            <span style={{ fontSize: '13px' }}>🏢</span>
+            <Building2 size={13} color="var(--accent-primary)" />
             <span style={{ fontWeight: 600, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }} title={property.floor || 'Floor Level'}>
               {property.floor || 'Upper Level'}
             </span>
@@ -368,7 +374,7 @@ export default function PropertyCard({
               alignItems: 'center',
               gap: '4px'
             }}>
-              🏢 {property.floorPricing.length} Floors Available
+              <Building2 size={11} /> {property.floorPricing.length} Floors Available
             </span>
           )}
 
@@ -402,9 +408,13 @@ export default function PropertyCard({
               borderRadius: '9999px',
               fontSize: '10.5px',
               fontWeight: 500,
-              fontFamily: "'Poppins', sans-serif"
+              fontFamily: "'Poppins', sans-serif",
+              display: 'inline-flex',
+              alignItems: 'center',
+              gap: '4px'
             }}>
-              🔑 {property.possession}
+              <Calendar size={11} />
+              {property.possession}
             </span>
           )}
         </div>

@@ -323,7 +323,7 @@ export default function AdminPropertyQueue({ token, authHeaders, API_BASE, onRef
                     </td>
                     <td>
                       <div><strong>{prop.areaSqFt ? `${prop.areaSqFt.toLocaleString()} ${prop.areaUnit || 'Sq. Ft.'}` : '—'}</strong></div>
-                      <div className="admin-meta-sub">🏢 {prop.floor || 'Standard Floor'}</div>
+                      <div className="admin-meta-sub">{prop.floor || 'Standard Floor'}</div>
                     </td>
                     <td>
                       <div><strong style={{ color: 'var(--accent-primary)' }}>{prop.priceFormatted || '₹—'}</strong></div>
@@ -354,7 +354,7 @@ export default function AdminPropertyQueue({ token, authHeaders, API_BASE, onRef
                         {prop.isOyeListing && <span className="admin-flag oye">Oye Verified</span>}
                         {prop.showInInstants !== false && (
                           <span className="admin-flag" style={{ background: '#FFF0F1', color: '#E71D2B', border: '1px solid #FECDD3' }}>
-                            ⚡ In Instants
+                            In Instants
                           </span>
                         )}
                         {prop.topPick && <span className="admin-flag top">Top Pick</span>}

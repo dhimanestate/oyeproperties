@@ -494,7 +494,7 @@ export default function AdminPropertyEditor({ token, authHeaders, API_BASE, edit
               <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '12px' }}>
                 <div>
                   <h4 style={{ margin: 0, fontSize: '15px', fontWeight: 800, color: '#0F172A' }}>
-                    🏢 Builder Floor: Floor-Wise Pricing & Inventory
+                    Builder Floor: Floor-Wise Pricing & Inventory
                   </h4>
                   <p style={{ margin: '2px 0 0', fontSize: '12px', color: '#64748B' }}>
                     Set customized asking price and availability for each floor level
@@ -524,7 +524,7 @@ export default function AdminPropertyEditor({ token, authHeaders, API_BASE, edit
                     cursor: 'pointer'
                   }}
                 >
-                  ⚡ Populate All 5 Standard Floors
+                  Populate All 5 Standard Floors
                 </button>
               </div>
 
@@ -600,8 +600,10 @@ export default function AdminPropertyEditor({ token, authHeaders, API_BASE, edit
                           }}
                         >
                           <option value="Available">Available</option>
-                          <option value="Booked">Booked</option>
                           <option value="Sold Out">Sold Out</option>
+                          <option value="Not Available">Not Available</option>
+                          <option value="Booked">Booked</option>
+                          <option value="Reserved / Hold">Reserved / Hold</option>
                         </select>
                       </div>
                       <button
@@ -982,7 +984,7 @@ export default function AdminPropertyEditor({ token, authHeaders, API_BASE, edit
                 <input type="checkbox" checked={form.showInInstants} onChange={e => set('showInInstants', e.target.checked)} />
                 <span className="admin-toggle-switch" />
                 <span style={{ fontWeight: 700, color: form.showInInstants ? '#E71D2B' : 'inherit', display: 'flex', alignItems: 'center', gap: '4px' }}>
-                  ⚡ Show on Instants (Reels)
+                  Show on Instants (Reels)
                 </span>
               </label>
               <label className="admin-toggle-label">
