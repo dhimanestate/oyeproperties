@@ -10,6 +10,7 @@ import {
   CheckIcon
 } from './AdminIcons';
 import { ALL_INDIAN_CITIES } from '../../data/indiaGeographicDirectory';
+import { getMediaUrl } from '../../config';
 
 const CITIES = ALL_INDIAN_CITIES;
 
@@ -177,7 +178,17 @@ export default function AdminAreaPromotion({ token, authHeaders, API_BASE }) {
                       .map(prop => (
                         <div key={prop._id} className="admin-promo-card pinned">
                           {prop.images?.[0] ? (
-                            <img src={prop.images[0]} alt="" className="admin-promo-img" />
+                            <img
+                              src={getMediaUrl(prop.images[0])}
+                              alt=""
+                              className="admin-promo-img"
+                              onError={e => {
+                                if (!e.target.dataset.fallback) {
+                                  e.target.dataset.fallback = 'true';
+                                  e.target.src = 'https://images.unsplash.com/photo-1600585154340-be6161a56a0c?auto=format&fit=crop&w=400&q=80';
+                                }
+                              }}
+                            />
                           ) : (
                             <div className="admin-prop-thumb-placeholder">No Image</div>
                           )}
@@ -217,7 +228,17 @@ export default function AdminAreaPromotion({ token, authHeaders, API_BASE }) {
                   {cityUnpinnedList.map(prop => (
                     <div key={prop._id} className="admin-promo-card">
                       {prop.images?.[0] ? (
-                        <img src={prop.images[0]} alt="" className="admin-promo-img" />
+                        <img
+                          src={getMediaUrl(prop.images[0])}
+                          alt=""
+                          className="admin-promo-img"
+                          onError={e => {
+                            if (!e.target.dataset.fallback) {
+                              e.target.dataset.fallback = 'true';
+                              e.target.src = 'https://images.unsplash.com/photo-1600585154340-be6161a56a0c?auto=format&fit=crop&w=400&q=80';
+                            }
+                          }}
+                        />
                       ) : (
                         <div className="admin-prop-thumb-placeholder">No Image</div>
                       )}
@@ -299,7 +320,17 @@ export default function AdminAreaPromotion({ token, authHeaders, API_BASE }) {
             {topPicksData.map(prop => (
               <div key={prop._id} className="admin-promo-card pinned">
                 {prop.images?.[0] ? (
-                  <img src={prop.images[0]} alt="" className="admin-promo-img" />
+                  <img
+                    src={getMediaUrl(prop.images[0])}
+                    alt=""
+                    className="admin-promo-img"
+                    onError={e => {
+                      if (!e.target.dataset.fallback) {
+                        e.target.dataset.fallback = 'true';
+                        e.target.src = 'https://images.unsplash.com/photo-1600585154340-be6161a56a0c?auto=format&fit=crop&w=400&q=80';
+                      }
+                    }}
+                  />
                 ) : (
                   <div className="admin-prop-thumb-placeholder">No Image</div>
                 )}

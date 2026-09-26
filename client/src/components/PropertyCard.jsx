@@ -85,7 +85,13 @@ export default function PropertyCard({
           alt={property.title}
           loading="lazy"
           onLoad={() => setImageLoaded(true)}
-          onError={() => setImageLoaded(true)}
+          onError={(e) => {
+            setImageLoaded(true);
+            if (!e.target.dataset.fallback) {
+              e.target.dataset.fallback = 'true';
+              e.target.src = 'https://images.unsplash.com/photo-1600585154340-be6161a56a0c?auto=format&fit=crop&w=1200&q=80';
+            }
+          }}
           style={{
             width: '100%',
             height: '100%',

@@ -5,7 +5,7 @@ import {
   CheckCircle2, Clock, Phone, Building2, Trash2,
   Edit3, Camera, Shield,
 } from 'lucide-react';
-import { API_BASE } from '../config';
+import { API_BASE, getMediaUrl } from '../config';
 
 const TOKEN_KEY = 'oye_auth_token';
 
@@ -542,10 +542,15 @@ function PropertyCard({ prop, onOpenDetail, onOpenCallback, onRemove, showRemove
       alignItems: 'center',
     }}>
       <img
-        src={prop.images?.[0]}
+        src={getMediaUrl(prop.images?.[0])}
         alt={prop.title}
         style={{ width: '64px', height: '64px', borderRadius: '10px', objectFit: 'cover', flexShrink: 0 }}
-        onError={e => { e.target.src = 'https://images.unsplash.com/photo-1600596542815-ffad4c1539a9?auto=format&fit=crop&w=300&q=80'; }}
+        onError={e => {
+          if (!e.target.dataset.fallback) {
+            e.target.dataset.fallback = 'true';
+            e.target.src = 'https://images.unsplash.com/photo-1600596542815-ffad4c1539a9?auto=format&fit=crop&w=300&q=80';
+          }
+        }}
       />
       <div style={{ flex: 1, minWidth: 0 }}>
         <div style={{ fontSize: '13px', fontWeight: 700, color: 'var(--text-primary)', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{prop.title}</div>

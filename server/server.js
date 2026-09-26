@@ -77,6 +77,16 @@ app.use('/uploads', express.static(path.join(__dirname, 'public', 'uploads'), {
   maxAge: '7d',
   immutable: true
 }));
+
+// Fallback for missing uploads (e.g. ephemeral server restarts on Render / Cloud):
+app.use('/uploads', (req, res) => {
+  const ext = path.extname(req.path).toLowerCase();
+  if (['.mp4', '.webm', '.mov'].includes(ext)) {
+    return res.redirect(302, 'https://assets.mixkit.co/videos/preview/mixkit-modern-luxury-house-exterior-at-night-42998-large.mp4');
+  }
+  return res.redirect(302, 'https://images.unsplash.com/photo-1600585154340-be6161a56a0c?auto=format&fit=crop&w=1200&q=80');
+});
+
 app.use(morgan('dev', { skip: req => req.path === '/api/ping' }));
 
 // ─── Sessions (for Passport) ─────────────────────────────────────────────────

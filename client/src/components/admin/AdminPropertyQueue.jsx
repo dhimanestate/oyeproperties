@@ -9,8 +9,9 @@ import {
   TrashIcon,
   EyeIcon,
   ShieldIcon,
-  ZapIcon
+  ZapIcon,
 } from './AdminIcons';
+import { getMediaUrl } from '../../config';
 
 export default function AdminPropertyQueue({ token, authHeaders, API_BASE, onRefresh, onEditProperty, mode = 'pending' }) {
   const [properties, setProperties] = useState([]);
@@ -289,7 +290,17 @@ export default function AdminPropertyQueue({ token, authHeaders, API_BASE, onRef
                       <div className="admin-prop-cell" onClick={() => setPreviewProp(prop)}>
                         {prop.images?.[0] ? (
                           <div style={{ position: 'relative' }}>
-                            <img src={prop.images[0]} alt="" className="admin-prop-thumb" />
+                            <img
+                              src={getMediaUrl(prop.images[0])}
+                              alt=""
+                              className="admin-prop-thumb"
+                              onError={e => {
+                                if (!e.target.dataset.fallback) {
+                                  e.target.dataset.fallback = 'true';
+                                  e.target.src = 'https://images.unsplash.com/photo-1600585154340-be6161a56a0c?auto=format&fit=crop&w=200&q=80';
+                                }
+                              }}
+                            />
                             {prop.images.length > 1 && (
                               <span style={{
                                 position: 'absolute',
@@ -531,7 +542,19 @@ export default function AdminPropertyQueue({ token, authHeaders, API_BASE, onRef
             {/* Photos Showcase */}
             <div className="admin-preview-images" style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(140px, 1fr))', gap: '8px', marginBottom: '16px' }}>
               {previewProp.images?.slice(0, 4).map((img, i) => (
-                <img key={i} src={img} alt="" className="admin-preview-img" style={{ height: '110px', width: '100%', objectFit: 'cover', borderRadius: '8px' }} />
+                <img
+                  key={i}
+                  src={getMediaUrl(img)}
+                  alt=""
+                  className="admin-preview-img"
+                  onError={e => {
+                    if (!e.target.dataset.fallback) {
+                      e.target.dataset.fallback = 'true';
+                      e.target.src = 'https://images.unsplash.com/photo-1600585154340-be6161a56a0c?auto=format&fit=crop&w=400&q=80';
+                    }
+                  }}
+                  style={{ height: '110px', width: '100%', objectFit: 'cover', borderRadius: '8px' }}
+                />
               ))}
             </div>
 

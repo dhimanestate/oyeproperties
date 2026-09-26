@@ -339,7 +339,13 @@ export default function PropertyDetailModal({
                   alt={property.title}
                   loading="eager"
                   onLoad={() => setModalImageLoaded(true)}
-                  onError={() => setModalImageLoaded(true)}
+                  onError={(e) => {
+                    setModalImageLoaded(true);
+                    if (!e.target.dataset.fallback) {
+                      e.target.dataset.fallback = 'true';
+                      e.target.src = 'https://images.unsplash.com/photo-1600585154340-be6161a56a0c?auto=format&fit=crop&w=1200&q=80';
+                    }
+                  }}
                   style={{
                     width: '100%',
                     height: '100%',
@@ -393,6 +399,12 @@ export default function PropertyDetailModal({
                     key={i}
                     src={getMediaUrl(img)}
                     alt="Thumbnail"
+                    onError={(e) => {
+                      if (!e.target.dataset.fallback) {
+                        e.target.dataset.fallback = 'true';
+                        e.target.src = 'https://images.unsplash.com/photo-1600585154340-be6161a56a0c?auto=format&fit=crop&w=300&q=80';
+                      }
+                    }}
                     onClick={() => {
                       setSelectedPhotoIndex(i);
                       setModalImageLoaded(false);
@@ -431,6 +443,12 @@ export default function PropertyDetailModal({
                 <img
                   src={getMediaUrl(property.virtualTour360?.preview || property.images?.[0])}
                   alt="360 preview"
+                  onError={(e) => {
+                    if (!e.target.dataset.fallback) {
+                      e.target.dataset.fallback = 'true';
+                      e.target.src = 'https://images.unsplash.com/photo-1600585154340-be6161a56a0c?auto=format&fit=crop&w=1200&q=80';
+                    }
+                  }}
                   style={{
                     width: '100%',
                     height: '100%',
@@ -1084,6 +1102,12 @@ export default function PropertyDetailModal({
             <img
               src={getMediaUrl(property.images?.[selectedPhotoIndex] || property.images?.[0])}
               alt={property.title}
+              onError={(e) => {
+                if (!e.target.dataset.fallback) {
+                  e.target.dataset.fallback = 'true';
+                  e.target.src = 'https://images.unsplash.com/photo-1600585154340-be6161a56a0c?auto=format&fit=crop&w=1200&q=80';
+                }
+              }}
               style={{
                 maxWidth: '92vw',
                 maxHeight: '84vh',
@@ -1150,6 +1174,12 @@ export default function PropertyDetailModal({
                   key={i}
                   src={getMediaUrl(img)}
                   alt={`Thumbnail ${i}`}
+                  onError={(e) => {
+                    if (!e.target.dataset.fallback) {
+                      e.target.dataset.fallback = 'true';
+                      e.target.src = 'https://images.unsplash.com/photo-1600585154340-be6161a56a0c?auto=format&fit=crop&w=300&q=80';
+                    }
+                  }}
                   onClick={() => setSelectedPhotoIndex(i)}
                   style={{
                     width: '48px',
